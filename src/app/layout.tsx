@@ -4,7 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Road Track | Udupi Tourism Platform",
   description:
-    "Road Track helps tourists plan Udupi trips with verified resorts, tourist vehicles, packages, WhatsApp enquiries, and emergency support.",
+    "Road Track helps tourists plan Udupi trips with verified destinations, resorts, tourist vehicles, packages, and WhatsApp enquiries.",
 };
 
 export default function RootLayout({
@@ -13,7 +13,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" data-scroll-behavior="smooth">
       <body>{children}</body>
     </html>
   );

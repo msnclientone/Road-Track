@@ -1,14 +1,9 @@
-import Link from "next/link";
-import type { ReactNode } from "react";
 import {
   BarChart3,
-  BellRing,
-  Building2,
   Download,
   Plus,
   Send,
   ShieldCheck,
-  Truck,
 } from "lucide-react";
 
 import { MetricCard, StatusBadge } from "@/components/DashboardBits";
@@ -19,7 +14,6 @@ import { buildWhatsAppUrl, formatCurrency } from "@/lib/utils";
 const approvals = [
   { name: "Beach Nest Homestay", type: "Resort", owner: "Sharath", status: "Review" },
   { name: "Coastal Riders Fleet", type: "Vehicle", owner: "Naveen", status: "KYC pending" },
-  { name: "Agumbe Trail Guide", type: "Guide", owner: "Rohit", status: "Review" },
 ];
 
 export default function AdminPage() {
@@ -188,23 +182,17 @@ export default function AdminPage() {
         </div>
 
         <div className="mt-10 grid gap-6 lg:grid-cols-3">
-          <PanelLink
-            href="/partner/resort"
-            icon={<Building2 className="h-6 w-6" />}
-            title="Resort partners"
-            text={`${resorts.length} listings with room availability, amenities, photos, and owner contact.`}
+          <AdminControl
+            title="Lead status workflow"
+            text="New enquiries move through contacted, confirmed, or cancelled after Road Track verifies the customer requirement."
           />
-          <PanelLink
-            href="/partner/vehicle"
-            icon={<Truck className="h-6 w-6" />}
-            title="Vehicle partners"
-            text={`${vehicles.length} vehicles with drivers, rates, package types, and availability status.`}
+          <AdminControl
+            title="Manual partner assignment"
+            text={`${resorts.length} resorts and ${vehicles.length} vehicles are available as the current demo partner pool.`}
           />
-          <PanelLink
-            href="/login"
-            icon={<BellRing className="h-6 w-6" />}
-            title="Email OTP login"
-            text="Customer login flow with resend timing, first-time profile setup, and privacy acceptance."
+          <AdminControl
+            title="Audit-ready operations"
+            text="Production mutations should write AuditLog rows and re-check role permissions on every server action."
           />
         </div>
       </section>
@@ -212,25 +200,20 @@ export default function AdminPage() {
   );
 }
 
-function PanelLink({
-  href,
-  icon,
+function AdminControl({
   title,
   text,
 }: {
-  href: string;
-  icon: ReactNode;
   title: string;
   text: string;
 }) {
   return (
-    <Link
-      href={href}
-      className="rounded-lg border border-ink/10 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
-    >
-      <div className="text-coral">{icon}</div>
+    <article className="rounded-lg border border-ink/10 bg-white p-6 shadow-sm">
+      <div className="text-coral">
+        <ShieldCheck className="h-6 w-6" />
+      </div>
       <h3 className="mt-4 text-2xl font-black">{title}</h3>
       <p className="mt-2 text-sm leading-6 text-stone">{text}</p>
-    </Link>
+    </article>
   );
 }

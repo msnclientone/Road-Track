@@ -8,19 +8,17 @@ import {
   CarFront,
   CheckCircle2,
   Compass,
-  Hospital,
   MapPin,
   MessageCircle,
-  PhoneCall,
   ShieldCheck,
   Star,
 } from "lucide-react";
 
 import { EnquiryPlanner } from "@/components/EnquiryPlanner";
+import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import {
   destinations,
-  emergencyPhone,
   heroImage,
   resorts,
   reviews,
@@ -30,12 +28,12 @@ import {
 import { buildWhatsAppUrl, formatCurrency } from "@/lib/utils";
 
 const platformFeatures = [
-  "Verified resorts and vehicle operators",
-  "Lead assignment controlled by Road Track",
-  "WhatsApp-first customer communication",
-  "Partner dashboards for availability updates",
-  "Emergency assistance for tourists",
-  "PostgreSQL-ready data model",
+  "Server-rendered destination pages",
+  "Verified resort and vehicle listings",
+  "Zod-validated enquiry capture",
+  "WhatsApp opens only after lead save",
+  "Admin-controlled lead assignment",
+  "PostgreSQL and Prisma data foundation",
 ];
 
 const roadmap = [
@@ -57,7 +55,7 @@ const roadmap = [
   {
     phase: "Phase 4",
     title: "Tourism Platform",
-    text: "Guide marketplace, travel blog, weather, nearby attractions, and emergency network.",
+    text: "Travel blog, weather, nearby attractions, live availability, and emergency network.",
   },
 ];
 
@@ -102,7 +100,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="mt-10 grid gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-end">
+          <div className="mt-10 grid gap-6 lg:grid-cols-[1.2fr_0.6fr] lg:items-end">
             <div className="max-w-xl">
               <p className="text-2xl font-black leading-tight">
                 Plan beaches, temples, rainforests, vehicles, resorts, and
@@ -130,7 +128,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div id="planner">
+            <div id="planner" className="flex justify-center lg:justify-end">
               <EnquiryPlanner />
             </div>
           </div>
@@ -357,7 +355,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-white py-20">
+      <section id="packages" className="bg-white py-20">
         <div className="mx-auto max-w-none px-5 sm:px-8 lg:px-10 2xl:px-12">
           <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
             <div>
@@ -369,8 +367,9 @@ export default function Home() {
               </h2>
               <p className="mt-5 text-lg leading-8 text-stone">
                 Packages combine pickup, resort, vehicle, sightseeing, and drop.
-                The planner above generates the first estimate while Road Track
-                keeps partner assignment and final confirmation under control.
+                The planner above captures the trip requirement while Road Track
+                keeps pricing, partner assignment, and final confirmation under
+                control.
               </p>
             </div>
 
@@ -452,45 +451,6 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-coral py-12 text-ink">
-        <div className="mx-auto grid max-w-none gap-4 px-5 sm:px-8 md:grid-cols-4 lg:px-10 2xl:px-12">
-          <a
-            href={`tel:${emergencyPhone.replace(/\s/g, "")}`}
-            className="inline-flex h-14 items-center justify-center gap-2 rounded-md bg-ink px-4 font-black text-white transition hover:bg-stone"
-          >
-            <PhoneCall className="h-5 w-5" />
-            Call Road Track
-          </a>
-          <a
-            href={buildWhatsAppUrl("Emergency help needed near Udupi.")}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex h-14 items-center justify-center gap-2 rounded-md bg-white px-4 font-black transition hover:bg-ivory"
-          >
-            <MessageCircle className="h-5 w-5" />
-            WhatsApp help
-          </a>
-          <a
-            href="https://www.google.com/maps/search/hospital+near+Udupi"
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex h-14 items-center justify-center gap-2 rounded-md bg-white px-4 font-black transition hover:bg-ivory"
-          >
-            <Hospital className="h-5 w-5" />
-            Nearby hospital
-          </a>
-          <a
-            href="https://www.google.com/maps/search/police+station+near+Udupi"
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex h-14 items-center justify-center gap-2 rounded-md bg-white px-4 font-black transition hover:bg-ivory"
-          >
-            <ShieldCheck className="h-5 w-5" />
-            Nearby police
-          </a>
-        </div>
-      </section>
-
       <section className="mx-auto max-w-none px-5 py-20 sm:px-8 lg:px-10 2xl:px-12">
         <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
           <div>
@@ -535,27 +495,7 @@ export default function Home() {
         </div>
       </section>
 
-      <footer className="bg-ink px-4 py-10 text-ivory sm:px-6 lg:px-8">
-        <div className="mx-auto flex max-w-none flex-col justify-between gap-6 md:flex-row md:items-center">
-          <div>
-            <p className="font-serif text-3xl font-black">Road Track</p>
-            <p className="mt-2 text-sm text-white/60">
-              Udupi tourism planning, partner leads, and local travel support.
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            <Link href="/privacy" className="font-bold text-white/70 hover:text-coral">
-              Privacy
-            </Link>
-            <Link href="/admin" className="font-bold text-white/70 hover:text-coral">
-              Admin dashboard
-            </Link>
-            <Link href="/login" className="font-bold text-white/70 hover:text-coral">
-              Email OTP login
-            </Link>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </main>
   );
 }

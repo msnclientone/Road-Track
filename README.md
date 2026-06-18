@@ -1,19 +1,28 @@
 # Road Track
 
-Road Track is a Next.js tourism platform MVP for the Udupi region. It connects tourists with verified destinations, resorts, tourist vehicles, tour packages, WhatsApp enquiries, emergency support, and partner dashboards.
+Road Track is a Next.js tourism marketplace MVP for the Udupi region. It connects tourists with verified destinations, resorts, tourist vehicles, tour packages, and a Road Track-managed enquiry workflow.
 
-## Built Features
+The implementation is now organized around the production build brief in `road-track-build-prompt.md.pdf`: ship Phase 1 first, keep the full database schema ready, and avoid later-phase UI until its milestone begins.
 
-- Premium customer homepage inspired by the provided full-bleed travel template.
+## Phase 1 Features
+
+- Premium customer homepage for destination, resort, vehicle, and package discovery.
 - Destination pages for Udupi, Malpe Beach, Kapu Beach, and Agumbe.
-- Dynamic quote planner with people, days, vehicle, resort category, and guide option.
-- WhatsApp pre-filled enquiry messages.
-- Enquiry API route with validation.
-- Super Admin dashboard for leads, approvals, commission, partner inventory, and broadcasts.
-- Resort owner dashboard for rooms, prices, sold-out status, amenities, media, and enquiries.
-- Vehicle owner dashboard for availability, driver details, rates, package routes, photos, and enquiries.
+- Dynamic quote planner with people, days, vehicle, and resort category.
+- Zod-validated enquiry API route designed to persist before WhatsApp opens.
+- WhatsApp click-to-chat messages using the required Phase 1 template.
+- Super Admin dashboard concept for leads, status review, assignment, commission visibility, and broadcasts.
 - Email OTP login UI with expiry, resend delay, attempt warning, edit email, and first-time profile setup.
-- Privacy page and PostgreSQL-ready Prisma schema.
+- Privacy, Terms, sitemap, robots, and PostgreSQL-ready Prisma schema.
+
+## Feature Gates
+
+- Phase 1: public browsing, enquiry persistence, WhatsApp handoff, OTP auth foundation, admin lead review.
+- Phase 2: resort-owner and vehicle-owner dashboards after role protection and owner-only mutations are implemented.
+- Phase 3: commission automation, bookings, reviews, notifications, and Twilio WhatsApp Business API.
+- Phase 4: blog, weather, nearby attractions, and emergency assistance.
+
+Guide options and guide-facing website functionality are intentionally excluded from the current website scope.
 
 ## Recommended Database
 
@@ -48,6 +57,7 @@ Neon Postgres is also a strong option if you want a serverless Postgres database
 
 ```bash
 npm.cmd install
+npx.cmd prisma generate
 npm.cmd run dev
 ```
 
@@ -56,22 +66,16 @@ Open `http://localhost:3000`.
 ## Production Wiring Checklist
 
 - Copy `.env.example` to `.env.local`.
-- Create a PostgreSQL database and set `DATABASE_URL` and `DIRECT_URL`.
-- Install Prisma when persistence is ready:
+- Create a PostgreSQL database and set `DATABASE_URL`.
+- Run the initial full-schema migration:
 
 ```bash
-npm.cmd install @prisma/client
-npm.cmd install -D prisma dotenv
 npx.cmd prisma migrate dev --name init
 ```
 
 - Replace the mock seed data in `src/lib/data.ts` with database queries.
-- Store submitted enquiries from `/api/enquiries` in the `Lead` table.
+- Store submitted enquiries from `/api/enquiries` in the `Enquiry` table.
 - Hash OTPs before saving them in `OtpToken`.
 - Add rate limiting for OTP and enquiry endpoints.
 - Move media uploads to Supabase Storage or S3.
 - Use HTTPS in production through hosting or Cloudflare.
-
-## Notes
-
-The current MVP is safe to run as a polished demo and client presentation. Before accepting real bookings, connect the database, SMTP, rate limiting, and payment or commission settlement workflow.

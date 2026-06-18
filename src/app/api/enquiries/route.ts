@@ -1,29 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { leads } from "@/lib/data";
-
-type EnquiryPayload = {
-  name?: unknown;
-  phone?: unknown;
-  destination?: unknown;
-  date?: unknown;
-  people?: unknown;
-  vehicle?: unknown;
-  hotel?: unknown;
-  quote?: unknown;
-};
-
-const phonePattern = /^\+?[0-9\s-]{8,18}$/;
+import { prisma } from "@/lib/prisma";
+import { enquirySchema } from "@/lib/validation";
 
 export async function GET() {
   return NextResponse.json({ leads });
 }
 
 export async function POST(request: NextRequest) {
-  let payload: EnquiryPayload;
+  let payload: unknown;
 
   try {
-    payload = (await request.json()) as EnquiryPayload;
+    payload = await request.json();
   } catch {
     return NextResponse.json(
       { error: "Invalid JSON payload." },
@@ -31,64 +20,67 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const name = readString(payload.name);
-  const phone = readString(payload.phone);
-  const destination = readString(payload.destination);
-  const vehicle = readString(payload.vehicle);
-  const hotel = readString(payload.hotel);
-  const date = readString(payload.date) || "Flexible";
-  const people = Number(payload.people);
-  const quote = Number(payload.quote);
+  const result = enquirySchema.safeParse(payload);
 
-  if (!name || name.length < 2) {
+  if (!result.success) {
     return NextResponse.json(
-      { error: "Name must contain at least two characters." },
+      { error: result.error.issues[0]?.message ?? "Invalid enquiry details." },
       { status: 422 },
     );
   }
 
-  if (!phone || !phonePattern.test(phone)) {
-    return NextResponse.json(
-      { error: "Enter a valid phone number with country code." },
-      { status: 422 },
-    );
-  }
+  const data = result.data;
+  const travelDate = data.date ? new Date(data.date) : null;
+  const validTravelDate =
+    travelDate && Number.isNaN(travelDate.getTime()) ? null : travelDate;
 
-  if (!destination || !vehicle || !hotel) {
-    return NextResponse.json(
-      { error: "Destination, vehicle, and hotel are required." },
-      { status: 422 },
-    );
-  }
+  try {
+    const destination = data.destinationSlug
+      ? await prisma.destination.findUnique({
+          where: { slug: data.destinationSlug },
+          select: { id: true },
+        })
+      : null;
 
-  if (!Number.isFinite(people) || people < 1 || people > 100) {
-    return NextResponse.json(
-      { error: "People count must be between 1 and 100." },
-      { status: 422 },
-    );
-  }
-
-  const leadId = `LD-${Date.now().toString().slice(-6)}`;
-
-  return NextResponse.json(
-    {
-      leadId,
-      status: "New",
-      received: {
-        name,
-        phone,
-        destination,
-        date,
-        people,
-        vehicle,
-        hotel,
-        quote: Number.isFinite(quote) ? quote : null,
+    const enquiry = await prisma.enquiry.create({
+      data: {
+        customerName: data.name,
+        customerPhone: data.phone,
+        customerEmail: data.email,
+        destinationId: destination?.id,
+        travelDate: validTravelDate,
+        numPeople: data.people,
+        vehicleRequired: data.vehicleRequired,
+        resortRequired: data.resortRequired,
+        message:
+          data.message ??
+          [
+            data.destination,
+            data.vehicle ? `Vehicle preference: ${data.vehicle}` : "",
+            data.hotel ? `Resort preference: ${data.hotel}` : "",
+          ]
+            .filter(Boolean)
+            .join("\n"),
+        source: "WEBSITE",
+        status: "NEW",
       },
-    },
-    { status: 201 },
-  );
-}
+    });
 
-function readString(value: unknown) {
-  return typeof value === "string" ? value.trim().slice(0, 160) : "";
+    return NextResponse.json(
+      {
+        leadId: enquiry.id,
+        status: "New",
+      },
+      { status: 201 },
+    );
+  } catch (error) {
+    console.error("Enquiry persistence failed", error);
+    return NextResponse.json(
+      {
+        error:
+          "Enquiry could not be saved. Connect PostgreSQL before opening WhatsApp.",
+      },
+      { status: 503 },
+    );
+  }
 }

@@ -18,15 +18,13 @@ export function calculateQuote(input: {
   vehicleRate: number;
   roomRate: number;
   rooms: number;
-  guide: boolean;
 }) {
   const basePlanningFee = 1200;
   const vehicleTotal = input.vehicleRate * input.days;
   const roomTotal = input.roomRate * input.rooms * input.days;
-  const guideTotal = input.guide ? 1800 * input.days : 0;
-  const serviceBuffer = Math.ceil((vehicleTotal + roomTotal + guideTotal) * 0.08);
+  const serviceBuffer = Math.ceil((vehicleTotal + roomTotal) * 0.08);
 
-  return basePlanningFee + vehicleTotal + roomTotal + guideTotal + serviceBuffer;
+  return basePlanningFee + vehicleTotal + roomTotal + serviceBuffer;
 }
 
 export function buildWhatsAppUrl(message: string, phone = roadTrackPhone) {
@@ -39,24 +37,24 @@ export function buildLeadMessage(input: {
   destination: string;
   date: string;
   people: number;
-  vehicle: string;
-  hotel: string;
+  vehicleRequired: boolean;
+  resortRequired: boolean;
   quote?: number;
 }) {
   return [
     "Hello Road Track,",
     "",
     "I am interested in:",
-    `Name: ${input.name || "Guest"}`,
-    `Phone: ${input.phone || "Not provided"}`,
     `Destination: ${input.destination}`,
     `Travel Date: ${input.date || "Flexible"}`,
     `No of People: ${input.people}`,
-    `Vehicle Required: ${input.vehicle}`,
-    `Hotel Required: ${input.hotel}`,
+    `Vehicle Required: ${input.vehicleRequired ? "yes" : "no"}`,
+    `Hotel Required: ${input.resortRequired ? "yes" : "no"}`,
     input.quote ? `Approx Quote: ${formatCurrency(input.quote)}` : "",
     "",
     "Please contact me.",
+    `Name: ${input.name || "Guest"}`,
+    `Phone: ${input.phone || "Not provided"}`,
   ]
     .filter(Boolean)
     .join("\n");

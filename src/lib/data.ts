@@ -69,7 +69,8 @@ export type Lead = {
   value: number;
 };
 
-export const roadTrackPhone = "919876543210";
+export const roadTrackPhone =
+  process.env.NEXT_PUBLIC_ROAD_TRACK_WHATSAPP ?? "919876543210";
 export const emergencyPhone = "+91 98765 43210";
 
 export const heroImage =
@@ -81,7 +82,7 @@ export const destinations: Destination[] = [
     name: "Udupi",
     region: "Temple city and coastal base",
     heroImage:
-      "https://upload.wikimedia.org/wikipedia/commons/4/49/Malpe_Beach_2.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/d/da/Udupi_Krishna_Temple.jpg",
     summary:
       "A practical base for temple visits, family stays, coastal food trails, and quick transfers to Malpe, Kapu, and St. Mary's Island.",
     bestTime: "October to March for beach plans; July to September for monsoon drives.",
@@ -158,7 +159,7 @@ export const destinations: Destination[] = [
     heroImage:
       "https://upload.wikimedia.org/wikipedia/commons/7/7a/Agumbe_Ghat_Accidents.jpg",
     summary:
-      "A Western Ghats route for mist, rainforest walks, viewpoints, waterfalls, and guided monsoon experiences.",
+      "A Western Ghats route for mist, rainforest drives, viewpoints, waterfalls, and monsoon travel plans.",
     bestTime: "June to September for monsoon, November to January for clearer drives.",
     tripCostFrom: 9800,
     distanceFromUdupi: "55 km",
@@ -217,7 +218,7 @@ export const resorts: Resort[] = [
     priceFrom: 4200,
     rating: 4.6,
     roomsAvailable: 5,
-    amenities: ["Guide support", "Bonfire", "Trekking desk", "Meals"],
+    amenities: ["Bonfire", "Trekking desk", "Meals", "Parking"],
     owner: "Meera Hegde",
     status: "Available",
   },
@@ -288,7 +289,7 @@ export const tourPackages: TourPackage[] = [
     days: "1D",
     destinationSlug: "agumbe",
     priceFrom: 11200,
-    includes: ["Experienced driver", "Viewpoints", "Guide option", "Rain buffer"],
+    includes: ["Experienced driver", "Viewpoints", "Route coordination", "Rain buffer"],
   },
 ];
 
@@ -315,7 +316,7 @@ export const leads: Lead[] = [
     date: "2026-06-20",
     people: 8,
     status: "Contacted",
-    requirement: "Tempo traveller and guide",
+    requirement: "Tempo traveller and rainforest route",
     assignedTo: "Faizal - Tempo 12",
     value: 22600,
   },

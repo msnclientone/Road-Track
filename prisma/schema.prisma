@@ -8,21 +8,16 @@ datasource db {
 
 enum UserRole {
   SUPER_ADMIN
-  CUSTOMER
   RESORT_OWNER
   VEHICLE_OWNER
   GUIDE
-}
-
-enum PartnerType {
-  RESORT
-  VEHICLE
-  GUIDE
+  CUSTOMER
 }
 
 enum PartnerStatus {
   PENDING
   APPROVED
+  REJECTED
   SUSPENDED
 }
 
@@ -33,221 +28,345 @@ enum LeadStatus {
   CANCELLED
 }
 
-enum MediaType {
-  IMAGE
+enum AvailabilityStatus {
+  AVAILABLE
+  UNAVAILABLE
+  SOLD_OUT
+}
+
+enum MediaKind {
+  PHOTO
   VIDEO
 }
 
+enum EnquirySource {
+  WEBSITE
+  WHATSAPP
+  ADMIN
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
 model User {
-  id              String    @id @default(cuid())
-  email           String    @unique
-  name            String?
+  id              String         @id @default(cuid())
+  email           String         @unique
+  passwordHash    String?
   phone           String?
-  role            UserRole  @default(CUSTOMER)
+  name            String?
+  role            UserRole       @default(CUSTOMER)
+  partnerStatus   PartnerStatus?
+  emailVerifiedAt DateTime?
   termsAcceptedAt DateTime?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-
-  otpTokens     OtpToken[]
-  partners      Partner[]
-  customerLeads Lead[]     @relation("CustomerLeads")
-  reviews       Review[]
-}
-
-model OtpToken {
-  id          String    @id @default(cuid())
-  email       String
-  codeHash    String
-  expiresAt   DateTime
-  consumedAt  DateTime?
-  attemptLeft Int       @default(3)
-  createdAt   DateTime  @default(now())
-
-  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
-  userId String?
-
-  @@index([email, expiresAt])
-}
-
-model Partner {
-  id        String        @id @default(cuid())
-  type      PartnerType
-  status    PartnerStatus @default(PENDING)
-  legalName String
-  phone     String
-  notes     String?
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId String
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
 
   resorts       Resort[]
   vehicles      Vehicle[]
-  assignedLeads Lead[]
-  leadAssignments LeadAssignment[]
+  guideProfile  Guide?
+  reviews       Review[]
+  blogPosts     BlogPost[]
+  notifications Notification[]
+  auditLogs     AuditLog[]
+  enquiries     Enquiry[]
+
+  @@index([role])
+  @@index([partnerStatus])
+}
+
+model OtpCode {
+  id         String    @id @default(cuid())
+  email      String
+  codeHash   String
+  expiresAt  DateTime
+  attempts   Int       @default(0)
+  consumedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([email])
+  @@index([expiresAt])
 }
 
 model Destination {
   id              String   @id @default(cuid())
-  slug            String   @unique
   name            String
-  region          String
+  slug            String   @unique
   description     String
-  bestTime        String
-  tripCostFrom    Int
-  distanceFromHub String
-  mapQuery        String
-  heroImageUrl    String
-  attractions     String[]
-  idealFor        String[]
+  bestTimeToVisit String?
+  heroImageUrl    String?
+  latitude        Float?
+  longitude       Float?
+  estTripCostMin  Int?
+  estTripCostMax  Int?
+  seoTitle        String?
+  seoDescription  String?
+  published       Boolean  @default(false)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  resorts  Resort[]
-  packages TourPackage[]
-  leads    Lead[]
+  resorts   Resort[]
+  vehicles  Vehicle[]
+  packages  Package[]
+  enquiries Enquiry[]
+  media     DestinationMedia[]
+}
+
+model DestinationMedia {
+  id            String      @id @default(cuid())
+  destinationId String
+  destination   Destination @relation(fields: [destinationId], references: [id], onDelete: Cascade)
+  url           String
+  type          MediaKind
+  order         Int         @default(0)
+
+  @@index([destinationId])
 }
 
 model Resort {
-  id             String   @id @default(cuid())
-  name           String
-  location       String
-  priceFrom      Int
-  roomsAvailable Int      @default(0)
-  amenities      String[]
-  isSoldOut      Boolean  @default(false)
-  pricingVisible Boolean  @default(true)
-  rating         Decimal? @db.Decimal(2, 1)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
-  partner       Partner     @relation(fields: [partnerId], references: [id], onDelete: Cascade)
-  partnerId     String
-  destination   Destination @relation(fields: [destinationId], references: [id], onDelete: Cascade)
+  id            String        @id @default(cuid())
+  ownerId       String?
+  owner         User?         @relation(fields: [ownerId], references: [id], onDelete: SetNull)
   destinationId String
+  destination   Destination   @relation(fields: [destinationId], references: [id], onDelete: Cascade)
+  name          String
+  slug          String        @unique
+  description   String
+  address       String?
+  latitude      Float?
+  longitude     Float?
+  priceMin      Int
+  priceMax      Int
+  amenities     Json
+  status        PartnerStatus @default(PENDING)
+  soldOut       Boolean       @default(false)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 
-  media   MediaAsset[]
-  reviews Review[]
+  rooms     RoomType[]
+  media     ResortMedia[]
+  enquiries Enquiry[]
+  reviews   Review[]
+  bookings  Booking[]
+
+  @@index([destinationId, status])
+  @@index([ownerId])
+}
+
+model RoomType {
+  id            String             @id @default(cuid())
+  resortId      String
+  resort        Resort             @relation(fields: [resortId], references: [id], onDelete: Cascade)
+  name          String
+  pricePerNight Int
+  maxOccupancy  Int
+  availability  AvailabilityStatus @default(AVAILABLE)
+
+  @@index([resortId])
+}
+
+model ResortMedia {
+  id       String    @id @default(cuid())
+  resortId String
+  resort   Resort    @relation(fields: [resortId], references: [id], onDelete: Cascade)
+  url      String
+  type     MediaKind
+  order    Int       @default(0)
+
+  @@index([resortId])
 }
 
 model Vehicle {
-  id             String   @id @default(cuid())
-  name           String
-  vehicleType    String
-  seats          Int
-  driverName     String
-  driverPhone    String
-  ratePerDay     Int
-  packageRates   Json?
-  isAvailable    Boolean  @default(true)
-  pricingVisible Boolean  @default(true)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id              String             @id @default(cuid())
+  ownerId         String?
+  owner           User?              @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  destinationId   String?
+  destination     Destination?       @relation(fields: [destinationId], references: [id], onDelete: SetNull)
+  vehicleType     String
+  registrationNo  String?
+  seatingCapacity Int
+  driverName      String
+  driverPhone     String
+  pricePerDay     Int?
+  pricePerKm      Int?
+  status          PartnerStatus      @default(PENDING)
+  availability    AvailabilityStatus @default(AVAILABLE)
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
 
-  partner   Partner @relation(fields: [partnerId], references: [id], onDelete: Cascade)
-  partnerId String
+  media     VehicleMedia[]
+  enquiries Enquiry[]
+  reviews   Review[]
+  bookings  Booking[]
 
-  media   MediaAsset[]
-  reviews Review[]
+  @@index([destinationId, status])
+  @@index([ownerId])
+  @@index([availability])
 }
 
-model TourPackage {
-  id          String   @id @default(cuid())
-  title       String
-  days        String
-  priceFrom   Int
-  includes    String[]
-  isPublished Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+model VehicleMedia {
+  id        String  @id @default(cuid())
+  vehicleId String
+  vehicle   Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  url       String
+  order     Int     @default(0)
 
-  destination   Destination @relation(fields: [destinationId], references: [id], onDelete: Cascade)
+  @@index([vehicleId])
+}
+
+model Package {
+  id            String      @id @default(cuid())
   destinationId String
+  destination   Destination @relation(fields: [destinationId], references: [id], onDelete: Cascade)
+  title         String
+  slug          String      @unique
+  durationDays  Int
+  basePrice     Int
+  inclusions    Json
+  customizable  Json
+  published     Boolean     @default(false)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([destinationId, published])
 }
 
-model Lead {
-  id          String     @id @default(cuid())
-  name        String
-  phone       String
-  email       String?
-  travelDate  DateTime?
-  people      Int
-  requirement String
-  status      LeadStatus @default(NEW)
-  quotedValue Int?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+model Enquiry {
+  id                String        @id @default(cuid())
+  customerId        String?
+  customer          User?         @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  customerName      String
+  customerPhone     String
+  customerEmail     String?
+  destinationId     String?
+  destination       Destination?  @relation(fields: [destinationId], references: [id], onDelete: SetNull)
+  travelDate        DateTime?
+  numPeople         Int?
+  vehicleRequired   Boolean       @default(false)
+  resortRequired    Boolean       @default(false)
+  message           String?
+  source            EnquirySource @default(WEBSITE)
+  status            LeadStatus    @default(NEW)
+  assignedResortId  String?
+  assignedResort    Resort?       @relation(fields: [assignedResortId], references: [id], onDelete: SetNull)
+  assignedVehicleId String?
+  assignedVehicle   Vehicle?      @relation(fields: [assignedVehicleId], references: [id], onDelete: SetNull)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
 
-  customer   User?   @relation("CustomerLeads", fields: [customerId], references: [id], onDelete: SetNull)
-  customerId String?
-
-  destination   Destination? @relation(fields: [destinationId], references: [id], onDelete: SetNull)
-  destinationId String?
-
-  assignedPartner   Partner? @relation(fields: [assignedPartnerId], references: [id], onDelete: SetNull)
-  assignedPartnerId String?
-
-  assignments LeadAssignment[]
-  commission  Commission?
+  bookings Booking[]
 
   @@index([status, createdAt])
-  @@index([phone])
+  @@index([customerPhone])
+  @@index([destinationId])
+  @@index([assignedResortId])
+  @@index([assignedVehicleId])
 }
 
-model LeadAssignment {
-  id        String   @id @default(cuid())
-  note      String?
-  createdAt DateTime @default(now())
+model Booking {
+  id            String        @id @default(cuid())
+  enquiryId     String
+  enquiry       Enquiry       @relation(fields: [enquiryId], references: [id], onDelete: Cascade)
+  resortId      String?
+  resort        Resort?       @relation(fields: [resortId], references: [id], onDelete: SetNull)
+  vehicleId     String?
+  vehicle       Vehicle?      @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+  bookingValue  Int
+  commissionPct Float
+  commissionAmt Int
+  payoutAmt     Int
+  status        BookingStatus @default(CONFIRMED)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 
-  lead      Lead    @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  leadId    String
-  partner   Partner @relation(fields: [partnerId], references: [id], onDelete: Cascade)
-  partnerId String
-
-  @@index([partnerId, createdAt])
+  @@index([enquiryId])
+  @@index([resortId])
+  @@index([vehicleId])
 }
 
 model Review {
+  id         String   @id @default(cuid())
+  customerId String
+  customer   User     @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  targetType String
+  resortId   String?
+  resort     Resort?  @relation(fields: [resortId], references: [id], onDelete: Cascade)
+  vehicleId  String?
+  vehicle    Vehicle? @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  rating     Int
+  comment    String?
+  approved   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@index([customerId])
+  @@index([resortId])
+  @@index([vehicleId])
+  @@index([approved])
+}
+
+model Guide {
+  id         String   @id @default(cuid())
+  userId     String   @unique
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type       String
+  bio        String?
+  ratePerDay Int?
+  verified   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model BlogPost {
+  id             String    @id @default(cuid())
+  authorId       String
+  author         User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  title          String
+  slug           String    @unique
+  content        String
+  featuredImage  String?
+  seoTitle       String?
+  seoDescription String?
+  publishedAt    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([authorId])
+  @@index([publishedAt])
+}
+
+model Notification {
   id        String   @id @default(cuid())
-  rating    Int
-  comment   String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  message   String
+  read      Boolean  @default(false)
   createdAt DateTime @default(now())
 
-  reviewer   User?   @relation(fields: [reviewerId], references: [id], onDelete: SetNull)
-  reviewerId String?
-
-  resort   Resort? @relation(fields: [resortId], references: [id], onDelete: Cascade)
-  resortId String?
-
-  vehicle   Vehicle? @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
-  vehicleId String?
+  @@index([userId, read])
 }
 
-model Commission {
-  id             String   @id @default(cuid())
-  bookingValue   Int
-  commissionRate Decimal  @db.Decimal(4, 2)
-  commissionDue  Int
-  partnerAmount  Int
-  isSettled      Boolean  @default(false)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+model CommissionRule {
+  id          String   @id @default(cuid())
+  appliesTo   String
+  percentage  Float
+  effectiveAt DateTime @default(now())
 
-  lead   Lead   @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  leadId String @unique
+  @@index([appliesTo, effectiveAt])
 }
 
-model MediaAsset {
-  id        String    @id @default(cuid())
-  type      MediaType
-  url       String
-  altText   String?
-  createdAt DateTime  @default(now())
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action     String
+  entityType String
+  entityId   String
+  createdAt  DateTime @default(now())
 
-  resort   Resort? @relation(fields: [resortId], references: [id], onDelete: Cascade)
-  resortId String?
-
-  vehicle   Vehicle? @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
-  vehicleId String?
+  @@index([userId, createdAt])
+  @@index([entityType, entityId])
 }
