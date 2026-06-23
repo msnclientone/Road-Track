@@ -33,7 +33,7 @@ export async function POST(request: Request) {
     }
 
     const email = signupSession.email;
-    const portal = (signupSession as any).portal ?? "customer";
+    const portal = signupSession.portal ?? "customer";
     const existingUser = await prisma.user.findUnique({ where: { email } });
 
     if (existingUser?.passwordHash) {
@@ -108,7 +108,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       ok: true,
-      redirectTo: getRedirectForUser(portal as any, user.partnerStatus),
+      redirectTo: getRedirectForUser(portal, user.partnerStatus),
     });
   } catch (error) {
     console.error("Registration failed:", error);

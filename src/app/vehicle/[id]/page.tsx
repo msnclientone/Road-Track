@@ -74,8 +74,10 @@ export default async function VehicleDetailPage({
                   src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1200&h=800&fit=crop"
                   alt={vehicle.vehicleType}
                   fill
-                  className="object-cover"
                   priority
+                  loading="eager"
+                  className="object-cover"
+                  sizes="(min-width: 1024px) 66vw, 100vw"
                 />
               </div>
             </div>

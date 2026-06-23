@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Star, MapPin, Loader2 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
+import { getListingImageUrl } from "@/lib/placeholders";
 
 type Resort = {
   id: string;
@@ -14,6 +15,7 @@ type Resort = {
   priceMin: number;
   priceMax: number;
   amenities: string[];
+  media?: { url: string; type: string; order: number }[];
   destination: {
     name: string;
     slug: string;
@@ -80,7 +82,7 @@ export default function ResortsSection() {
 
   return (
     <div className="mt-10 grid gap-5 lg:grid-cols-3">
-      {resorts.map((resort) => (
+      {resorts.map((resort, index) => (
         <Link
           href={`/resort/${resort.id}`}
           key={resort.id}
@@ -89,9 +91,11 @@ export default function ResortsSection() {
           <article className="h-full text-ivory">
             <div className="relative aspect-[16/10]">
               <Image
-                src="/api/placeholder?type=resort"
+                src={getListingImageUrl(resort.media, "resort")}
                 alt={resort.name}
                 fill
+                priority={index === 0}
+                loading={index === 0 ? "eager" : "lazy"}
                 className="object-cover transition duration-500 group-hover:scale-105"
                 sizes="(min-width: 1024px) 33vw, 100vw"
               />

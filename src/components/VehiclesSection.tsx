@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Loader2, Users, IndianRupee } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
+import { getListingImageUrl } from "@/lib/placeholders";
 
 type Vehicle = {
   id: string;
@@ -15,6 +16,7 @@ type Vehicle = {
   pricePerKm: number;
   driverName: string;
   driverPhone: string | null;
+  media?: { url: string; order: number }[];
   destination: {
     name: string;
     slug: string;
@@ -90,7 +92,7 @@ export default function VehiclesSection() {
           <article className="h-full">
             <div className="relative aspect-[16/10]">
               <Image
-                src="/api/placeholder?type=vehicle"
+                src={getListingImageUrl(vehicle.media, "vehicle")}
                 alt={vehicle.vehicleType}
                 fill
                 className="object-cover transition duration-500 group-hover:scale-105"

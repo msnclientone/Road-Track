@@ -339,6 +339,36 @@ export function LoginForm({ portal }: LoginFormProps) {
           ))}
         </div>
 
+        {portal === "admin" && adminBootstrapAllowed ? (
+          <div className="mt-8 rounded-lg border border-coral/30 bg-coral/10 p-4">
+            <p className="text-sm font-black uppercase tracking-[0.18em] text-coral">
+              First-time setup
+            </p>
+            <p className="mt-2 text-sm font-semibold text-stone">
+              No Super Admin exists yet. Use the Sign up tab to verify your
+              email with OTP and create the first admin account.
+            </p>
+          </div>
+        ) : null}
+
+        {portal === "admin" && !adminBootstrapAllowed ? (
+          <div className="mt-8 rounded-lg border border-ink/10 bg-white/70 p-4">
+            <p className="text-sm font-black uppercase tracking-[0.18em] text-stone">
+              Add another admin
+            </p>
+            <p className="mt-2 text-sm font-semibold text-stone">
+              Already signed in as Super Admin? Create additional admin accounts
+              from the admin panel.
+            </p>
+            <Link
+              href="/admin/create-super-admin"
+              className="mt-3 inline-flex text-sm font-black text-coral hover:underline"
+            >
+              Create Super Admin account
+            </Link>
+          </div>
+        ) : null}
+
         {otherPortals.length > 0 ? (
           <div className="mt-8 rounded-lg border border-ink/10 bg-white/70 p-4">
             <p className="text-sm font-black uppercase tracking-[0.18em] text-stone">
@@ -542,9 +572,13 @@ export function LoginForm({ portal }: LoginFormProps) {
 
         {mode === "signup" && canSignUp && !otpSent ? (
           <form onSubmit={sendOtp} className="grid gap-5">
-            <h2 className="text-3xl font-black">Create account</h2>
+            <h2 className="text-3xl font-black">
+              {portal === "admin" ? "Create Super Admin" : "Create account"}
+            </h2>
             <p className="text-sm font-semibold text-stone">
-              Step 1: verify your email with a one-time code.
+              {portal === "admin"
+                ? "Step 1: verify your email with a one-time code to set up the first admin account."
+                : "Step 1: verify your email with a one-time code."}
             </p>
             <label className="grid gap-2 text-sm font-black">
               Email address
@@ -653,7 +687,9 @@ export function LoginForm({ portal }: LoginFormProps) {
 
         {mode === "signup" && canSignUp && emailVerified ? (
           <form onSubmit={completeRegistration} className="grid gap-5">
-            <h2 className="text-3xl font-black">Finish sign up</h2>
+            <h2 className="text-3xl font-black">
+              {portal === "admin" ? "Finish admin setup" : "Finish sign up"}
+            </h2>
             <p className="text-sm font-semibold text-stone">
               Step 2: set your profile and password for {email}.
             </p>
@@ -756,7 +792,7 @@ export function LoginForm({ portal }: LoginFormProps) {
               ) : (
                 <CheckCircle2 className="h-5 w-5" />
               )}
-              Create account
+              {portal === "admin" ? "Create Super Admin" : "Create account"}
             </button>
           </form>
         ) : null}

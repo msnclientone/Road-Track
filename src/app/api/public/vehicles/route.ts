@@ -12,6 +12,11 @@ export async function GET() {
         destination: {
           select: { name: true, slug: true },
         },
+        media: {
+          select: { url: true, order: true },
+          orderBy: { order: "asc" },
+          take: 1,
+        },
       },
       orderBy: { createdAt: "desc" },
     });
@@ -21,7 +26,7 @@ export async function GET() {
     console.error("Error fetching vehicles:", error);
     return NextResponse.json(
       { error: "Failed to fetch vehicles" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

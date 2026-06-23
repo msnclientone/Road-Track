@@ -77,8 +77,10 @@ export default async function ResortDetailPage({
                   src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&h=800&fit=crop"
                   alt={resort.name}
                   fill
-                  className="object-cover"
                   priority
+                  loading="eager"
+                  className="object-cover"
+                  sizes="(min-width: 1024px) 66vw, 100vw"
                 />
               </div>
             </div>

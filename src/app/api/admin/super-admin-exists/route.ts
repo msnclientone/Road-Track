@@ -7,6 +7,9 @@ export async function GET() {
     return NextResponse.json({ exists: count > 0 });
   } catch (err) {
     console.error("super-admin-exists check failed:", err);
-    return NextResponse.json({ exists: true });
+    return NextResponse.json(
+      { exists: false, error: "Unable to check admin status." },
+      { status: 503 },
+    );
   }
 }

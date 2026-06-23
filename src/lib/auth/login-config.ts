@@ -37,7 +37,7 @@ export const LOGIN_PORTALS: Record<LoginPortal, LoginPortalConfig> = {
     eyebrow: "Super Admin Login",
     title: "Platform command center access.",
     description:
-      "Super Admin accounts are provisioned at deploy time. Sign in with your assigned email and password.",
+      "Sign in with your Super Admin email and password. If no admin exists yet, use Sign up to create the first account.",
     emailPlaceholder: "admin@roadtrack.in",
   },
   "resort-owner": {
