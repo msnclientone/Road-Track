@@ -28,6 +28,7 @@ import {
 } from "@/lib/partner-dashboard";
 import { prisma } from "@/lib/prisma";
 import { buildWhatsAppUrl, formatCurrency } from "@/lib/utils";
+import ResortManager from "@/components/ResortManager";
 
 export const dynamic = "force-dynamic";
 
@@ -214,6 +215,19 @@ export default async function ResortOwnerDashboardPage() {
               title="Your resort listings"
               text="Room availability, destination, pricing, and approval status."
             />
+
+            <div className="p-5">
+              <ResortManager initialResorts={resorts.map((resort) => ({
+                id: resort.id,
+                name: resort.name,
+                destinationId: resort.destinationId,
+                destination: resort.destination,
+                address: resort.address,
+                priceMin: resort.priceMin,
+                priceMax: resort.priceMax,
+                status: resort.status,
+              }))} />
+            </div>
 
             {resorts.length > 0 ? (
               <div className="grid gap-4 p-5 lg:grid-cols-2">

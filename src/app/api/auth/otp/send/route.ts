@@ -7,6 +7,7 @@ import {
   hashOtpCode,
 } from "@/lib/auth/otp";
 import { sendOtpSchema } from "@/lib/auth/validation";
+import { getLoginPortalConfig } from "@/lib/auth/login-config";
 import { prisma } from "@/lib/prisma";
 
 const RESEND_WINDOW_MS = 10 * 60 * 1000;
@@ -25,6 +26,24 @@ export async function POST(request: Request) {
     }
 
     const email = parsed.data.email.toLowerCase();
+    const portal = (parsed.data as any).portal ?? "customer";
+
+    const portalConfig = getLoginPortalConfig(portal as any);
+    // Allow admin OTP only for initial bootstrap (no existing SUPER_ADMIN)
+    if (portal === "admin") {
+      const superAdminCount = await prisma.user.count({ where: { role: "SUPER_ADMIN" } });
+      if (superAdminCount > 0) {
+        return NextResponse.json(
+          { error: "Registration is not allowed for this portal." },
+          { status: 403 },
+        );
+      }
+    } else if (!portalConfig.canSelfRegister) {
+      return NextResponse.json(
+        { error: "Registration is not allowed for this portal." },
+        { status: 403 },
+      );
+    }
     const existingUser = await prisma.user.findUnique({ where: { email } });
 
     if (existingUser?.passwordHash) {

@@ -28,6 +28,7 @@ import {
 } from "@/lib/partner-dashboard";
 import { prisma } from "@/lib/prisma";
 import { buildWhatsAppUrl, formatCurrency } from "@/lib/utils";
+import VehicleManager from "@/components/VehicleManager";
 
 export const dynamic = "force-dynamic";
 
@@ -210,6 +211,19 @@ export default async function VehicleOwnerDashboardPage() {
               title="Your fleet"
               text="Vehicle details, driver contact, pricing, and current availability."
             />
+
+            <VehicleManager initialVehicles={vehicles.map((vehicle) => ({
+              id: vehicle.id,
+              vehicleType: vehicle.vehicleType,
+              seatingCapacity: vehicle.seatingCapacity,
+              pricePerKm: vehicle.pricePerKm,
+              pricePerDay: vehicle.pricePerDay,
+              driverName: vehicle.driverName,
+              driverPhone: vehicle.driverPhone,
+              registrationNo: vehicle.registrationNo,
+              availability: vehicle.availability,
+              status: vehicle.status,
+            }))} />
 
             {vehicles.length > 0 ? (
               <div className="grid gap-4 p-5 lg:grid-cols-2">

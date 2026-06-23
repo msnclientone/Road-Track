@@ -22,6 +22,7 @@ export const loginSchema = z.object({
 
 export const sendOtpSchema = z.object({
   email: z.string().trim().email("Enter a valid email address."),
+  portal: loginPortalSchema.optional(),
 });
 
 export const sendLoginOtpSchema = z.object({
@@ -35,6 +36,7 @@ export const verifyOtpSchema = z.object({
     .string()
     .trim()
     .regex(/^\d{6}$/, "Enter the 6 digit OTP from email."),
+  portal: loginPortalSchema.optional(),
 });
 
 export const verifyLoginOtpSchema = verifyOtpSchema.extend({

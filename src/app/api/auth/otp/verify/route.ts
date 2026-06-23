@@ -9,7 +9,7 @@ import {
   createSignupToken,
   setSignupCookie,
 } from "@/lib/auth/session";
-import { verifyOtpSchema } from "@/lib/auth/validation";
+import { verifyOtpSchema, sendOtpSchema } from "@/lib/auth/validation";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(request: Request) {
@@ -25,6 +25,7 @@ export async function POST(request: Request) {
     }
 
     const email = parsed.data.email.toLowerCase();
+    const portal = (parsed.data as any).portal as string | undefined;
     const codeHash = hashOtpCode(parsed.data.code);
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
@@ -82,7 +83,7 @@ export async function POST(request: Request) {
       data: { consumedAt: new Date() },
     });
 
-    const signupToken = await createSignupToken(email);
+    const signupToken = await createSignupToken(email, portal);
     await setSignupCookie(signupToken);
 
     return NextResponse.json({

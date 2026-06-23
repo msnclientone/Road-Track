@@ -1,6 +1,9 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
-import { LogIn, MessageCircle } from "lucide-react";
+import { LogIn, MessageCircle, LogOut } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import { buildWhatsAppUrl } from "@/lib/utils";
 
@@ -12,6 +15,39 @@ const navItems = [
 ];
 
 export function SiteHeader() {
+  const [user, setUser] = useState<{ email: string; role?: string } | null>(
+    null,
+  );
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await fetch("/api/auth/session");
+        if (!res.ok) return;
+        const data = await res.json();
+        if (mounted) setUser(data.user ?? null);
+      } catch {
+        // ignore
+      }
+    })();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  async function handleLogout() {
+    try {
+      await fetch("/api/auth/session", { method: "DELETE" });
+      setUser(null);
+      // reload to update protected UI
+      window.location.href = "/";
+    } catch {
+      // ignore
+    }
+  }
+
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-ink/80 text-ivory backdrop-blur-xl">
       <div className="mx-auto flex h-20 w-full max-w-none items-center justify-between px-5 sm:px-8 lg:px-10 2xl:px-12">
@@ -38,13 +74,27 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <Link
-            href="/login"
-            className="hidden h-11 items-center gap-2 rounded-md border border-white/15 px-4 text-base font-bold text-white transition hover:border-coral hover:text-coral sm:inline-flex"
-          >
-            <LogIn className="h-4 w-4" />
-            Login
-          </Link>
+          {user ? (
+            <div className="hidden items-center gap-3 sm:flex">
+              <span className="text-sm font-bold">{user.email}</span>
+              <button
+                onClick={handleLogout}
+                className="inline-flex h-11 items-center gap-2 rounded-md border border-white/15 px-4 text-base font-bold text-white transition hover:border-coral hover:text-coral"
+              >
+                <LogOut className="h-4 w-4" />
+                Logout
+              </button>
+            </div>
+          ) : (
+            <Link
+              href="/login"
+              className="hidden h-11 items-center gap-2 rounded-md border border-white/15 px-4 text-base font-bold text-white transition hover:border-coral hover:text-coral sm:inline-flex"
+            >
+              <LogIn className="h-4 w-4" />
+              Login
+            </Link>
+          )}
+
           <a
             href={buildWhatsAppUrl(
               "Hello Road Track,\nI want help planning a Udupi trip.",

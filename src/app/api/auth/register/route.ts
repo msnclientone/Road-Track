@@ -33,6 +33,7 @@ export async function POST(request: Request) {
     }
 
     const email = signupSession.email;
+    const portal = (signupSession as any).portal ?? "customer";
     const existingUser = await prisma.user.findUnique({ where: { email } });
 
     if (existingUser?.passwordHash) {
@@ -45,6 +46,30 @@ export async function POST(request: Request) {
 
     const passwordHash = await hashPassword(parsed.data.password);
 
+    // Determine role and partnerStatus based on requested portal
+    const role =
+      portal === "resort-owner"
+        ? "RESORT_OWNER"
+        : portal === "vehicle-owner"
+        ? "VEHICLE_OWNER"
+        : portal === "admin"
+        ? "SUPER_ADMIN"
+        : "CUSTOMER";
+
+    const partnerStatus =
+      role === "RESORT_OWNER" || role === "VEHICLE_OWNER"
+        ? "PENDING"
+        : null;
+
+    // Prevent self-registration for admin after initial bootstrap
+    if (role === "SUPER_ADMIN") {
+      const superAdminCount = await prisma.user.count({ where: { role: "SUPER_ADMIN" } });
+      if (superAdminCount > 0 && existingUser?.role !== "SUPER_ADMIN") {
+        await clearSignupCookie();
+        return NextResponse.json({ error: "Admin registration is not allowed." }, { status: 403 });
+      }
+    }
+
     const user = existingUser
       ? await prisma.user.update({
           where: { id: existingUser.id },
@@ -54,7 +79,8 @@ export async function POST(request: Request) {
             passwordHash,
             termsAcceptedAt: new Date(),
             emailVerifiedAt: new Date(),
-            role: "CUSTOMER",
+            role,
+            partnerStatus,
           },
         })
       : await prisma.user.create({
@@ -65,7 +91,8 @@ export async function POST(request: Request) {
             passwordHash,
             termsAcceptedAt: new Date(),
             emailVerifiedAt: new Date(),
-            role: "CUSTOMER",
+            role,
+            partnerStatus,
           },
         });
 
@@ -81,7 +108,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       ok: true,
-      redirectTo: getRedirectForUser("customer", user.partnerStatus),
+      redirectTo: getRedirectForUser(portal as any, user.partnerStatus),
     });
   } catch (error) {
     console.error("Registration failed:", error);

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import LayoutWrapper from "./LayoutWrapper";
 
 export const metadata: Metadata = {
   title: "Road Track | Udupi Tourism Platform",
@@ -14,7 +15,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" data-scroll-behavior="smooth">
-      <body>{children}</body>
+      <body>
+        <LayoutWrapper>{children}</LayoutWrapper>
+      </body>
     </html>
   );
 }

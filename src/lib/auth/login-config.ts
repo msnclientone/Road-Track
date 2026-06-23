@@ -46,11 +46,11 @@ export const LOGIN_PORTALS: Record<LoginPortal, LoginPortalConfig> = {
     allowedRoles: ["RESORT_OWNER"],
     redirectTo: "/resort-owner",
     pendingRedirectTo: "/resort-owner/pending",
-    canSelfRegister: false,
+    canSelfRegister: true,
     eyebrow: "Resort Owner Login",
     title: "Manage your resort listings and leads.",
     description:
-      "Resort owner accounts are created after Super Admin approval. Sign in with your approved partner email and password.",
+      "Resort owner accounts are created after Super Admin approval. You can request access by signing up; a Super Admin will approve your account.",
     emailPlaceholder: "owner@yourresort.com",
   },
   "vehicle-owner": {
@@ -59,11 +59,11 @@ export const LOGIN_PORTALS: Record<LoginPortal, LoginPortalConfig> = {
     allowedRoles: ["VEHICLE_OWNER"],
     redirectTo: "/vehicle-owner",
     pendingRedirectTo: "/vehicle-owner/pending",
-    canSelfRegister: false,
+    canSelfRegister: true,
     eyebrow: "Vehicle Owner Login",
     title: "Manage fleet availability and assigned leads.",
     description:
-      "Vehicle owner accounts are created after Super Admin approval. Sign in with your approved partner email and password.",
+      "Vehicle owner accounts are created after Super Admin approval. You can request access by signing up; a Super Admin will approve your account.",
     emailPlaceholder: "owner@yourfleet.com",
   },
 };

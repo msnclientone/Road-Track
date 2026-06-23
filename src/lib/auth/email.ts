@@ -28,16 +28,8 @@ export async function sendOtpEmail({
 
     throw new Error("SMTP is not configured.");
   }
-
-  const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT ?? 587),
-    secure: false,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
-  });
+  const configuredPort = Number(process.env.SMTP_PORT ?? 0) || undefined;
+  const tryPorts = Array.from(new Set([configuredPort, 465, 2525].filter(Boolean)));
 
   const isLogin = purpose === "login";
   const subject = isLogin
@@ -47,13 +39,40 @@ export async function sendOtpEmail({
     ? "signing in to your account"
     : "creating your account";
 
-  await transporter.sendMail({
-    from: process.env.SMTP_FROM,
-    to,
-    subject,
-    text: `Your Road Track OTP is ${code}. It expires in 5 minutes. Use it only for ${actionText}.`,
-    html: `<p>Your Road Track OTP is <strong>${code}</strong>.</p><p>It expires in 5 minutes. Use it only for ${actionText}.</p>`,
-  });
+  // Try each port until one succeeds
+  let lastError: unknown = null;
+  for (const port of tryPorts) {
+    const secure = port === 465;
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port,
+      secure,
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+      connectionTimeout: 5000,
+      greetingTimeout: 5000,
+    });
 
-  return { delivered: true };
+    try {
+      await transporter.sendMail({
+        from: process.env.SMTP_FROM,
+        to,
+        subject,
+        text: `Your Road Track OTP is ${code}. It expires in 5 minutes. Use it only for ${actionText}.`,
+        html: `<p>Your Road Track OTP is <strong>${code}</strong>.</p><p>It expires in 5 minutes. Use it only for ${actionText}.</p>`,
+      });
+
+      return { delivered: true };
+    } catch (err) {
+      // record and try next port
+      // eslint-disable-next-line no-console
+      console.warn(`SMTP send failed on port ${port}:`, err);
+      lastError = err;
+    }
+  }
+
+  // If we reach here, all attempts failed. Surface the last error.
+  throw lastError;
 }

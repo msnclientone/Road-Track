@@ -7,8 +7,11 @@ export const SIGNUP_COOKIE = "road_track_signup";
 const SESSION_TTL = "30d";
 const SIGNUP_TTL = "15m";
 
+import type { LoginPortal } from "@/lib/auth/login-config";
+
 export type SignupPayload = {
   email: string;
+  portal?: LoginPortal;
 };
 
 export type SessionPayload = {
@@ -98,8 +101,14 @@ export async function getSession(): Promise<SessionPayload | null> {
   return verifySessionToken(token);
 }
 
-export async function createSignupToken(email: string): Promise<string> {
-  return new SignJWT({ purpose: "signup", email })
+export async function createSignupToken(
+  email: string,
+  portal?: LoginPortal,
+): Promise<string> {
+  const payload: Record<string, unknown> = { purpose: "signup", email };
+  if (portal) payload.portal = portal;
+
+  return new SignJWT(payload)
     .setProtectedHeader({ alg: "HS256" })
     .setSubject(email)
     .setIssuedAt()
@@ -117,7 +126,10 @@ export async function verifySignupToken(
       return null;
     }
 
-    return { email: payload.email };
+    return {
+      email: payload.email,
+      portal: typeof payload.portal === "string" ? (payload.portal as LoginPortal) : undefined,
+    };
   } catch {
     return null;
   }

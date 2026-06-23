@@ -2,13 +2,11 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
-  Building2,
   BusFront,
+  Building2,
   CalendarCheck,
-  CarFront,
   CheckCircle2,
   Compass,
-  MapPin,
   MessageCircle,
   ShieldCheck,
   Star,
@@ -17,13 +15,13 @@ import {
 import { EnquiryPlanner } from "@/components/EnquiryPlanner";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
+import ResortsSection from "@/components/ResortsSection";
+import VehiclesSection from "@/components/VehiclesSection";
 import {
   destinations,
   heroImage,
-  resorts,
   reviews,
   tourPackages,
-  vehicles,
 } from "@/lib/data";
 import { buildWhatsAppUrl, formatCurrency } from "@/lib/utils";
 
@@ -213,62 +211,7 @@ export default function Home() {
             </Link>
           </div>
 
-          <div className="mt-10 grid gap-5 lg:grid-cols-3">
-            {resorts.map((resort) => (
-              <article
-                key={resort.id}
-                className="overflow-hidden rounded-lg border border-white/10 bg-white/[0.06]"
-              >
-                <div className="relative aspect-[16/10]">
-                  <Image
-                    src={resort.image}
-                    alt={resort.name}
-                    fill
-                    className="object-cover"
-                    sizes="(min-width: 1024px) 33vw, 100vw"
-                  />
-                </div>
-                <div className="p-5">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <h3 className="text-2xl font-black">{resort.name}</h3>
-                      <p className="mt-1 flex items-center gap-2 text-sm text-white/70">
-                        <MapPin className="h-4 w-4 text-coral" />
-                        {resort.location}
-                      </p>
-                    </div>
-                    <span className="rounded-full bg-mint/15 px-3 py-1 text-sm font-black text-mint">
-                      {resort.status}
-                    </span>
-                  </div>
-
-                  <div className="mt-5 flex flex-wrap gap-2">
-                    {resort.amenities.map((amenity) => (
-                      <span
-                        key={amenity}
-                        className="rounded-full border border-white/10 px-3 py-1 text-xs font-bold text-white/75"
-                      >
-                        {amenity}
-                      </span>
-                    ))}
-                  </div>
-
-                  <div className="mt-5 flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-white/60">Starting from</p>
-                      <p className="text-xl font-black">
-                        {formatCurrency(resort.priceFrom)}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-1 font-black text-amber">
-                      <Star className="h-4 w-4 fill-current" />
-                      {resort.rating}
-                    </div>
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div>
+          <ResortsSection />
         </div>
       </section>
 
@@ -291,68 +234,7 @@ export default function Home() {
           </Link>
         </div>
 
-        <div className="mt-10 grid gap-5 lg:grid-cols-3">
-          {vehicles.map((vehicle) => (
-            <article
-              key={vehicle.id}
-              className="overflow-hidden rounded-lg border border-ink/10 bg-white shadow-sm"
-            >
-              <div className="relative aspect-[16/10]">
-                <Image
-                  src={vehicle.image}
-                  alt={vehicle.name}
-                  fill
-                  className="object-cover"
-                  sizes="(min-width: 1024px) 33vw, 100vw"
-                />
-              </div>
-              <div className="p-5">
-                <div className="flex items-center justify-between gap-4">
-                  <h3 className="text-2xl font-black">{vehicle.type}</h3>
-                  <span
-                    className={
-                      vehicle.available
-                        ? "rounded-full bg-mint/20 px-3 py-1 text-sm font-black text-emerald-700"
-                        : "rounded-full bg-coral/20 px-3 py-1 text-sm font-black text-coral"
-                    }
-                  >
-                    {vehicle.available ? "Available" : "Booked"}
-                  </span>
-                </div>
-                <p className="mt-2 text-sm font-bold text-stone">
-                  {vehicle.name}
-                </p>
-
-                <div className="mt-5 grid grid-cols-3 gap-3 text-sm">
-                  <div className="rounded-md bg-sky/10 p-3">
-                    <p className="font-black">{vehicle.seats}</p>
-                    <p className="text-stone">Seats</p>
-                  </div>
-                  <div className="rounded-md bg-sky/10 p-3">
-                    <p className="font-black">{vehicle.driver}</p>
-                    <p className="text-stone">Driver</p>
-                  </div>
-                  <div className="rounded-md bg-sky/10 p-3">
-                    <p className="font-black">{formatCurrency(vehicle.ratePerDay)}</p>
-                    <p className="text-stone">Day</p>
-                  </div>
-                </div>
-
-                <a
-                  href={buildWhatsAppUrl(
-                    `Hello Road Track,\nI want ${vehicle.type} for a Udupi trip.`,
-                  )}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-md bg-coral font-black text-ink transition hover:bg-coral/90"
-                >
-                  <CarFront className="h-5 w-5" />
-                  Enquire vehicle
-                </a>
-              </div>
-            </article>
-          ))}
-        </div>
+        <VehiclesSection />
       </section>
 
       <section id="packages" className="bg-white py-20">

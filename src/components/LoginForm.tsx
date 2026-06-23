@@ -10,6 +10,8 @@ import {
   Loader2,
   LogIn,
   Mail,
+  Eye,
+  EyeOff,
   Phone,
   ShieldAlert,
   User,
@@ -31,7 +33,8 @@ type LoginFormProps = {
 export function LoginForm({ portal }: LoginFormProps) {
   const router = useRouter();
   const config = getLoginPortalConfig(portal);
-  const canSignUp = config.canSelfRegister;
+  const [adminBootstrapAllowed, setAdminBootstrapAllowed] = useState(false);
+  const canSignUp = config.canSelfRegister || adminBootstrapAllowed;
 
   const [mode, setMode] = useState<AuthMode>("login");
   const [email, setEmail] = useState("");
@@ -49,6 +52,8 @@ export function LoginForm({ portal }: LoginFormProps) {
   const [loading, setLoading] = useState(false);
   const [notice, setNotice] = useState("");
   const [devCode, setDevCode] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
     if (seconds <= 0) {
@@ -58,6 +63,28 @@ export function LoginForm({ portal }: LoginFormProps) {
     const timer = window.setTimeout(() => setSeconds((value) => value - 1), 1000);
     return () => window.clearTimeout(timer);
   }, [seconds]);
+
+  useEffect(() => {
+    let mounted = true;
+    async function checkAdminBootstrap() {
+      if (portal !== "admin") return;
+
+      try {
+        const res = await fetch("/api/admin/super-admin-exists");
+        const data = await res.json();
+        if (!mounted) return;
+        setAdminBootstrapAllowed(!data.exists);
+      } catch (e) {
+        if (mounted) setAdminBootstrapAllowed(false);
+      }
+    }
+
+    checkAdminBootstrap();
+
+    return () => {
+      mounted = false;
+    };
+  }, [portal]);
 
   function resetSignupFlow() {
     setOtpSent(false);
@@ -103,6 +130,7 @@ export function LoginForm({ portal }: LoginFormProps) {
         return;
       }
 
+      sessionStorage.setItem("justLoggedIn", "true");
       router.push(data.redirectTo ?? config.redirectTo);
     } catch {
       setNotice("Unable to sign in right now.");
@@ -169,6 +197,7 @@ export function LoginForm({ portal }: LoginFormProps) {
         return;
       }
 
+      sessionStorage.setItem("justLoggedIn", "true");
       router.push(data.redirectTo ?? config.redirectTo);
     } catch {
       setNotice("Unable to verify login OTP right now.");
@@ -187,7 +216,7 @@ export function LoginForm({ portal }: LoginFormProps) {
       const response = await fetch("/api/auth/otp/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, portal: mode === "signup" ? portal : undefined }),
       });
       const data = await response.json();
 
@@ -220,7 +249,7 @@ export function LoginForm({ portal }: LoginFormProps) {
       const response = await fetch("/api/auth/otp/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, code: otp }),
+        body: JSON.stringify({ email, code: otp, portal: mode === "signup" ? portal : undefined }),
       });
       const data = await response.json();
 
@@ -262,6 +291,7 @@ export function LoginForm({ portal }: LoginFormProps) {
         return;
       }
 
+      sessionStorage.setItem("justLoggedIn", "true");
       router.push(data.redirectTo ?? config.redirectTo);
     } catch {
       setNotice("Unable to complete registration right now.");
@@ -384,11 +414,19 @@ export function LoginForm({ portal }: LoginFormProps) {
                 <input
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
                   required
                   className="h-12 w-full rounded-md border border-ink/15 bg-ivory px-3 pl-11 text-base outline-none focus:border-coral"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((s) => !s)}
+                  className="absolute right-3 top-3.5 h-5 w-5 text-stone"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff /> : <Eye />}
+                </button>
               </span>
             </label>
             <div className="grid gap-3 sm:grid-cols-2">
@@ -651,12 +689,20 @@ export function LoginForm({ portal }: LoginFormProps) {
                 <input
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   autoComplete="new-password"
                   required
                   minLength={8}
                   className="h-12 w-full rounded-md border border-ink/15 bg-ivory px-3 pl-11 text-base outline-none focus:border-coral"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((s) => !s)}
+                  className="absolute right-3 top-3.5 h-5 w-5 text-stone"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff /> : <Eye />}
+                </button>
               </span>
             </label>
             <label className="grid gap-2 text-sm font-black">
@@ -666,12 +712,20 @@ export function LoginForm({ portal }: LoginFormProps) {
                 <input
                   value={confirmPassword}
                   onChange={(event) => setConfirmPassword(event.target.value)}
-                  type="password"
+                  type={showConfirmPassword ? "text" : "password"}
                   autoComplete="new-password"
                   required
                   minLength={8}
                   className="h-12 w-full rounded-md border border-ink/15 bg-ivory px-3 pl-11 text-base outline-none focus:border-coral"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword((s) => !s)}
+                  className="absolute right-3 top-3.5 h-5 w-5 text-stone"
+                  aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                >
+                  {showConfirmPassword ? <EyeOff /> : <Eye />}
+                </button>
               </span>
             </label>
             <label className="flex items-start gap-3 rounded-md border border-ink/10 bg-ivory p-3 text-sm font-bold">

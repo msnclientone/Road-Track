@@ -4,19 +4,25 @@ import {
   Plus,
   Send,
   ShieldCheck,
+  Eye,
 } from "lucide-react";
 
 import { MetricCard, StatusBadge } from "@/components/DashboardBits";
 import { SiteHeader } from "@/components/SiteHeader";
 import { dashboardStats, leads, resorts, vehicles } from "@/lib/data";
 import { buildWhatsAppUrl, formatCurrency } from "@/lib/utils";
+import { prisma } from "@/lib/prisma";
+import AdminPartnerApprovals from "@/components/AdminPartnerApprovals";
+import AdminResortApprovals from "@/components/AdminResortApprovals";
+import AdminVehicleApprovals from "@/components/AdminVehicleApprovals";
 
 const approvals = [
   { name: "Beach Nest Homestay", type: "Resort", owner: "Sharath", status: "Review" },
   { name: "Coastal Riders Fleet", type: "Vehicle", owner: "Naveen", status: "KYC pending" },
 ];
 
-export default function AdminPage() {
+export default async function AdminPage() {
+  const superAdminCount = await prisma.user.count({ where: { role: "SUPER_ADMIN" } });
   const confirmedValue = leads
     .filter((lead) => lead.status === "Confirmed")
     .reduce((sum, lead) => sum + lead.value, 0);
@@ -51,6 +57,21 @@ export default function AdminPage() {
             >
               <Send className="h-5 w-5" />
               Broadcast
+            </a>
+            {superAdminCount === 0 && (
+              <a
+                href="/admin/create-super-admin"
+                className="inline-flex h-12 items-center gap-2 rounded-md bg-coral px-5 font-black text-white transition hover:bg-coral/90"
+              >
+                Create Super Admin
+              </a>
+            )}
+            <a
+              href="/admin/approved-listings"
+              className="inline-flex h-12 items-center gap-2 rounded-md bg-ink px-5 font-black text-white transition hover:bg-stone"
+            >
+              <Eye className="h-5 w-5" />
+              View Approved Listings
             </a>
             <button className="inline-flex h-12 items-center gap-2 rounded-md bg-ink px-5 font-black text-white transition hover:bg-stone">
               <Plus className="h-5 w-5" />
@@ -159,23 +180,10 @@ export default function AdminPage() {
                 <ShieldCheck className="h-6 w-6 text-coral" />
                 <h2 className="text-2xl font-black">Approvals</h2>
               </div>
-              <div className="mt-5 grid gap-3">
-                {approvals.map((approval) => (
-                  <div
-                    key={approval.name}
-                    className="rounded-md border border-ink/10 p-4"
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="font-black">{approval.name}</p>
-                      <span className="text-xs font-black text-coral">
-                        {approval.status}
-                      </span>
-                    </div>
-                    <p className="mt-1 text-sm font-semibold text-stone">
-                      {approval.type} - {approval.owner}
-                    </p>
-                  </div>
-                ))}
+              <div className="mt-5 grid gap-6">
+                <AdminPartnerApprovals />
+                <AdminResortApprovals />
+                <AdminVehicleApprovals />
               </div>
             </section>
           </aside>
