@@ -15,9 +15,11 @@ const navItems = [
 ];
 
 export function SiteHeader() {
-  const [user, setUser] = useState<{ email: string; role?: string } | null>(
-    null,
-  );
+  const [user, setUser] = useState<{
+  name?: string;
+  email: string;
+  role?: string;
+} | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -89,7 +91,12 @@ export function SiteHeader() {
         <div className="flex items-center gap-2">
           {user ? (
             <div className="hidden items-center gap-3 sm:flex">
-              <span className="text-sm font-bold">{user.email}</span>
+              <Link
+  href="/profile"
+  className="rounded-md px-3 py-2 text-sm font-bold transition hover:bg-white/10 hover:text-coral"
+>
+  👤 {user.name ?? user.email}
+</Link>
               <button
                 onClick={handleLogout}
                 className="inline-flex h-11 items-center gap-2 rounded-md border border-white/15 px-4 text-base font-bold text-white transition hover:border-coral hover:text-coral"
