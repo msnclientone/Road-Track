@@ -1,10 +1,13 @@
 import { notFound } from "next/navigation";
+import { vehicleImages } from "@/lib/vehicleImages";
 import Image from "next/image";
 import { Mail, Phone, MapPin, Users, Zap, IndianRupee } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { prisma } from "@/lib/prisma";
 import { buildWhatsAppUrl, formatCurrency } from "@/lib/utils";
+import { getSession } from "@/lib/auth/session";
+import AddToBucketButton from "@/components/AddToBucketButton";
 
 export async function generateStaticParams() {
   const vehicles = await prisma.vehicle.findMany({
@@ -23,6 +26,7 @@ export default async function VehicleDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const session = await getSession();
 
   const vehicle = await prisma.vehicle.findUnique({
     where: { id },
@@ -39,7 +43,7 @@ export default async function VehicleDetailPage({
   if (!vehicle || vehicle.status !== "APPROVED") {
     notFound();
   }
-
+console.log(vehicle.vehicleType);
   return (
     <main className="min-h-screen bg-ivory text-ink">
       <SiteHeader />
@@ -71,7 +75,10 @@ export default async function VehicleDetailPage({
             <div className="mt-8 rounded-lg overflow-hidden">
               <div className="relative aspect-video">
                 <Image
-                  src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1200&h=800&fit=crop"
+                  src={
+  vehicleImages[vehicle.vehicleType] ??
+  "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1200"
+}
                   alt={vehicle.vehicleType}
                   fill
                   priority
@@ -154,13 +161,17 @@ export default async function VehicleDetailPage({
                 <div>
                   <p className="text-sm text-stone">Per Day</p>
                   <p className="mt-2 text-3xl font-black text-coral">
-                    {formatCurrency(vehicle.pricePerDay)}
+                    {vehicle.pricePerDay != null
+  ? formatCurrency(vehicle.pricePerDay)
+  : "Not Set"}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm text-stone">Per KM</p>
                   <p className="mt-2 text-3xl font-black text-coral">
-                    {formatCurrency(vehicle.pricePerKm)}
+                    {vehicle.pricePerKm != null
+  ? formatCurrency(vehicle.pricePerKm)
+  : "Not Set"}
                   </p>
                 </div>
               </div>
@@ -174,10 +185,10 @@ export default async function VehicleDetailPage({
             <div className="mt-6 space-y-4">
               <div>
                 <p className="text-sm font-bold text-stone">Owner Name</p>
-                <p className="mt-1 text-lg font-black">{vehicle.owner.name}</p>
+                <p className="mt-1 text-lg font-black">{vehicle.owner?.name ?? "Not Available"}</p>
               </div>
 
-              {vehicle.owner.email && (
+              {vehicle.owner?.email && (
                 <div>
                   <p className="text-sm font-bold text-stone">Email</p>
                   <a
@@ -190,7 +201,7 @@ export default async function VehicleDetailPage({
                 </div>
               )}
 
-              {vehicle.owner.phone && (
+              {vehicle.owner?.phone && (
                 <div>
                   <p className="text-sm font-bold text-stone">Phone</p>
                   <a
@@ -220,21 +231,31 @@ export default async function VehicleDetailPage({
                 <p className="text-sm text-stone">Pricing</p>
                 <p className="mt-1 flex items-center gap-2 font-black text-coral">
                   <IndianRupee className="h-4 w-4" />
-                  {formatCurrency(vehicle.pricePerDay)}/day · {formatCurrency(vehicle.pricePerKm)}/km
+                  {vehicle.pricePerDay != null
+  ? formatCurrency(vehicle.pricePerDay)
+  : "Not Set"}/day · {vehicle.pricePerKm != null
+  ? formatCurrency(vehicle.pricePerKm)
+  : "Not Set"}/km
                 </p>
               </div>
             </div>
 
-            <a
-              href={buildWhatsAppUrl(
-                `Hello Road Track,\nI'm interested in booking a ${vehicle.vehicleType} (${vehicle.registrationNo}). Can you provide details?`
-              )}
-              target="_blank"
-              rel="noreferrer"
-              className="mt-6 block w-full rounded-lg bg-coral px-4 py-3 text-center font-black text-ink transition hover:bg-coral/90"
-            >
-              Enquire on WhatsApp
-            </a>
+            <div className="mt-6 space-y-3">
+  {session?.role === "CUSTOMER" && (
+    <AddToBucketButton vehicleId={vehicle.id} />
+  )}
+
+  <a
+    href={buildWhatsAppUrl(
+      `Hello Road Track,\nI'm interested in booking a ${vehicle.vehicleType} (${vehicle.registrationNo}). Can you provide details?`
+    )}
+    target="_blank"
+    rel="noreferrer"
+    className="block w-full rounded-lg bg-coral px-4 py-3 text-center font-black text-ink transition hover:bg-coral/90"
+  >
+    Enquire on WhatsApp
+  </a>
+</div>
           </aside>
         </div>
       </section>

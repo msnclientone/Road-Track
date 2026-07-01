@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Loader2, Users, IndianRupee } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { getListingImageUrl } from "@/lib/placeholders";
+import { vehicleImages } from "@/lib/vehicleImages";
 
 type Vehicle = {
   id: string;
@@ -92,12 +93,17 @@ export default function VehiclesSection() {
           <article className="h-full">
             <div className="relative aspect-[16/10]">
               <Image
-                src={getListingImageUrl(vehicle.media, "vehicle")}
-                alt={vehicle.vehicleType}
-                fill
-                className="object-cover transition duration-500 group-hover:scale-105"
-                sizes="(min-width: 1024px) 33vw, 100vw"
-              />
+  src={
+    vehicle.media?.length
+      ? getListingImageUrl(vehicle.media, "vehicle")
+      : vehicleImages[vehicle.vehicleType] ??
+        "/vehicle-images/default.jpg"
+  }
+  alt={vehicle.vehicleType}
+  fill
+  className="object-cover transition duration-500 group-hover:scale-105"
+  sizes="(min-width: 1024px) 33vw, 100vw"
+/>
             </div>
             <div className="p-5">
               <div className="flex items-center justify-between gap-4">

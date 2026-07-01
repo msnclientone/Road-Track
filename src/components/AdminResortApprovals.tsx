@@ -27,19 +27,53 @@ export default function AdminResortApprovals() {
   }, []);
 
   async function updateStatus(resortId: string, status: string) {
-    try {
-      const res = await fetch("/api/admin/resorts/update-status", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ resortId, status }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Update failed");
-      setResorts((r) => r.filter((x) => x.id !== resortId));
-    } catch (e: any) {
-      alert(e?.message ?? "Unable to update status");
+  try {
+    let body: any = {
+      resortId,
+      status,
+    };
+
+    if (status === "APPROVED") {
+      const nonAcPrice = Number(
+        prompt("Enter Non AC Room Price")
+      );
+
+      if (isNaN(nonAcPrice)) return;
+
+      const acPrice = Number(
+        prompt("Enter AC Room Price")
+      );
+
+      if (isNaN(acPrice)) return;
+
+      body.nonAcPrice = nonAcPrice;
+      body.acPrice = acPrice;
     }
+
+    const res = await fetch(
+      "/api/admin/resorts/update-status",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      }
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error);
+    }
+
+    setResorts((old) =>
+      old.filter((r) => r.id !== resortId)
+    );
+  } catch (e: any) {
+    alert(e.message);
   }
+}
 
   if (loading) return <div>Loading pending resorts…</div>;
   if (error) return <div className="text-coral">{error}</div>;
@@ -56,12 +90,80 @@ export default function AdminResortApprovals() {
               <div>
                 <p className="font-black">{r.name}</p>
                 <p className="text-sm text-stone">Owner: {r.owner?.name ?? r.owner?.email}</p>
-                <p className="text-sm text-stone">Price: {r.priceMin}-{r.priceMax}</p>
+                <p className="text-sm text-stone">
+  Non AC Price :
+  <span className="font-semibold">
+    {" "}
+    ₹{r.priceMin}
+  </span>
+</p>
+
+<p className="text-sm text-stone">
+  AC Price :
+  <span className="font-semibold">
+    {" "}
+    ₹{r.priceMax}
+  </span>
+</p>
               </div>
               <div className="flex gap-2">
-                <button onClick={() => updateStatus(r.id, "APPROVED")} className="rounded-md bg-mint px-3 py-2 font-black text-ink">Approve</button>
-                <button onClick={() => updateStatus(r.id, "REJECTED")} className="rounded-md border border-ink/15 px-3 py-2 font-black text-stone">Reject</button>
-              </div>
+
+  <button
+    onClick={() =>
+      updateStatus(r.id, "APPROVED")
+    }
+    className="rounded-md bg-mint px-3 py-2 font-black text-ink"
+  >
+    Approve
+  </button>
+
+  <button
+    onClick={() =>
+      updateStatus(r.id, "REJECTED")
+    }
+    className="rounded-md border border-ink/15 px-3 py-2 font-black text-stone"
+  >
+    Reject
+  </button>
+
+  <button
+    onClick={async () => {
+
+      if (!confirm("Delete this resort permanently?"))
+        return;
+
+      const res = await fetch(
+        "/api/admin/resorts/delete",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            resortId: r.id,
+          }),
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error);
+        return;
+      }
+
+      setResorts((old) =>
+        old.filter(
+          (x) => x.id !== r.id
+        )
+      );
+    }}
+    className="rounded-md bg-red-600 px-3 py-2 font-black text-white"
+  >
+    Delete
+  </button>
+
+</div>
             </div>
           ))}
         </div>

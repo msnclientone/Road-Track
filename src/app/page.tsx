@@ -1,3 +1,5 @@
+import { prisma } from "@/lib/prisma";
+import DestinationSearch from "@/components/DestinationSearch";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -18,7 +20,6 @@ import { SiteHeader } from "@/components/SiteHeader";
 import ResortsSection from "@/components/ResortsSection";
 import VehiclesSection from "@/components/VehiclesSection";
 import {
-  destinations,
   heroImage,
   reviews,
   tourPackages,
@@ -57,7 +58,18 @@ const roadmap = [
   },
 ];
 
-export default function Home() {
+import { getSession } from "@/lib/auth/session";
+
+export default async function Home() {
+  const session = await getSession();
+  const destinations = await prisma.destination.findMany({
+  where: {
+    published: true,
+  },
+  orderBy: {
+    name: "asc",
+  },
+});
   return (
     <main className="min-h-screen bg-ivory text-ink">
       <SiteHeader />
@@ -79,9 +91,25 @@ export default function Home() {
               Trusted Udupi tourism planning for resorts, vehicles, packages,
               and local support.
             </p>
-            <h1 className="mt-4 max-w-none text-[4.3rem] font-black uppercase leading-[0.78] tracking-normal text-ivory sm:text-[7rem] lg:text-[10.8rem] xl:text-[13rem]">
-              Road Track
-            </h1>
+            <div className="mt-8 max-w-5xl">
+  <h1 className="text-5xl font-black text-ivory sm:text-6xl">
+    Where do you want to travel?
+  </h1>
+
+  <p className="mt-3 text-lg text-white/80">
+    Search your favourite destination and start planning instantly.
+  </p>
+
+  <div className="mt-8">
+  <DestinationSearch
+    destinations={destinations.map((destination) => ({
+      id: destination.id,
+      name: destination.name,
+      slug: destination.slug,
+    }))}
+  />
+</div>
+</div>
             <div className="mt-6 grid max-w-4xl gap-4 text-white/88 sm:grid-cols-3">
               <div className="flex items-center gap-3">
                 <ShieldCheck className="h-6 w-6 text-coral" />
@@ -127,8 +155,28 @@ export default function Home() {
             </div>
 
             <div id="planner" className="flex justify-center lg:justify-end">
-              <EnquiryPlanner />
-            </div>
+  {session?.role === "CUSTOMER" ? (
+    <EnquiryPlanner />
+  ) : (
+    <div className="w-full max-w-[540px] rounded-lg border border-white/15 bg-ink/80 p-8 text-center text-white shadow-2xl backdrop-blur">
+      <h3 className="text-2xl font-black">
+        Plan Your Trip
+      </h3>
+
+      <p className="mt-3 text-white/80">
+        Login as a Customer to plan your trip,
+        estimate costs and book resorts & vehicles.
+      </p>
+
+      <Link
+        href="/login"
+        className="mt-6 inline-flex h-11 items-center justify-center rounded-md bg-coral px-6 font-bold text-ink hover:bg-coral/90"
+      >
+        Login to Continue
+      </Link>
+    </div>
+  )}
+</div>
           </div>
         </div>
       </section>
@@ -137,7 +185,7 @@ export default function Home() {
         id="destinations"
         className="mx-auto max-w-none px-5 py-20 sm:px-8 lg:px-10 2xl:px-12"
       >
-        <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
+        <div className="mt-10 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
           <div>
             <p className="text-sm font-black uppercase tracking-[0.22em] text-coral">
               Destination pages
@@ -161,7 +209,10 @@ export default function Home() {
             >
               <div className="relative aspect-[4/3] overflow-hidden">
                 <Image
-                  src={destination.heroImage}
+                  src={
+  destination.heroImageUrl ||
+  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200"
+}
                   alt={destination.name}
                   fill
                   className="object-cover transition duration-500 group-hover:scale-105"
@@ -171,18 +222,33 @@ export default function Home() {
               <div className="p-5">
                 <div className="flex items-center justify-between gap-3">
                   <h3 className="text-2xl font-black">{destination.name}</h3>
-                  <ArrowRight className="h-5 w-5 text-coral transition group-hover:translate-x-1" />
+                  <div className="mt-5 flex items-center justify-between">
+
+<p className="font-bold text-coral">
+    Explore Destination
+</p>
+
+<span className="text-2xl text-coral transition group-hover:translate-x-2">
+    →
+</span>
+
+</div>
                 </div>
-                <p className="mt-2 text-sm font-bold text-stone">
-                  {destination.region}
-                </p>
+                <p className="mt-2 text-sm font-bold capitalize text-stone">
+  📍 {destination.slug?.replace(/-/g, " ") || "Unknown Location"}
+</p>
                 <p className="mt-4 line-clamp-3 text-sm leading-6 text-stone">
-                  {destination.summary}
+                  {destination.description}
                 </p>
                 <div className="mt-5 flex items-center justify-between text-sm font-black">
-                  <span>{destination.distanceFromUdupi}</span>
+                  <span className="inline-block rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-700">
+    🌤 {destination.bestTimeToVisit || "All Season"}
+</span>
                   <span className="text-coral">
-                    From {formatCurrency(destination.tripCostFrom)}
+                    From{" "}
+{destination.estTripCostMin
+  ? formatCurrency(destination.estTripCostMin)
+  : "Contact Us"}
                   </span>
                 </div>
               </div>

@@ -10,7 +10,17 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { resortId, status } = body as { resortId?: string; status?: string };
+    const {
+  resortId,
+  status,
+  nonAcPrice,
+  acPrice,
+} = body as {
+  resortId?: string;
+  status?: string;
+  nonAcPrice?: number;
+  acPrice?: number;
+};
 
     if (!resortId || !status) {
       return NextResponse.json({ error: "Invalid request" }, { status: 400 });
@@ -20,10 +30,35 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid status" }, { status: 400 });
     }
 
-    const resort = await prisma.resort.update({
-      where: { id: resortId },
-      data: { status: status as any },
-    });
+    const updateData: any = {
+  status,
+};
+
+if (status === "APPROVED") {
+  if (
+    nonAcPrice === undefined ||
+    acPrice === undefined
+  ) {
+    return NextResponse.json(
+      {
+        error: "Please enter both AC and Non AC prices.",
+      },
+      {
+        status: 400,
+      }
+    );
+  }
+
+  updateData.priceMin = Number(nonAcPrice);
+  updateData.priceMax = Number(acPrice);
+}
+
+const resort = await prisma.resort.update({
+  where: {
+    id: resortId,
+  },
+  data: updateData,
+});
 
     return NextResponse.json({ ok: true, resort });
   } catch (err) {

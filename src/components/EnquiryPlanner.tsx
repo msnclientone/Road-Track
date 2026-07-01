@@ -2,21 +2,13 @@
 
 import {
   CalendarDays,
-  Hotel,
   Loader2,
   Send,
   Users,
 } from "lucide-react";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 
-import { destinations, vehicles } from "@/lib/data";
 import { buildLeadMessage, buildWhatsAppUrl } from "@/lib/utils";
-
-const roomRates = [
-  { label: "Budget", value: 2200 },
-  { label: "Comfort", value: 3600 },
-  { label: "Premium", value: 6200 },
-];
 
 const labelClass = "grid gap-1 text-[11px] font-semibold";
 const inputClass =
@@ -32,30 +24,73 @@ export function EnquiryPlanner() {
   const [date, setDate] = useState("");
   const [people, setPeople] = useState(4);
   const [days, setDays] = useState(2);
-  const [destinationSlug, setDestinationSlug] = useState("malpe-beach");
-  const [vehicleId, setVehicleId] = useState("innova-crysta");
-  const [roomRate, setRoomRate] = useState(roomRates[1].value);
   const [vehicleRequired, setVehicleRequired] = useState(true);
   const [resortRequired, setResortRequired] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [notice, setNotice] = useState("");
+  const [plannerData, setPlannerData] = useState<any>(null);
+  const selectedResort = plannerData?.items?.find(
+  (item: any) => item.resort
+)?.resort;
 
-  const selectedDestination = destinations.find(
-    (destination) => destination.slug === destinationSlug,
-  );
-  const selectedVehicle =
-    vehicles.find((vehicle) => vehicle.id === vehicleId) ?? vehicles[0];
-  const selectedRoom = roomRates.find((rate) => rate.value === roomRate);
+const selectedVehicle = plannerData?.items?.find(
+  (item: any) => item.vehicle
+)?.vehicle;
+const resortCost =
+  selectedResort && resortRequired
+    ? selectedResort.priceMin * days
+    : 0;
 
-  const leadMessage = buildLeadMessage({
-    name,
-    phone,
-    destination: selectedDestination?.name ?? "Udupi",
-    date,
-    people,
-    vehicleRequired,
-    resortRequired,
-  });
+const vehicleCost =
+  selectedVehicle && vehicleRequired
+    ? selectedVehicle.pricePerDay * days
+    : 0;
+
+const totalCost = resortCost + vehicleCost;
+
+const perHeadCost =
+  people > 0 ? Math.ceil(totalCost / people) : 0;
+useEffect(() => {
+  async function loadPlanner() {
+    const res = await fetch("/api/planner");
+
+    if (!res.ok) return;
+
+    const data = await res.json();
+
+    setPlannerData(data);
+  }
+
+  loadPlanner();
+}, []);
+
+  const leadMessage = `
+*ROAD TRACK TRIP ENQUIRY*
+
+ Name: ${name}
+ Phone: ${phone}
+
+ Destination: ${
+  selectedResort?.destination?.name ?? "Udupi"
+}
+
+ Resort: ${
+  selectedResort?.name ?? "Not Selected"
+}
+
+ Vehicle: ${
+  selectedVehicle?.vehicleType ?? "Not Selected"
+}
+
+ People: ${people}
+ Days: ${days}
+
+ Resort Cost: ₹${resortCost}
+ Vehicle Cost: ₹${vehicleCost}
+
+ Total Trip Cost: ₹${totalCost}
+
+`;
 
   async function saveLead(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -72,17 +107,17 @@ export function EnquiryPlanner() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name,
-          phone,
-          destination: selectedDestination?.name,
-          date,
-          people,
-          destinationSlug,
-          vehicleRequired,
-          resortRequired,
-          vehicle: vehicleRequired ? selectedVehicle.type : undefined,
-          hotel: resortRequired ? selectedRoom?.label : undefined,
-        }),
+  name,
+  phone,
+  destination: selectedResort?.destination?.name ?? "",
+  destinationSlug: "",
+  people,
+  date,
+  vehicleRequired,
+  resortRequired,
+  vehicle: selectedVehicle?.vehicleType,
+  hotel: selectedResort?.name,
+}),
       });
 
       if (!response.ok) {
@@ -125,27 +160,19 @@ export function EnquiryPlanner() {
         <label className={labelClass}>
           Phone
           <input
-            value={phone}
-            onChange={(event) => setPhone(event.target.value)}
-            placeholder="+91 98765 43210"
-            className={inputClass}
-          />
+  type="tel"
+  value={phone}
+  onChange={(event) =>
+    setPhone(event.target.value.replace(/\D/g, "").slice(0, 10))
+  }
+  placeholder="9876543210"
+  maxLength={10}
+  pattern="[0-9]{10}"
+  required
+  className={inputClass}
+/>
         </label>
 
-        <label className={labelClass}>
-          Destination
-          <select
-            value={destinationSlug}
-            onChange={(event) => setDestinationSlug(event.target.value)}
-            className={inputClass}
-          >
-            {destinations.map((destination) => (
-              <option key={destination.slug} value={destination.slug}>
-                {destination.name}
-              </option>
-            ))}
-          </select>
-        </label>
 
         <label className={labelClass}>
           Travel date
@@ -185,39 +212,6 @@ export function EnquiryPlanner() {
             onChange={(event) => setDays(Number(event.target.value))}
             className={inputClass}
           />
-        </label>
-
-        <label className={labelClass}>
-          Vehicle
-          <select
-            value={vehicleId}
-            onChange={(event) => setVehicleId(event.target.value)}
-            className={inputClass}
-          >
-            {vehicles.map((vehicle) => (
-              <option key={vehicle.id} value={vehicle.id}>
-                {vehicle.type} - {vehicle.seats} seats
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label className={labelClass}>
-          Resort category
-          <span className="relative">
-            <Hotel className={iconClass} />
-            <select
-              value={roomRate}
-              onChange={(event) => setRoomRate(Number(event.target.value))}
-              className={iconInputClass}
-            >
-              {roomRates.map((rate) => (
-                <option key={rate.label} value={rate.value}>
-                  {rate.label}
-                </option>
-              ))}
-            </select>
-          </span>
         </label>
       </div>
 
@@ -259,6 +253,62 @@ export function EnquiryPlanner() {
         </div>
 
         {notice ? <p className="text-xs text-amber">{notice}</p> : null}
+      {plannerData && (
+  <div className="mt-4 rounded-lg border bg-white/10 p-4 text-sm">
+
+    <h2 className="mb-4 text-lg font-black">
+      Trip Summary
+    </h2>
+
+    {selectedResort && (
+      <div className="mb-3">
+        <p className="font-bold">🏨 Resort</p>
+        <p>{selectedResort.name}</p>
+      </div>
+    )}
+
+    {selectedVehicle && (
+      <div className="mb-3">
+        <p className="font-bold">🚗 Vehicle</p>
+        <p>{selectedVehicle.vehicleType}</p>
+      </div>
+    )}
+
+    <hr className="my-3 border-white/20" />
+
+    <div className="space-y-2">
+
+      <div className="flex justify-between">
+        <span>Resort Cost</span>
+        <span>₹{resortCost}</span>
+      </div>
+
+      <div className="flex justify-between">
+        <span>Vehicle Cost</span>
+        <span>₹{vehicleCost}</span>
+      </div>
+
+      <div className="flex justify-between text-lg font-black text-coral">
+        <span>Total Trip Cost</span>
+        <span>₹{totalCost}</span>
+      </div>
+
+      <div className="flex justify-between text-lg font-black text-mint">
+        <span>Per Head Cost</span>
+        <span>₹{perHeadCost}</span>
+      </div>
+      <hr className="my-3 border-white/20" />
+
+<div className="rounded-md bg-coral/10 p-3">
+  <p className="font-bold text-coral">
+    Estimated for {people} people · {days} day{days > 1 ? "s" : ""}
+  </p>
+</div>
+
+    </div>
+
+  </div>
+)}
       </div>
     </form>
   );

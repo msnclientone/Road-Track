@@ -25,7 +25,7 @@ export async function POST(request: Request) {
     }
 
     const email = parsed.data.email.toLowerCase();
-    const portal = (parsed.data as any).portal as string | undefined;
+    const portal = parsed.data.portal;
     const codeHash = hashOtpCode(parsed.data.code);
 
     const existingUser = await prisma.user.findUnique({ where: { email } });

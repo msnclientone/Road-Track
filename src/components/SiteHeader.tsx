@@ -66,12 +66,25 @@ export function SiteHeader() {
         </Link>
 
         <nav className="hidden items-center gap-9 text-base font-bold text-white/85 lg:flex">
-          {navItems.map((item) => (
-            <Link key={item.href} href={item.href} className="hover:text-coral">
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+  {navItems.map((item) => (
+    <Link
+      key={item.href}
+      href={item.href}
+      className="hover:text-coral"
+    >
+      {item.label}
+    </Link>
+  ))}
+
+  {user?.role === "CUSTOMER" && (
+    <Link
+      href="/bucket"
+      className="hover:text-coral"
+    >
+      🪣 Bucket
+    </Link>
+  )}
+</nav>
 
         <div className="flex items-center gap-2">
           {user ? (

@@ -73,8 +73,7 @@ export const roadTrackPhone =
   process.env.NEXT_PUBLIC_ROAD_TRACK_WHATSAPP ?? "919876543210";
 export const emergencyPhone = "+91 98765 43210";
 
-export const heroImage =
-  "https://upload.wikimedia.org/wikipedia/commons/4/4b/Kapu_Beach_Lighthouse_.jpg";
+export const heroImage = "/images/kapu-beach.jpg";
 
 export const destinations: Destination[] = [
   {
@@ -131,8 +130,7 @@ export const destinations: Destination[] = [
     slug: "kapu-beach",
     name: "Kapu Beach",
     region: "Lighthouse and sunset coast",
-    heroImage:
-      "https://upload.wikimedia.org/wikipedia/commons/4/4b/Kapu_Beach_Lighthouse_.jpg",
+    heroImage: "/images/kapu-beach.jpg",
     summary:
       "A premium sunset route with the lighthouse, clean beach views, and easy pairing with Udupi or Malpe stays.",
     bestTime: "October to March; evenings are the strongest slot.",

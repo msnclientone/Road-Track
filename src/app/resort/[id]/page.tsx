@@ -1,10 +1,12 @@
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import Image from "next/image";
 import { Mail, Phone, MapPin, IndianRupee } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { prisma } from "@/lib/prisma";
 import { buildWhatsAppUrl, formatCurrency } from "@/lib/utils";
+import { getSession } from "@/lib/auth/session";
+import AddToBucketButton from "@/components/AddToBucketButton";
 
 export async function generateStaticParams() {
   const resorts = await prisma.resort.findMany({
@@ -23,6 +25,7 @@ export default async function ResortDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const session = await getSession();
 
   const resort = await prisma.resort.findUnique({
     where: { id },
@@ -94,11 +97,12 @@ export default async function ResortDetailPage({
             </div>
 
             {/* Amenities */}
-            {resort.amenities && resort.amenities.length > 0 && (
+            {Array.isArray(resort.amenities) &&
+  resort.amenities.length > 0 && (
               <div className="mt-8">
                 <h2 className="text-2xl font-black">Amenities</h2>
                 <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
-                  {resort.amenities.map((amenity) => (
+                  {(resort.amenities as string[]).map((amenity: string) => (
                     <div
                       key={amenity}
                       className="rounded-lg border border-ink/10 bg-white p-4 text-center font-bold"
@@ -137,14 +141,16 @@ export default async function ResortDetailPage({
             <div className="mt-6 space-y-4">
               <div>
                 <p className="text-sm font-bold text-stone">Owner Name</p>
-                <p className="mt-1 text-lg font-black">{resort.owner.name}</p>
+                <p className="mt-1 text-lg font-black">
+  {resort.owner?.name ?? "Not Available"}
+</p>
               </div>
 
-              {resort.owner.email && (
+              {resort.owner?.email && (
                 <div>
                   <p className="text-sm font-bold text-stone">Email</p>
                   <a
-                    href={`mailto:${resort.owner.email}`}
+                    href={`mailto:${resort.owner?.email}`}
                     className="mt-1 flex items-center gap-2 text-coral hover:underline"
                   >
                     <Mail className="h-4 w-4" />
@@ -153,15 +159,15 @@ export default async function ResortDetailPage({
                 </div>
               )}
 
-              {resort.owner.phone && (
+              {resort.owner?.phone && (
                 <div>
                   <p className="text-sm font-bold text-stone">Phone</p>
                   <a
-                    href={`tel:${resort.owner.phone}`}
+                    href={`tel:${resort.owner?.phone}`}
                     className="mt-1 flex items-center gap-2 text-coral hover:underline"
                   >
                     <Phone className="h-4 w-4" />
-                    {resort.owner.phone}
+                    {resort.owner?.phone}
                   </a>
                 </div>
               )}
@@ -180,16 +186,21 @@ export default async function ResortDetailPage({
               </div>
             </div>
 
-            <a
-              href={buildWhatsAppUrl(
-                `Hello Road Track,\nI'm interested in ${resort.name} in ${resort.destination.name}. Can you provide more details?`
-              )}
-              target="_blank"
-              rel="noreferrer"
-              className="mt-6 block w-full rounded-lg bg-coral px-4 py-3 text-center font-black text-ink transition hover:bg-coral/90"
-            >
-              Enquire on WhatsApp
-            </a>
+            <div className="mt-6 space-y-3">
+  {session?.role === "CUSTOMER" && (
+  <AddToBucketButton resortId={resort.id} />
+)}
+  <a
+    href={buildWhatsAppUrl(
+      `Hello Road Track,\nI'm interested in ${resort.name} in ${resort.destination.name}. Can you provide more details?`
+    )}
+    target="_blank"
+    rel="noreferrer"
+    className="block w-full rounded-lg bg-coral px-4 py-3 text-center font-black text-ink transition hover:bg-coral/90"
+  >
+    Enquire on WhatsApp
+  </a>
+</div>
           </aside>
         </div>
       </section>

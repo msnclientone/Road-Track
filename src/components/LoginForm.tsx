@@ -679,6 +679,7 @@ export function LoginForm({ portal }: LoginFormProps) {
 
             <div className="flex items-start gap-3 rounded-md bg-coral/15 p-4 text-sm font-semibold text-stone">
               <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0 text-coral" />
+              <p>Please check your Inbox first. If you don't receive it within a minute, check your Spam or Promotions folder.</p>
               OTP is only needed once during sign up. After that, use your
               password to sign in.
             </div>

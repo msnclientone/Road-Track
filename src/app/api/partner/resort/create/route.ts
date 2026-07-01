@@ -11,15 +11,15 @@ export async function POST(request: Request) {
 
     const body = await request.json();
     const {
-      name,
-      description,
-      address,
-      priceMin,
-      priceMax,
-      amenities,
-      destinationId,
-      destinationSlug,
-    } = body as any;
+  name,
+  description,
+  address,
+  acRooms,
+  nonAcRooms,
+  amenities,
+  destinationId,
+  destinationSlug,
+} = body as any;
 
     if (typeof name !== "string" || name.trim() === "") {
       return NextResponse.json({ error: "Missing required field: name" }, { status: 400 });
@@ -30,9 +30,16 @@ export async function POST(request: Request) {
     if (typeof destinationId !== "string" || destinationId.trim() === "") {
       return NextResponse.json({ error: "Missing required field: destinationId" }, { status: 400 });
     }
-    if (priceMin == null || priceMax == null) {
-      return NextResponse.json({ error: "Missing required field: priceMin/priceMax" }, { status: 400 });
+    if (acRooms == null || nonAcRooms == null) {
+  return NextResponse.json(
+    {
+      error: "Please enter AC Rooms and Non AC Rooms.",
+    },
+    {
+      status: 400,
     }
+  );
+}
 
     const slugBase = name
       .trim()
@@ -76,7 +83,11 @@ export async function POST(request: Request) {
       if (existing) {
         finalDestinationId = existing.id;
       } else {
-        const nameFromSlug = destinationSlug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+       const slugValue = String(destinationSlug);
+
+const nameFromSlug = slugValue
+  .replace(/-/g, " ")
+  .replace(/\b\w/g, (c) => c.toUpperCase());
         const created = await prisma.destination.create({
           data: {
             name: nameFromSlug,
@@ -94,19 +105,28 @@ export async function POST(request: Request) {
     }
 
     const resort = await prisma.resort.create({
-      data: {
-        ownerId: session.sub,
-        destinationId: finalDestinationId,
-        name,
-        slug,
-        description,
-        address: address ?? null,
-        priceMin: Number(priceMin),
-        priceMax: Number(priceMax),
-        amenities: amenitiesArray,
-        status: "PENDING",
-      },
-    });
+  data: {
+    ownerId: session.sub,
+    destinationId: finalDestinationId,
+
+    name,
+    slug,
+    description,
+    address: address ?? null,
+
+    // Super Admin sets these after approval
+    priceMin: 0,
+    priceMax: 0,
+
+    // Room availability
+    availableAcRooms: Number(acRooms),
+    availableNonAcRooms: Number(nonAcRooms),
+
+    amenities: amenitiesArray,
+
+    status: "PENDING",
+  },
+});
 
     return NextResponse.json({ ok: true, resort });
   } catch (err) {

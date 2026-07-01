@@ -57,9 +57,10 @@ export async function POST(request: Request) {
         : "CUSTOMER";
 
     const partnerStatus =
-      role === "RESORT_OWNER" || role === "VEHICLE_OWNER"
-        ? "PENDING"
-        : null;
+  role === "VEHICLE_OWNER" ||
+  role === "RESORT_OWNER"
+    ? "APPROVED"
+    : null;
 
     // Prevent self-registration for admin after initial bootstrap
     if (role === "SUPER_ADMIN") {
@@ -107,9 +108,15 @@ export async function POST(request: Request) {
     await setSessionCookie(token);
 
     return NextResponse.json({
-      ok: true,
-      redirectTo: getRedirectForUser(portal, user.partnerStatus),
-    });
+  ok: true,
+  redirectTo: getRedirectForUser(
+    portal,
+    role === "RESORT_OWNER" ||
+    role === "VEHICLE_OWNER"
+      ? "APPROVED"
+      : user.partnerStatus
+  ),
+});
   } catch (error) {
     console.error("Registration failed:", error);
     return NextResponse.json(
