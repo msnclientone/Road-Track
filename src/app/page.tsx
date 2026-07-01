@@ -95,7 +95,7 @@ export default async function Home() {
             </p>
             <div className="mt-8 max-w-5xl">
   <h1 className="text-5xl font-black text-ivory sm:text-6xl">
-    Where do you want to travel?
+    Explore UDUPI
   </h1>
 
   <p className="mt-3 text-lg text-white/80">
