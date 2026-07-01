@@ -1,3 +1,4 @@
+import Link from "next/link";
 import DestinationManager from "@/components/DestinationManager";
 import AdminPartnerApprovals from "@/components/AdminPartnerApprovals";
 import AdminResortApprovals from "@/components/AdminResortApprovals";
@@ -158,19 +159,23 @@ export default async function AdminPage() {
               subtitle="Available destinations"
             />
 
-            <DashboardCard
-              icon={<Building2 className="h-8 w-8" />}
-              title="Approved Resorts"
-              value={resortCount}
-              subtitle="Verified partners"
-            />
-
-            <DashboardCard
-              icon={<Car className="h-8 w-8" />}
-              title="Approved Vehicles"
-              value={vehicleCount}
-              subtitle="Ready for booking"
-            />
+            
+  <Link href="/admin/approved-resorts">
+  <DashboardCard
+    icon={<Building2 className="h-8 w-8" />}
+    title="Approved Resorts"
+    value={resortCount}
+    subtitle="Verified partners"
+  />
+</Link>
+            <Link href="/admin/approved-vehicles">
+  <DashboardCard
+    icon={<Car className="h-8 w-8" />}
+    title="Approved Vehicles"
+    value={vehicleCount}
+    subtitle="Ready for booking"
+  />
+</Link>
 
             <DashboardCard
               icon={<Users className="h-8 w-8" />}
