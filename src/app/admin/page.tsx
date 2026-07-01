@@ -3,6 +3,7 @@ import DestinationManager from "@/components/DestinationManager";
 import AdminPartnerApprovals from "@/components/AdminPartnerApprovals";
 import AdminResortApprovals from "@/components/AdminResortApprovals";
 import AdminVehicleApprovals from "@/components/AdminVehicleApprovals";
+import ResetVisitorCounter from "@/components/ResetVisitorCounter";
 
 import { SiteHeader } from "@/components/SiteHeader";
 
@@ -21,12 +22,13 @@ import { buildWhatsAppUrl } from "@/lib/utils";
 
 export default async function AdminPage() {
   const [
-    destinationCount,
-    resortCount,
-    vehicleCount,
-    pendingPartners,
-    superAdminCount,
-  ] = await Promise.all([
+  destinationCount,
+  resortCount,
+  vehicleCount,
+  pendingPartners,
+  superAdminCount,
+  analytics,
+] = await Promise.all([
     prisma.destination.count(),
 
     prisma.resort.count({
@@ -54,6 +56,11 @@ export default async function AdminPage() {
         role: "SUPER_ADMIN",
       },
     }),
+    prisma.websiteAnalytics.findUnique({
+  where: {
+    id: "main",
+  },
+}),
   ]);
 
   return (
@@ -183,6 +190,15 @@ export default async function AdminPage() {
               value={pendingPartners}
               subtitle="Registered partners"
             />
+            <DashboardCard
+  icon={<Eye className="h-8 w-8" />}
+  title="Website Visitors"
+  value={analytics?.totalViews ?? 0}
+  subtitle="Total website visits"
+/>
+<div className="mt-6">
+  <ResetVisitorCounter />
+</div>
 
           </div>
 

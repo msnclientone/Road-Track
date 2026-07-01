@@ -1,3 +1,4 @@
+import VisitorTracker from "@/components/VisitorTracker";
 import { prisma } from "@/lib/prisma";
 import DestinationSearch from "@/components/DestinationSearch";
 import Image from "next/image";
@@ -71,8 +72,9 @@ export default async function Home() {
   },
 });
   return (
-    <main className="min-h-screen bg-ivory text-ink">
-      <SiteHeader />
+  <main className="min-h-screen bg-ivory text-ink">
+    <VisitorTracker />
+    <SiteHeader />
 
       <section className="relative isolate min-h-[92svh] overflow-hidden pt-24 text-ivory">
         <Image

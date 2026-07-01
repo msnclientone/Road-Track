@@ -291,6 +291,17 @@ model Review {
   @@index([vehicleId])
   @@index([approved])
 }
+model WebsiteAnalytics {
+  id          String   @id @default("main")
+  totalViews  Int      @default(0)
+  lastResetAt DateTime @default(now())
+}
+
+model WebsiteAnalyticsHistory {
+  id          String   @id @default(cuid())
+  totalViews  Int
+  resetAt     DateTime @default(now())
+}
 
 model Guide {
   id         String   @id @default(cuid())
