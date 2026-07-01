@@ -22,6 +22,7 @@ export async function POST(request: Request) {
   description: body.description,
 
   heroImageUrl: body.heroImageUrl || null,
+  googleMapsLink: body.googleMapsLink || null,
   bestTimeToVisit: body.bestTimeToVisit || null,
 
   estTripCostMin:

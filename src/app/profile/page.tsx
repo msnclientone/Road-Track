@@ -31,14 +31,14 @@ export default async function ProfilePage() {
     <main className="min-h-screen bg-ivory text-ink">
       <SiteHeader />
 
-      <section className="mx-auto max-w-3xl px-5 pt-28 pb-20">
-        <div className="rounded-xl border border-ink/10 bg-white p-8 shadow-sm">
+      <section className="mx-auto max-w-3xl px-5 pt-24 pb-20 sm:pt-28">
+        <div className="rounded-xl border border-ink/10 bg-white p-5 shadow-sm sm:p-8">
 
-          <h1 className="text-4xl font-black">
+          <h1 className="text-3xl font-black sm:text-4xl">
             My Profile
           </h1>
 
-          <p className="mt-2 text-stone">
+          <p className="mt-2 text-sm text-stone sm:text-base">
             Manage your Road Track account.
           </p>
 

@@ -59,12 +59,12 @@ console.log(vehicle.vehicleType);
     <main className="min-h-screen bg-ivory text-ink">
       <SiteHeader />
 
-      <section className="mx-auto max-w-none px-5 pb-20 pt-28 sm:px-8 lg:px-10 2xl:px-12">
-        <div className="grid gap-10 lg:grid-cols-[1fr_0.6fr]">
+      <section className="mx-auto max-w-none px-5 pb-20 pt-24 sm:px-8 lg:px-10 2xl:px-12 sm:pt-28">
+        <div className="grid gap-8 lg:gap-10 lg:grid-cols-[1fr_0.6fr]">
           {/* Main Content */}
           <div>
             {/* Breadcrumb */}
-            <nav className="mb-6 text-sm font-bold text-stone">
+            <nav className="mb-4 text-sm font-bold text-stone sm:mb-6">
               <a href="/" className="hover:text-coral">
                 Home
               </a>
@@ -75,15 +75,15 @@ console.log(vehicle.vehicleType);
             </nav>
 
             {/* Title */}
-            <h1 className="text-5xl font-black tracking-tight sm:text-6xl">
+            <h1 className="text-3xl font-black tracking-tight sm:text-4xl md:text-5xl lg:text-6xl">
               {vehicle.vehicleType}
             </h1>
-            <p className="mt-3 font-bold text-lg text-stone">
+            <p className="mt-2 font-bold text-base text-stone sm:mt-3 sm:text-lg">
               {vehicle.registrationNo}
             </p>
 
             {/* Image Gallery */}
-            <div className="mt-8 rounded-lg overflow-hidden">
+            <div className="mt-6 rounded-lg overflow-hidden sm:mt-8">
               <div className="relative aspect-video">
                 <Image
                   src={
@@ -101,7 +101,7 @@ console.log(vehicle.vehicleType);
             </div>
 
             {/* Vehicle Specs */}
-            <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-3">
+            <div className="mt-6 grid grid-cols-2 gap-3 sm:mt-8 sm:gap-4 md:grid-cols-3">
               <div className="rounded-lg border border-mint/20 bg-mint/5 p-4">
                 <p className="text-sm font-bold text-stone">Type</p>
                 <p className="mt-2 text-2xl font-black">{vehicle.vehicleType}</p>
@@ -143,12 +143,12 @@ console.log(vehicle.vehicleType);
             </div>
 
             {/* Driver Info */}
-            <div className="mt-8 rounded-lg border border-ink/10 bg-white p-6">
-              <h2 className="text-2xl font-black">Driver Information</h2>
-              <div className="mt-4 grid grid-cols-2 gap-6">
+            <div className="mt-6 rounded-lg border border-ink/10 bg-white p-5 sm:mt-8 sm:p-6">
+              <h2 className="text-xl font-black sm:text-2xl">Driver Information</h2>
+              <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
                 <div>
                   <p className="text-sm text-stone">Driver Name</p>
-                  <p className="mt-2 text-xl font-black">{vehicle.driverName}</p>
+                  <p className="mt-2 text-lg font-black sm:text-xl">{vehicle.driverName}</p>
                 </div>
                 {vehicle.driverPhone && (
                   <div>
@@ -166,12 +166,12 @@ console.log(vehicle.vehicleType);
             </div>
 
             {/* Pricing */}
-            <div className="mt-8 rounded-lg border border-coral/20 bg-coral/5 p-6">
-              <h2 className="text-2xl font-black">Pricing</h2>
-              <div className="mt-4 grid grid-cols-2 gap-6">
+            <div className="mt-6 rounded-lg border border-coral/20 bg-coral/5 p-5 sm:mt-8 sm:p-6">
+              <h2 className="text-xl font-black sm:text-2xl">Pricing</h2>
+              <div className="mt-4 grid grid-cols-2 gap-4 sm:gap-6">
                 <div>
                   <p className="text-sm text-stone">Per Day</p>
-                  <p className="mt-2 text-3xl font-black text-coral">
+                  <p className="mt-2 text-2xl font-black text-coral sm:text-3xl">
                     {vehicle.pricePerDay != null
   ? formatCurrency(vehicle.pricePerDay)
   : "Not Set"}
@@ -179,7 +179,7 @@ console.log(vehicle.vehicleType);
                 </div>
                 <div>
                   <p className="text-sm text-stone">Per KM</p>
-                  <p className="mt-2 text-3xl font-black text-coral">
+                  <p className="mt-2 text-2xl font-black text-coral sm:text-3xl">
                     {vehicle.pricePerKm != null
   ? formatCurrency(vehicle.pricePerKm)
   : "Not Set"}
@@ -190,13 +190,13 @@ console.log(vehicle.vehicleType);
           </div>
 
           {/* Sidebar */}
-          <aside className="h-fit rounded-lg border border-ink/10 bg-white p-6 shadow-sm sticky top-28">
-            <h3 className="text-xl font-black">Contact Owner</h3>
+          <aside className="h-fit rounded-lg border border-ink/10 bg-white p-5 shadow-sm sm:p-6 sm:sticky sm:top-28">
+            <h3 className="text-lg font-black sm:text-xl">Contact Owner</h3>
 
-            <div className="mt-6 space-y-4">
+            <div className="mt-4 space-y-3 sm:mt-6 sm:space-y-4">
               <div>
                 <p className="text-sm font-bold text-stone">Owner Name</p>
-                <p className="mt-1 text-lg font-black">{vehicle.owner?.name ?? "Not Available"}</p>
+                <p className="mt-1 text-base font-black sm:text-lg">{vehicle.owner?.name ?? "Not Available"}</p>
               </div>
 
               {vehicle.owner?.email && (
@@ -225,12 +225,12 @@ console.log(vehicle.vehicleType);
                 </div>
               )}
 
-              <div className="pt-4">
+              <div className="pt-3 sm:pt-4">
                 <p className="text-sm text-stone">Vehicle Type</p>
                 <p className="mt-1 font-bold">{vehicle.vehicleType}</p>
               </div>
 
-              <div className="pt-4">
+              <div className="pt-3 sm:pt-4">
                 <p className="text-sm text-stone">Capacity</p>
                 <p className="mt-1 flex items-center gap-2 font-bold">
                   <Users className="h-4 w-4" />
@@ -238,7 +238,7 @@ console.log(vehicle.vehicleType);
                 </p>
               </div>
 
-              <div className="pt-4">
+              <div className="pt-3 sm:pt-4">
                 <p className="text-sm text-stone">Pricing</p>
                 <p className="mt-1 flex items-center gap-2 font-black text-coral">
                   <IndianRupee className="h-4 w-4" />
@@ -251,7 +251,7 @@ console.log(vehicle.vehicleType);
               </div>
             </div>
 
-            <div className="mt-6 space-y-3">
+            <div className="mt-4 space-y-3 sm:mt-6">
   {session?.role === "CUSTOMER" && (
     <>
       <AddToBucketButton vehicleId={vehicle.id} />

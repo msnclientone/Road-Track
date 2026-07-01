@@ -4,6 +4,7 @@ import Image from "next/image";
 
 import { prisma } from "@/lib/prisma";
 import { SiteHeader } from "@/components/SiteHeader";
+import { getListingImageUrl } from "@/lib/placeholders";
 
 export default async function ApprovedResortsPage() {
   const resorts = await prisma.resort.findMany({
@@ -13,6 +14,10 @@ export default async function ApprovedResortsPage() {
     include: {
       owner: true,
       destination: true,
+      media: {
+        orderBy: { order: "asc" },
+        take: 1,
+      },
     },
   });
 
@@ -51,36 +56,36 @@ export default async function ApprovedResortsPage() {
               className="rounded-2xl border bg-white p-6 shadow-sm"
             >
 
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 
-                <div className="flex gap-5">
+                <div className="flex flex-col gap-4 sm:flex-row sm:gap-5">
 
                   <Image
-                    src="/images/kapu-beach.jpg"
+                    src={getListingImageUrl(resort.media, "resort")}
                     alt={resort.name}
                     width={130}
                     height={90}
-                    className="h-[90px] w-[130px] rounded-lg object-cover"
+                    className="h-[90px] w-full rounded-lg object-cover sm:w-[130px]"
                   />
 
                   <div>
 
-                    <h2 className="text-2xl font-black">
+                    <h2 className="text-xl font-black sm:text-2xl">
                       {resort.name}
                     </h2>
 
-                    <p className="text-stone">
+                    <p className="text-sm text-stone">
                       {resort.address}
                     </p>
 
-                    <p className="mt-3">
+                    <p className="mt-3 text-sm">
                       <span className="font-bold">
                         Owner:
                       </span>{" "}
                       {resort.owner?.name ?? "Unknown"}
                     </p>
 
-                    <p>
+                    <p className="text-sm">
                       <span className="font-bold">
                         Destination:
                       </span>{" "}

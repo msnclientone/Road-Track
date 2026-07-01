@@ -52,6 +52,7 @@ model Destination {
   description     String
   bestTimeToVisit String?
   heroImageUrl    String?
+  googleMapsLink  String?
   latitude        Float?
   longitude       Float?
   estTripCostMin  Int?
@@ -89,6 +90,7 @@ model Resort {
   slug          String        @unique
   description   String
   address       String?
+  googleMapsLink String?
   latitude      Float?
   longitude     Float?
   priceMin      Int

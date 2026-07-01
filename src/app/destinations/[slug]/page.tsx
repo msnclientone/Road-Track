@@ -7,6 +7,7 @@ import {
   ArrowLeft,
   CalendarDays,
   IndianRupee,
+  MapPin,
   MessageCircle,
 } from "lucide-react";
 
@@ -94,25 +95,25 @@ export default async function DestinationPage({
 
         <div className="absolute inset-0 bg-black/60" />
 
-        <div className="relative mx-auto flex min-h-[70vh] max-w-7xl flex-col justify-end px-6 pb-16">
+        <div className="relative mx-auto flex min-h-[70vh] max-w-7xl flex-col justify-end px-5 pb-12 sm:px-6 sm:pb-16">
           <Link
             href="/#destinations"
-            className="mb-8 inline-flex w-fit items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-5 py-2 font-bold text-white backdrop-blur transition hover:bg-white/20"
+            className="mb-6 inline-flex w-fit items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 py-2 font-bold text-white backdrop-blur transition hover:bg-white/20 sm:mb-8 sm:px-5"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Destinations
           </Link>
 
           <div className="max-w-4xl">
-            <span className="rounded-full bg-coral px-4 py-1 text-sm font-bold text-ink">
+            <span className="rounded-full bg-coral px-3 py-1 text-xs font-bold text-ink sm:px-4 sm:text-sm">
               Explore Destination
             </span>
 
-            <h1 className="mt-5 text-5xl font-black text-white md:text-7xl">
+            <h1 className="mt-4 text-4xl font-black text-white sm:text-5xl md:text-7xl">
               {destination.name}
             </h1>
 
-            <p className="mt-6 text-lg leading-8 text-white/90">
+            <p className="mt-4 text-base leading-7 text-white/90 sm:mt-6 sm:text-lg sm:leading-8">
               {destination.description}
             </p>
           </div>
@@ -121,8 +122,8 @@ export default async function DestinationPage({
 
       {/* QUICK INFO */}
 
-      <section className="mx-auto max-w-7xl px-6 py-14">
-        <div className="grid gap-6 md:grid-cols-2">
+      <section className="mx-auto max-w-7xl px-5 py-10 sm:px-6 sm:py-14">
+        <div className="grid gap-4 sm:gap-6 sm:grid-cols-2">
           <Fact
             icon={<CalendarDays className="h-5 w-5" />}
             label="Best Time To Visit"
@@ -143,18 +144,39 @@ export default async function DestinationPage({
                 : "Contact Us"
             }
           />
+
+          {destination.googleMapsLink && (
+            <a
+              href={destination.googleMapsLink}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center justify-center gap-2 rounded-3xl border border-coral/40 bg-white p-8 shadow-sm transition hover:bg-coral hover:text-ink sm:justify-start"
+            >
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-coral/10 text-coral">
+                <MapPin className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-sm font-black uppercase tracking-widest text-stone">
+                  Location
+                </p>
+                <p className="mt-1 text-lg font-black">
+                  View on Google Maps →
+                </p>
+              </div>
+            </a>
+          )}
         </div>
       </section>
 
       {/* ABOUT */}
 
-      <section className="mx-auto max-w-7xl px-6 pb-16">
-        <div className="rounded-3xl border bg-white p-8 shadow-sm">
-          <h2 className="text-3xl font-black">
+      <section className="mx-auto max-w-7xl px-5 pb-12 sm:px-6 sm:pb-16">
+        <div className="rounded-3xl border bg-white p-5 shadow-sm sm:p-8">
+          <h2 className="text-2xl font-black sm:text-3xl">
             About {destination.name}
           </h2>
 
-          <p className="mt-6 text-lg leading-8 text-stone">
+          <p className="mt-4 text-base leading-7 text-stone sm:mt-6 sm:text-lg sm:leading-8">
             {destination.description}
           </p>
         </div>
@@ -162,14 +184,14 @@ export default async function DestinationPage({
 
             {/* NEARBY DESTINATIONS */}
 
-      <section className="mx-auto max-w-7xl px-6 pb-16">
+      <section className="mx-auto max-w-7xl px-5 pb-12 sm:px-6 sm:pb-16">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-3xl font-black">
+            <h2 className="text-2xl font-black sm:text-3xl">
               Nearby Destinations
             </h2>
 
-            <p className="mt-2 text-stone">
+            <p className="mt-2 text-sm text-stone sm:text-base">
               Discover more places around {destination.name}.
             </p>
           </div>
@@ -239,20 +261,20 @@ export default async function DestinationPage({
 
       {/* PLAN YOUR TRIP */}
 
-      <section className="mx-auto max-w-7xl px-6 pb-24">
-        <div className="overflow-hidden rounded-3xl bg-ink p-10 text-white">
+      <section className="mx-auto max-w-7xl px-5 pb-16 sm:px-6 sm:pb-24">
+        <div className="overflow-hidden rounded-3xl bg-ink p-6 text-white sm:p-10">
           <div className="max-w-3xl">
-            <h2 className="text-4xl font-black">
+            <h2 className="text-3xl font-black sm:text-4xl">
               Plan Your Trip
             </h2>
 
-            <p className="mt-5 text-lg leading-8 text-white/80">
+            <p className="mt-4 text-base leading-7 text-white/80 sm:mt-5 sm:text-lg sm:leading-8">
               Ready to explore {destination.name}? Our team will help you plan
               your journey with verified travel partners, personalized guidance,
               and local assistance.
             </p>
 
-            <ul className="mt-8 space-y-3 text-white/90">
+            <ul className="mt-6 space-y-2 text-sm text-white/90 sm:mt-8 sm:space-y-3 sm:text-base">
               <li>✓ Verified Travel Partners</li>
               <li>✓ Personalized Trip Planning</li>
               <li>✓ Local Destination Guidance</li>
@@ -265,7 +287,7 @@ I want to plan my trip to ${destination.name}.`
               )}
               target="_blank"
               rel="noreferrer"
-              className="mt-10 inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-coral px-8 font-black text-ink transition hover:scale-105"
+              className="mt-8 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-coral px-8 font-black text-ink transition hover:scale-105 sm:mt-10 sm:w-auto"
             >
               <MessageCircle className="h-5 w-5" />
               Enquire on WhatsApp

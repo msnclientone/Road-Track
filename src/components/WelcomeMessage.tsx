@@ -13,13 +13,18 @@ export default function WelcomeMessage({ userName, userEmail, userRole }: Welcom
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    // Check if user just logged in (via session storage flag)
     const justLoggedIn = sessionStorage.getItem("justLoggedIn");
     if (justLoggedIn) {
       setVisible(true);
       sessionStorage.removeItem("justLoggedIn");
     }
   }, []);
+
+  useEffect(() => {
+    if (!visible) return;
+    const timer = setTimeout(() => setVisible(false), 4500);
+    return () => clearTimeout(timer);
+  }, [visible]);
 
   if (!visible) return null;
 

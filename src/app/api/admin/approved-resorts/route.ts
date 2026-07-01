@@ -19,6 +19,7 @@ export async function GET(request: Request) {
         slug: true,
         description: true,
         address: true,
+        googleMapsLink: true,
         priceMin: true,
         priceMax: true,
         amenities: true,

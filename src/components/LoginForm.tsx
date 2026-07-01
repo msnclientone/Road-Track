@@ -305,7 +305,7 @@ export function LoginForm({ portal }: LoginFormProps) {
   );
 
   return (
-    <section className="mx-auto grid max-w-none gap-8 px-5 pb-20 pt-28 sm:px-8 lg:grid-cols-[0.85fr_1.15fr] lg:px-10 2xl:px-12">
+    <section className="mx-auto grid max-w-none gap-8 px-5 pb-20 pt-24 sm:px-8 lg:grid-cols-[0.85fr_1.15fr] lg:px-10 2xl:px-12 sm:pt-28">
       <div>
         <p className="text-sm font-black uppercase tracking-[0.22em] text-coral">
           {config.eyebrow}

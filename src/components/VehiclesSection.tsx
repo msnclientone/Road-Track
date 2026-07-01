@@ -1,9 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Loader2, Users, IndianRupee } from "lucide-react";
+import {
+  Loader2,
+  Users,
+  Search,
+  X,
+} from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { getListingImageUrl } from "@/lib/placeholders";
 import { vehicleImages } from "@/lib/vehicleImages";
@@ -30,10 +35,124 @@ type Vehicle = {
   createdAt: string;
 };
 
+const VEHICLE_TYPES = [
+  "All Vehicles",
+  "Bike",
+  "Scooter",
+  "Hatchback",
+  "Sedan",
+  "SUV",
+  "MUV",
+  "Luxury Car",
+  "Tempo Traveller",
+  "Mini Bus",
+  "Bus",
+  "Pickup",
+  "Truck",
+];
+
+const SEATING_OPTIONS = [
+  { label: "All", value: 0 },
+  { label: "2+", value: 2 },
+  { label: "4+", value: 4 },
+  { label: "6+", value: 6 },
+  { label: "8+", value: 8 },
+  { label: "12+", value: 12 },
+  { label: "20+", value: 20 },
+  { label: "30+", value: 30 },
+];
+
+const PRICE_OPTIONS = [
+  { label: "All Prices", min: 0, max: Infinity },
+  { label: "Below \u20B91000/day", min: 0, max: 999 },
+  { label: "\u20B91000\u2013\u20B92000/day", min: 1000, max: 2000 },
+  { label: "\u20B92000\u2013\u20B95000/day", min: 2000, max: 5000 },
+  { label: "Above \u20B95000/day", min: 5001, max: Infinity },
+];
+
+const SORT_OPTIONS = [
+  { label: "Default", value: "default" },
+  { label: "Price: Low \u2192 High", value: "price-asc" },
+  { label: "Price: High \u2192 Low", value: "price-desc" },
+  { label: "Seating Capacity: Low \u2192 High", value: "seats-asc" },
+  { label: "Seating Capacity: High \u2192 Low", value: "seats-desc" },
+  { label: "Newest First", value: "newest" },
+  { label: "Vehicle Type (A-Z)", value: "type-asc" },
+];
+
+function matchesPrice(
+  price: number,
+  min: number,
+  max: number
+): boolean {
+  return price >= min && price <= max;
+}
+
+function matchesSeating(
+  seats: number,
+  minSeats: number
+): boolean {
+  return minSeats === 0 || seats >= minSeats;
+}
+
+function matchesSearch(
+  vehicle: Vehicle,
+  query: string
+): boolean {
+  if (!query) return true;
+  const q = query.toLowerCase();
+  return (
+    vehicle.vehicleType.toLowerCase().includes(q) ||
+    vehicle.registrationNo.toLowerCase().includes(q) ||
+    vehicle.driverName.toLowerCase().includes(q)
+  );
+}
+
+function sortVehicles(
+  list: Vehicle[],
+  sortValue: string
+): Vehicle[] {
+  const sorted = [...list];
+  switch (sortValue) {
+    case "price-asc":
+      sorted.sort((a, b) => a.pricePerDay - b.pricePerDay);
+      break;
+    case "price-desc":
+      sorted.sort((a, b) => b.pricePerDay - a.pricePerDay);
+      break;
+    case "seats-asc":
+      sorted.sort((a, b) => a.seatingCapacity - b.seatingCapacity);
+      break;
+    case "seats-desc":
+      sorted.sort((a, b) => b.seatingCapacity - a.seatingCapacity);
+      break;
+    case "newest":
+      sorted.sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() -
+          new Date(a.createdAt).getTime()
+      );
+      break;
+    case "type-asc":
+      sorted.sort((a, b) =>
+        a.vehicleType.localeCompare(b.vehicleType)
+      );
+      break;
+  }
+  return sorted;
+}
+
 export default function VehiclesSection() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [vehicleTypeFilter, setVehicleTypeFilter] =
+    useState("All Vehicles");
+  const [seatingFilter, setSeatingFilter] = useState(0);
+  const [priceFilterIndex, setPriceFilterIndex] = useState(0);
+  const [sortOption, setSortOption] = useState("default");
 
   useEffect(() => {
     async function fetchVehicles() {
@@ -52,6 +171,47 @@ export default function VehiclesSection() {
 
     fetchVehicles();
   }, []);
+
+  const filteredVehicles = useMemo(() => {
+    const priceRange = PRICE_OPTIONS[priceFilterIndex];
+    let result = vehicles.filter((v) => {
+      if (
+        vehicleTypeFilter !== "All Vehicles" &&
+        v.vehicleType !== vehicleTypeFilter
+      )
+        return false;
+      if (!matchesSeating(v.seatingCapacity, seatingFilter))
+        return false;
+      if (!matchesPrice(v.pricePerDay, priceRange.min, priceRange.max))
+        return false;
+      if (!matchesSearch(v, searchQuery)) return false;
+      return true;
+    });
+    result = sortVehicles(result, sortOption);
+    return result;
+  }, [
+    vehicles,
+    vehicleTypeFilter,
+    seatingFilter,
+    priceFilterIndex,
+    searchQuery,
+    sortOption,
+  ]);
+
+  const clearFilters = useCallback(() => {
+    setSearchQuery("");
+    setVehicleTypeFilter("All Vehicles");
+    setSeatingFilter(0);
+    setPriceFilterIndex(0);
+    setSortOption("default");
+  }, []);
+
+  const hasActiveFilters =
+    searchQuery ||
+    vehicleTypeFilter !== "All Vehicles" ||
+    seatingFilter !== 0 ||
+    priceFilterIndex !== 0 ||
+    sortOption !== "default";
 
   if (loading) {
     return (
@@ -83,67 +243,163 @@ export default function VehiclesSection() {
   }
 
   return (
-    <div className="mt-10 grid gap-5 lg:grid-cols-3">
-      {vehicles.map((vehicle) => (
-        <Link
-          href={`/vehicle/${vehicle.id}`}
-          key={vehicle.id}
-          className="group overflow-hidden rounded-lg border border-ink/10 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
-        >
-          <article className="h-full">
-            <div className="relative aspect-[16/10]">
-              <Image
-  src={
-    vehicle.media?.length
-      ? getListingImageUrl(vehicle.media, "vehicle")
-      : vehicleImages[vehicle.vehicleType] ??
-        "/vehicle-images/default.jpg"
-  }
-  alt={vehicle.vehicleType}
-  fill
-  className="object-cover transition duration-500 group-hover:scale-105"
-  sizes="(min-width: 1024px) 33vw, 100vw"
-/>
-            </div>
-            <div className="p-5">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <h3 className="text-2xl font-black">{vehicle.vehicleType}</h3>
-                  <p className="mt-1 text-sm font-bold text-stone">
-                    {vehicle.registrationNo}
-                  </p>
+    <>
+      <div className="sticky top-0 z-20 -mx-5 border-b border-ink/10 bg-white/95 px-5 py-4 shadow-sm backdrop-blur sm:-mx-8 sm:px-8 lg:-mx-10 lg:px-10 2xl:-mx-12 2xl:px-12">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-4">
+          <div className="relative flex-1">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone" />
+            <input
+              type="text"
+              placeholder="Search by type, registration, or driver..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full rounded-lg border border-ink/10 bg-white py-2.5 pl-10 pr-4 text-sm font-medium text-ink outline-none transition focus:border-coral focus:ring-2 focus:ring-coral/20"
+            />
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <select
+              value={vehicleTypeFilter}
+              onChange={(e) => setVehicleTypeFilter(e.target.value)}
+              className="cursor-pointer rounded-lg border border-ink/10 bg-white px-3 py-2.5 text-sm font-bold text-ink outline-none transition focus:border-coral focus:ring-2 focus:ring-coral/20"
+            >
+              {VEHICLE_TYPES.map((type) => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={seatingFilter}
+              onChange={(e) => setSeatingFilter(Number(e.target.value))}
+              className="cursor-pointer rounded-lg border border-ink/10 bg-white px-3 py-2.5 text-sm font-bold text-ink outline-none transition focus:border-coral focus:ring-2 focus:ring-coral/20"
+            >
+              {SEATING_OPTIONS.map((opt) => (
+                <option key={opt.label} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={priceFilterIndex}
+              onChange={(e) =>
+                setPriceFilterIndex(Number(e.target.value))
+              }
+              className="cursor-pointer rounded-lg border border-ink/10 bg-white px-3 py-2.5 text-sm font-bold text-ink outline-none transition focus:border-coral focus:ring-2 focus:ring-coral/20"
+            >
+              {PRICE_OPTIONS.map((opt, i) => (
+                <option key={opt.label} value={i}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={sortOption}
+              onChange={(e) => setSortOption(e.target.value)}
+              className="cursor-pointer rounded-lg border border-ink/10 bg-white px-3 py-2.5 text-sm font-bold text-ink outline-none transition focus:border-coral focus:ring-2 focus:ring-coral/20"
+            >
+              {SORT_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+
+            {hasActiveFilters && (
+              <button
+                onClick={clearFilters}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-coral/30 bg-coral/10 px-3 py-2.5 text-sm font-bold text-coral transition hover:bg-coral hover:text-white"
+              >
+                <X className="h-4 w-4" />
+                Clear
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {filteredVehicles.length === 0 ? (
+        <div className="mt-10 rounded-lg border border-ink/10 bg-white p-10 text-center">
+          <p className="text-lg font-bold text-stone">
+            No vehicles match your filters.
+          </p>
+          <button
+            onClick={clearFilters}
+            className="mt-4 inline-flex items-center gap-1.5 rounded-md bg-coral px-4 py-2 text-sm font-bold text-white transition hover:bg-coral/90"
+          >
+            <X className="h-4 w-4" />
+            Clear Filters
+          </button>
+        </div>
+      ) : (
+        <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {filteredVehicles.map((vehicle) => (
+            <Link
+              href={`/vehicle/${vehicle.id}`}
+              key={vehicle.id}
+              className="group overflow-hidden rounded-lg border border-ink/10 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
+            >
+              <article className="h-full">
+                <div className="relative aspect-[16/10]">
+                  <Image
+                    src={
+                      vehicle.media?.length
+                        ? getListingImageUrl(vehicle.media, "vehicle")
+                        : vehicleImages[vehicle.vehicleType] ??
+                          "/vehicle-images/default.jpg"
+                    }
+                    alt={vehicle.vehicleType}
+                    fill
+                    className="object-cover transition duration-500 group-hover:scale-105"
+                    sizes="(min-width: 1024px) 33vw, 100vw"
+                  />
                 </div>
-              </div>
-
-              <p className="mt-2 text-sm font-bold text-stone">
-                Driver: {vehicle.driverName}
-              </p>
-
-              <div className="mt-5 grid grid-cols-3 gap-3 text-sm">
-                <div className="rounded-md bg-sky/10 p-3">
-                  <div className="flex items-center gap-1">
-                    <Users className="h-4 w-4" />
+                <div className="p-5">
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <h3 className="text-2xl font-black">
+                        {vehicle.vehicleType}
+                      </h3>
+                      <p className="mt-1 text-sm font-bold text-stone">
+                        {vehicle.registrationNo}
+                      </p>
+                    </div>
                   </div>
-                  <p className="mt-1 font-black">{vehicle.seatingCapacity}</p>
-                  <p className="text-xs font-bold text-stone">Seats</p>
-                </div>
-                <div className="rounded-md bg-coral/10 p-3">
-                  <p className="font-black text-coral">
-                    {formatCurrency(vehicle.pricePerDay)}
+
+                  <p className="mt-2 text-sm font-bold text-stone">
+                    Driver: {vehicle.driverName}
                   </p>
-                  <p className="text-xs font-bold text-stone">Per Day</p>
+
+                  <div className="mt-5 grid grid-cols-3 gap-3 text-sm">
+                    <div className="rounded-lg bg-sky/10 p-3">
+                      <Users className="h-4 w-4" />
+                      <p className="mt-1 font-black">
+                        {vehicle.seatingCapacity}
+                      </p>
+                      <p className="text-xs font-bold text-stone">Seats</p>
+                    </div>
+                    <div className="rounded-lg bg-coral/10 p-3">
+                      <p className="font-black text-coral">
+                        {formatCurrency(vehicle.pricePerDay)}
+                      </p>
+                      <p className="text-xs font-bold text-stone">Per Day</p>
+                    </div>
+                    <div className="rounded-md bg-mint/10 p-3">
+                      <p className="font-black text-emerald-700">
+                        {formatCurrency(vehicle.pricePerKm)}
+                      </p>
+                      <p className="text-xs font-bold text-stone">Per KM</p>
+                    </div>
+                  </div>
                 </div>
-                <div className="rounded-md bg-mint/10 p-3">
-                  <p className="font-black text-emerald-700">
-                    {formatCurrency(vehicle.pricePerKm)}
-                  </p>
-                  <p className="text-xs font-bold text-stone">Per KM</p>
-                </div>
-              </div>
-            </div>
-          </article>
-        </Link>
-      ))}
-    </div>
+              </article>
+            </Link>
+          ))}
+        </div>
+      )}
+    </>
   );
 }

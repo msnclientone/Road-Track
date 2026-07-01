@@ -62,12 +62,12 @@ export default function AdminPartnerApprovals() {
       ) : (
         <div className="mt-4 grid gap-3">
           {users.map((u) => (
-            <div key={u.id} className="flex items-center justify-between gap-4 rounded-md border border-ink/10 p-4">
-              <div>
+            <div key={u.id} className="flex flex-col gap-3 rounded-md border border-ink/10 p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+              <div className="min-w-0">
                 <p className="font-black">{u.name ?? "—"} <span className="text-sm font-semibold text-stone">({u.role})</span></p>
-                <p className="text-sm text-stone">{u.email} • {u.phone ?? "—"}</p>
+                <p className="text-sm text-stone break-all">{u.email} • {u.phone ?? "—"}</p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex shrink-0 gap-2">
                 <button onClick={() => updateStatus(u.id, "APPROVED")} className="rounded-md bg-mint px-3 py-2 font-black text-ink">Approve</button>
                 <button onClick={() => updateStatus(u.id, "REJECTED")} className="rounded-md border border-ink/15 px-3 py-2 font-black text-stone">Reject</button>
               </div>

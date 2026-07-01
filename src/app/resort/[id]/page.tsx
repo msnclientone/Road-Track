@@ -6,6 +6,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { prisma } from "@/lib/prisma";
 import { buildWhatsAppUrl, formatCurrency } from "@/lib/utils";
 import { getSession } from "@/lib/auth/session";
+import { getPlaceholderImageUrl } from "@/lib/placeholders";
 import AddToBucketButton from "@/components/AddToBucketButton";
 
 export async function generateStaticParams() {
@@ -36,6 +37,10 @@ export default async function ResortDetailPage({
       destination: {
         select: { name: true, slug: true },
       },
+      media: {
+        orderBy: { order: "asc" },
+        take: 1,
+      },
     },
   });
 
@@ -47,12 +52,12 @@ export default async function ResortDetailPage({
     <main className="min-h-screen bg-ivory text-ink">
       <SiteHeader />
 
-      <section className="mx-auto max-w-none px-5 pb-20 pt-28 sm:px-8 lg:px-10 2xl:px-12">
-        <div className="grid gap-10 lg:grid-cols-[1fr_0.6fr]">
+      <section className="mx-auto max-w-none px-5 pb-20 pt-24 sm:px-8 lg:px-10 2xl:px-12 sm:pt-28">
+        <div className="grid gap-8 lg:gap-10 lg:grid-cols-[1fr_0.6fr]">
           {/* Main Content */}
           <div>
             {/* Breadcrumb */}
-            <nav className="mb-6 text-sm font-bold text-stone">
+            <nav className="mb-4 text-sm font-bold text-stone sm:mb-6">
               <a href="/" className="hover:text-coral">
                 Home
               </a>
@@ -65,19 +70,30 @@ export default async function ResortDetailPage({
             </nav>
 
             {/* Title and Location */}
-            <h1 className="text-5xl font-black tracking-tight sm:text-6xl">
+            <h1 className="text-3xl font-black tracking-tight sm:text-4xl md:text-5xl lg:text-6xl">
               {resort.name}
             </h1>
-            <p className="mt-3 flex items-center gap-2 text-lg font-bold text-stone">
-              <MapPin className="h-5 w-5 text-coral" />
+            <p className="mt-2 flex items-center gap-2 text-base font-bold text-stone sm:mt-3 sm:text-lg">
+              <MapPin className="h-4 w-4 text-coral sm:h-5 sm:w-5" />
               {resort.address}
             </p>
+            {resort.googleMapsLink && (
+              <a
+                href={resort.googleMapsLink}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-1 inline-flex items-center gap-1 text-sm font-semibold text-coral hover:underline"
+              >
+                <MapPin className="h-3.5 w-3.5" />
+                View on Google Maps
+              </a>
+            )}
 
             {/* Image Gallery */}
-            <div className="mt-8 rounded-lg overflow-hidden">
+            <div className="mt-6 rounded-lg overflow-hidden sm:mt-8">
               <div className="relative aspect-video">
                 <Image
-                  src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&h=800&fit=crop"
+                  src={resort.media?.[0]?.url ?? getPlaceholderImageUrl("resort")}
                   alt={resort.name}
                   fill
                   priority
@@ -89,9 +105,9 @@ export default async function ResortDetailPage({
             </div>
 
             {/* Description */}
-            <div className="mt-8">
-              <h2 className="text-2xl font-black">About this resort</h2>
-              <p className="mt-4 text-lg leading-8 text-stone">
+            <div className="mt-6 sm:mt-8">
+              <h2 className="text-xl font-black sm:text-2xl">About this resort</h2>
+              <p className="mt-3 text-base leading-7 text-stone sm:mt-4 sm:text-lg sm:leading-8">
                 {resort.description}
               </p>
             </div>
@@ -99,8 +115,8 @@ export default async function ResortDetailPage({
             {/* Amenities */}
             {Array.isArray(resort.amenities) &&
   resort.amenities.length > 0 && (
-              <div className="mt-8">
-                <h2 className="text-2xl font-black">Amenities</h2>
+              <div className="mt-6 sm:mt-8">
+                <h2 className="text-xl font-black sm:text-2xl">Amenities</h2>
                 <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
                   {(resort.amenities as string[]).map((amenity: string) => (
                     <div
@@ -115,18 +131,18 @@ export default async function ResortDetailPage({
             )}
 
             {/* Pricing */}
-            <div className="mt-8 rounded-lg border border-coral/20 bg-coral/5 p-6">
-              <h2 className="text-2xl font-black">Pricing</h2>
-              <div className="mt-4 grid grid-cols-2 gap-6">
+            <div className="mt-6 rounded-lg border border-coral/20 bg-coral/5 p-5 sm:mt-8 sm:p-6">
+              <h2 className="text-xl font-black sm:text-2xl">Pricing</h2>
+              <div className="mt-4 grid grid-cols-2 gap-4 sm:gap-6">
                 <div>
                   <p className="text-sm text-stone">Starting from</p>
-                  <p className="mt-2 text-3xl font-black text-coral">
+                  <p className="mt-2 text-2xl font-black text-coral sm:text-3xl">
                     {formatCurrency(resort.priceMin)}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm text-stone">Up to</p>
-                  <p className="mt-2 text-3xl font-black text-coral">
+                  <p className="mt-2 text-2xl font-black text-coral sm:text-3xl">
                     {formatCurrency(resort.priceMax)}
                   </p>
                 </div>
@@ -135,13 +151,27 @@ export default async function ResortDetailPage({
           </div>
 
           {/* Sidebar */}
-          <aside className="h-fit rounded-lg border border-ink/10 bg-white p-6 shadow-sm sticky top-28">
-            <h3 className="text-xl font-black">Contact Owner</h3>
+          <aside className="h-fit rounded-lg border border-ink/10 bg-white p-5 shadow-sm sm:p-6 sm:sticky sm:top-28">
+            <h3 className="text-lg font-black sm:text-xl">Contact Owner</h3>
 
-            <div className="mt-6 space-y-4">
+            <div className="mt-4 space-y-3 sm:mt-6 sm:space-y-4">
+              {resort.googleMapsLink && (
+                <div>
+                  <p className="text-sm font-bold text-stone">Location</p>
+                  <a
+                    href={resort.googleMapsLink}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-1 flex items-center gap-2 font-semibold text-coral hover:underline"
+                  >
+                    <MapPin className="h-4 w-4" />
+                    View on Google Maps
+                  </a>
+                </div>
+              )}
               <div>
                 <p className="text-sm font-bold text-stone">Owner Name</p>
-                <p className="mt-1 text-lg font-black">
+                <p className="mt-1 text-base font-black sm:text-lg">
   {resort.owner?.name ?? "Not Available"}
 </p>
               </div>
@@ -172,12 +202,12 @@ export default async function ResortDetailPage({
                 </div>
               )}
 
-              <div className="pt-4">
+              <div className="pt-3 sm:pt-4">
                 <p className="text-sm text-stone">Destination</p>
                 <p className="mt-1 font-bold">{resort.destination.name}</p>
               </div>
 
-              <div className="pt-4">
+              <div className="pt-3 sm:pt-4">
                 <p className="text-sm text-stone">Price Range</p>
                 <p className="mt-1 flex items-center gap-2 font-black text-coral">
                   <IndianRupee className="h-4 w-4" />
@@ -186,7 +216,7 @@ export default async function ResortDetailPage({
               </div>
             </div>
 
-            <div className="mt-6 space-y-3">
+            <div className="mt-4 space-y-3 sm:mt-6">
   {session?.role === "CUSTOMER" && (
   <AddToBucketButton resortId={resort.id} />
 )}

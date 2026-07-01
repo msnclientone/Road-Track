@@ -89,17 +89,17 @@ export default function AdminApprovedListings() {
   return (
     <div className="space-y-10">
       {/* Resorts Table */}
-      <section className="rounded-lg border border-ink/10 bg-white shadow-sm">
-        <div className="border-b border-ink/10 p-5">
-          <h2 className="text-2xl font-black">Approved Resorts</h2>
+      <section className="overflow-hidden rounded-lg border border-ink/10 bg-white shadow-sm">
+        <div className="border-b border-ink/10 p-4 sm:p-5">
+          <h2 className="text-xl font-black sm:text-2xl">Approved Resorts</h2>
           <p className="mt-1 text-sm text-stone font-semibold">{resorts.length} resorts approved and ready to book</p>
         </div>
 
         {resorts.length === 0 ? (
-          <p className="p-5 text-sm text-stone">No approved resorts yet.</p>
+          <p className="p-4 text-sm text-stone sm:p-5">No approved resorts yet.</p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[1200px] border-collapse text-left text-sm">
+            <table className="w-full min-w-[900px] border-collapse text-left text-sm lg:min-w-[1200px]">
               <thead className="bg-ivory text-xs uppercase tracking-[0.14em] text-stone">
                 <tr>
                   <th className="px-4 py-3">Resort Name</th>
@@ -149,17 +149,17 @@ export default function AdminApprovedListings() {
       </section>
 
       {/* Vehicles Table */}
-      <section className="rounded-lg border border-ink/10 bg-white shadow-sm">
-        <div className="border-b border-ink/10 p-5">
-          <h2 className="text-2xl font-black">Approved Vehicles</h2>
+      <section className="overflow-hidden rounded-lg border border-ink/10 bg-white shadow-sm">
+        <div className="border-b border-ink/10 p-4 sm:p-5">
+          <h2 className="text-xl font-black sm:text-2xl">Approved Vehicles</h2>
           <p className="mt-1 text-sm text-stone font-semibold">{vehicles.length} vehicles approved and ready to book</p>
         </div>
 
         {vehicles.length === 0 ? (
-          <p className="p-5 text-sm text-stone">No approved vehicles yet.</p>
+          <p className="p-4 text-sm text-stone sm:p-5">No approved vehicles yet.</p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[1300px] border-collapse text-left text-sm">
+            <table className="w-full min-w-[1000px] border-collapse text-left text-sm lg:min-w-[1300px]">
               <thead className="bg-ivory text-xs uppercase tracking-[0.14em] text-stone">
                 <tr>
                   <th className="px-4 py-3">Vehicle Type</th>

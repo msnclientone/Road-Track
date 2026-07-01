@@ -20,6 +20,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "wallpaperaccess.com",
       },
+      {
+        protocol: "https",
+        hostname: "imgs.search.brave.com",
+      },
     ],
   },
 };

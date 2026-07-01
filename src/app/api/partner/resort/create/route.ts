@@ -19,6 +19,8 @@ export async function POST(request: Request) {
   amenities,
   destinationId,
   destinationSlug,
+  imageUrl,
+  googleMapsLink,
 } = body as any;
 
     if (typeof name !== "string" || name.trim() === "") {
@@ -113,6 +115,7 @@ const nameFromSlug = slugValue
     slug,
     description,
     address: address ?? null,
+    googleMapsLink: googleMapsLink || null,
 
     // Super Admin sets these after approval
     priceMin: 0,
@@ -127,6 +130,17 @@ const nameFromSlug = slugValue
     status: "PENDING",
   },
 });
+
+if (imageUrl) {
+  await prisma.resortMedia.create({
+    data: {
+      resortId: resort.id,
+      url: imageUrl,
+      type: "PHOTO",
+      order: 0,
+    },
+  });
+}
 
     return NextResponse.json({ ok: true, resort });
   } catch (err) {

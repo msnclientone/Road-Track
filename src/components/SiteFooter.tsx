@@ -18,7 +18,6 @@ const serviceLinks = [
   { href: "/#destinations", label: "Destinations" },
   { href: "/#resorts", label: "Resorts" },
   { href: "/#vehicles", label: "Tourist vehicles" },
-  { href: "/#planner", label: "Trip enquiry" },
 ];
 
 const partnerLinks = [
@@ -36,8 +35,8 @@ export function SiteFooter() {
   return (
     <footer className="bg-ink text-ivory">
       <div className="border-b border-white/10 px-5 py-12 sm:px-8 lg:px-10 2xl:px-12">
-        <div className="grid gap-10 lg:grid-cols-[1.15fr_0.85fr_0.85fr_0.85fr]">
-          <div>
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.15fr_0.85fr_0.85fr_0.85fr]">
+          <div className="sm:col-span-2 lg:col-span-1">
             <Link href="/" className="inline-flex items-center gap-3">
               <Image
                 src="/road-track-logo.jpeg"

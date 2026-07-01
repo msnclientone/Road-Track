@@ -99,7 +99,7 @@ export default function ProfileForm({
       <button
         onClick={saveProfile}
         disabled={loading}
-        className="rounded bg-coral px-6 py-3 font-bold text-white hover:bg-coral/90 disabled:opacity-50"
+        className="w-full rounded bg-coral px-6 py-3 font-bold text-white hover:bg-coral/90 disabled:opacity-50 sm:w-auto"
       >
         {loading ? "Saving..." : "Save Changes"}
       </button>

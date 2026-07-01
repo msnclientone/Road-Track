@@ -9,6 +9,7 @@ export default function DestinationManager() {
   const [slug, setSlug] = useState("");
   const [description, setDescription] = useState("");
   const [heroImageUrl, setHeroImageUrl] = useState("");
+  const [googleMapsLink, setGoogleMapsLink] = useState("");
 const [bestTimeToVisit, setBestTimeToVisit] = useState("");
 const [estTripCostMin, setEstTripCostMin] = useState("");
 const [estTripCostMax, setEstTripCostMax] = useState("");
@@ -36,6 +37,7 @@ function editDestination(destination: any) {
   setSlug(destination.slug);
   setDescription(destination.description ?? "");
   setHeroImageUrl(destination.heroImageUrl ?? "");
+  setGoogleMapsLink(destination.googleMapsLink ?? "");
   setBestTimeToVisit(destination.bestTimeToVisit ?? "");
 
   setEstTripCostMin(
@@ -69,6 +71,7 @@ const [editingId, setEditingId] = useState<string | null>(null);
       slug,
       description,
       heroImageUrl,
+      googleMapsLink,
       bestTimeToVisit,
       estTripCostMin: Number(estTripCostMin),
       estTripCostMax: Number(estTripCostMax),
@@ -86,6 +89,7 @@ const [editingId, setEditingId] = useState<string | null>(null);
     setSlug("");
     setDescription("");
     setHeroImageUrl("");
+    setGoogleMapsLink("");
 setBestTimeToVisit("");
 setEstTripCostMin("");
 setEstTripCostMax("");
@@ -203,6 +207,13 @@ async function deleteNearbyPlace(id: string) {
   value={heroImageUrl}
   onChange={(e) => setHeroImageUrl(e.target.value)}
   className="w-full rounded border p-3"
+/>
+
+<input
+  placeholder="Google Maps Location Link"
+  value={googleMapsLink}
+  onChange={(e) => setGoogleMapsLink(e.target.value)}
+  className="mt-3 w-full rounded border p-3"
 />
 
 <input

@@ -19,6 +19,7 @@ export async function PUT(
         slug: body.slug,
         description: body.description,
         heroImageUrl: body.heroImageUrl,
+        googleMapsLink: body.googleMapsLink,
         bestTimeToVisit: body.bestTimeToVisit,
         estTripCostMin: body.estTripCostMin,
         estTripCostMax: body.estTripCostMax,

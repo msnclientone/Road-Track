@@ -55,9 +55,9 @@ export default async function ApprovedVehiclesPage() {
               className="rounded-2xl border bg-white p-6 shadow-sm"
             >
 
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 
-                <div className="flex gap-5">
+                <div className="flex flex-col gap-4 sm:flex-row sm:gap-5">
 
                   <Image
   src={
@@ -67,27 +67,27 @@ export default async function ApprovedVehiclesPage() {
   alt={vehicle.vehicleType}
   width={130}
   height={90}
-  className="h-[90px] w-[130px] rounded-lg object-cover"
+  className="h-[90px] w-full rounded-lg object-cover sm:w-[130px]"
 />
 
                   <div>
 
-                    <h2 className="text-2xl font-black">
+                    <h2 className="text-xl font-black sm:text-2xl">
                       {vehicle.vehicleType}
                     </h2>
 
-                    <p className="text-stone">
+                    <p className="text-sm text-stone">
                       {vehicle.registrationNo}
                     </p>
 
-                    <p className="mt-3">
+                    <p className="mt-3 text-sm">
                       <span className="font-bold">
                         Owner:
                       </span>{" "}
                       {vehicle.owner?.name ?? "Unknown Owner"}
                     </p>
 
-                    <p>
+                    <p className="text-sm">
                       <span className="font-bold">
                         Destination:
                       </span>{" "}
