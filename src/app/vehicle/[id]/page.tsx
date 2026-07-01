@@ -27,6 +27,17 @@ export default async function VehicleDetailPage({
 }) {
   const { id } = await params;
   const session = await getSession();
+  const customer = session
+  ? await prisma.user.findUnique({
+      where: {
+        id: session.sub,
+      },
+      select: {
+        name: true,
+        phone: true,
+      },
+    })
+  : null;
 
   const vehicle = await prisma.vehicle.findUnique({
     where: { id },
@@ -242,7 +253,49 @@ console.log(vehicle.vehicleType);
 
             <div className="mt-6 space-y-3">
   {session?.role === "CUSTOMER" && (
-    <AddToBucketButton vehicleId={vehicle.id} />
+    <>
+      <AddToBucketButton vehicleId={vehicle.id} />
+
+      <a
+        href={buildWhatsAppUrl(
+`Hello Road Track,
+
+🚗 FULL DAY RENTAL REQUEST
+
+Customer Name:
+${customer?.name ?? "Not Available"}
+
+Customer Email:
+${session.email}
+
+Vehicle:
+${vehicle.vehicleType}
+
+Registration Number:
+${vehicle.registrationNo}
+
+Destination:
+${vehicle.destination?.name ?? "Not Specified"}
+
+Price Per Day:
+${vehicle.pricePerDay != null ? formatCurrency(vehicle.pricePerDay) : "Not Set"}
+
+Price Per KM:
+${vehicle.pricePerKm != null ? formatCurrency(vehicle.pricePerKm) : "Not Set"}
+
+I am interested in renting this vehicle for a full day.
+
+Please contact me with the quotation.
+
+Thank you.`
+        )}
+        target="_blank"
+        rel="noreferrer"
+        className="block w-full rounded-lg bg-blue-600 px-4 py-3 text-center font-black text-white transition hover:bg-blue-700"
+      >
+        🚗 Full Day Rental
+      </a>
+    </>
   )}
 
   <a
