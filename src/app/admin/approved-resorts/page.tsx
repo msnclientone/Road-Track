@@ -2,7 +2,6 @@ import AdminDeleteResortButton from "@/components/AdminDeleteResortButton";
 import Link from "next/link";
 import Image from "next/image";
 
-import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { SiteHeader } from "@/components/SiteHeader";
 import { getListingImageUrl } from "@/lib/placeholders";
@@ -50,16 +49,7 @@ export default async function ApprovedResortsPage() {
 
         <div className="grid gap-6">
 
-          {resorts.map(
-  (
-    resort: Prisma.ResortGetPayload<{
-      include: {
-        owner: true;
-        destination: true;
-        media: true;
-      };
-    }>
-  ) => (
+          {resorts.map((resort) => (
 
             <div
               key={resort.id}
