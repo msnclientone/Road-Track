@@ -20,15 +20,30 @@ const [published, setPublished] = useState(true);
   const [distanceKm, setDistanceKm] = useState("");
   
   async function loadDestinations() {
-    const res = await fetch("/api/admin/destinations");
-    const data = await res.json();
-    setDestinations(data);
+    try {
+      const res = await fetch("/api/admin/destinations");
+      if (!res.ok) {
+        console.error("[DESTINATION UI] Failed to load destinations, status:", res.status);
+        return;
+      }
+      const data = await res.json();
+      setDestinations(data);
+    } catch (err) {
+      console.error("[DESTINATION UI] Error loading destinations:", err);
+    }
   }
 async function loadNearbyPlaces() {
-  const res = await fetch("/api/admin/nearby-places");
-  const data = await res.json();
-
-  setNearbyPlaces(data);
+  try {
+    const res = await fetch("/api/admin/nearby-places");
+    if (!res.ok) {
+      console.error("[DESTINATION UI] Failed to load nearby places, status:", res.status);
+      return;
+    }
+    const data = await res.json();
+    setNearbyPlaces(data);
+  } catch (err) {
+    console.error("[DESTINATION UI] Error loading nearby places:", err);
+  }
 }
 function editDestination(destination: any) {
   setEditingId(destination.id);
@@ -57,72 +72,87 @@ function editDestination(destination: any) {
 const [editingId, setEditingId] = useState<string | null>(null);
 
   async function saveDestination() {
-    const res = await fetch(
-  editingId
-    ? `/api/admin/destinations/${editingId}`
-    : "/api/admin/destinations",
-  {
-    method: editingId ? "PUT" : "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      name,
-      slug,
-      description,
-      heroImageUrl,
-      googleMapsLink,
-      bestTimeToVisit,
-      estTripCostMin: Number(estTripCostMin),
-      estTripCostMax: Number(estTripCostMax),
-      published,
-    }),
-  }
-);
+    try {
+      console.log("[DESTINATION UI] Saving destination, editingId:", editingId);
+      const body = {
+        name,
+        slug,
+        description,
+        heroImageUrl,
+        googleMapsLink,
+        bestTimeToVisit,
+        estTripCostMin: Number(estTripCostMin),
+        estTripCostMax: Number(estTripCostMax),
+        published,
+      };
+      console.log("[DESTINATION UI] Request body:", body);
 
-    if (!res.ok) {
-      alert("Failed");
-      return;
+      const res = await fetch(
+        editingId
+          ? `/api/admin/destinations/${editingId}`
+          : "/api/admin/destinations",
+        {
+          method: editingId ? "PUT" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        }
+      );
+
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => ({ error: "Request failed" }));
+        console.error("[DESTINATION UI] Save failed:", res.status, errBody);
+        alert(errBody.detail || errBody.error || "Failed");
+        return;
+      }
+
+      console.log("[DESTINATION UI] Save succeeded");
+
+      setName("");
+      setSlug("");
+      setDescription("");
+      setHeroImageUrl("");
+      setGoogleMapsLink("");
+      setBestTimeToVisit("");
+      setEstTripCostMin("");
+      setEstTripCostMax("");
+      setPublished(true);
+      setEditingId(null);
+      await loadDestinations();
+    } catch (err) {
+      console.error("[DESTINATION UI] Error in saveDestination:", err);
+      alert("An unexpected error occurred");
     }
-
-    setName("");
-    setSlug("");
-    setDescription("");
-    setHeroImageUrl("");
-    setGoogleMapsLink("");
-setBestTimeToVisit("");
-setEstTripCostMin("");
-setEstTripCostMax("");
-setPublished(true);
-setEditingId(null);
-    loadDestinations();
   }
 
 async function deleteDestination(id: string) {
+  try {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this destination?"
+    );
 
-  const confirmed = window.confirm(
-    "Are you sure you want to delete this destination?"
-  );
+    if (!confirmed) return;
 
-  if (!confirmed) return;
+    console.log("[DESTINATION UI] Deleting destination ID:", id);
 
-  const res = await fetch(
-    `/api/admin/destinations/${id}`,
-    {
-      method: "DELETE",
+    const res = await fetch(
+      `/api/admin/destinations/${id}`,
+      { method: "DELETE" }
+    );
+
+    if (!res.ok) {
+      const errBody = await res.json().catch(() => ({ error: "Request failed" }));
+      console.error("[DESTINATION UI] Delete failed:", res.status, errBody);
+      alert(errBody.detail || errBody.error || "Failed to delete");
+      return;
     }
-  );
 
-  if (!res.ok) {
-    const error = await res.json();
-
-    alert(error.error);
-
-    return;
+    console.log("[DESTINATION UI] Delete succeeded for ID:", id);
+    await loadDestinations();
+    await loadNearbyPlaces();
+  } catch (err) {
+    console.error("[DESTINATION UI] Error in deleteDestination:", err);
+    alert("An unexpected error occurred");
   }
-
-  loadDestinations();
-  loadNearbyPlaces();
 }
 
   async function addNearbyPlace() {

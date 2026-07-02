@@ -6,6 +6,8 @@ import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { SiteHeader } from "@/components/SiteHeader";
 
+export const dynamic = "force-dynamic";
+
 export default async function ApprovedVehiclesPage() {
   const vehicles = await prisma.vehicle.findMany({
     where: {

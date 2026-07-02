@@ -9,10 +9,9 @@ export async function GET() {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const pendingUsers = await prisma.user.findMany({
+    const partners = await prisma.user.findMany({
       where: {
         role: { in: ["RESORT_OWNER", "VEHICLE_OWNER"] },
-        partnerStatus: "PENDING",
       },
       select: {
         id: true,
@@ -26,7 +25,7 @@ export async function GET() {
       orderBy: { createdAt: "asc" },
     });
 
-    return NextResponse.json({ ok: true, users: pendingUsers });
+    return NextResponse.json({ ok: true, users: partners });
   } catch (err) {
     console.error("pending-partners failed:", err);
     return NextResponse.json({ error: "Unable to fetch pending partners" }, { status: 500 });

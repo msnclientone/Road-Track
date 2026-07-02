@@ -129,6 +129,15 @@ const nameFromSlug = slugValue
 
     status: "PENDING",
   },
+  include: {
+    destination: {
+      select: { name: true },
+    },
+    media: {
+      orderBy: { order: "asc" },
+      take: 1,
+    },
+  },
 });
 
 if (imageUrl) {

@@ -45,6 +45,19 @@ model OtpCode {
   @@index([expiresAt])
 }
 
+model PasswordResetToken {
+  id         String    @id @default(cuid())
+  email      String
+  tokenHash  String
+  expiresAt  DateTime
+  attempts   Int       @default(0)
+  consumedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([email])
+  @@index([expiresAt])
+}
+
 model Destination {
   id              String             @id @default(cuid())
   name            String

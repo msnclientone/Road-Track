@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { destinations } from "@/lib/data";
+import { useRouter } from "next/navigation";
 
 type ResortInput = {
   name: string;
@@ -17,9 +17,12 @@ type ResortInput = {
 
 export default function ResortManager({
   initialResorts,
+  destinationOptions = [],
 }: {
   initialResorts: any[];
+  destinationOptions?: { slug: string; name: string }[];
 }) {
+  const router = useRouter();
   const [tab, setTab] = useState<"list" | "add">("list");
 
   const [resorts, setResorts] = useState<any[]>(
@@ -89,6 +92,8 @@ const [availableNonAcRooms, setAvailableNonAcRooms] =
         ...old,
       ]);
 
+      router.refresh();
+
       setForm({
         name: "",
         description: "",
@@ -140,6 +145,8 @@ const [availableNonAcRooms, setAvailableNonAcRooms] =
     )
   );
 
+  router.refresh();
+
   setEditingPriceId(null);
   setNonAcPrice("");
   setAcPrice("");
@@ -180,6 +187,8 @@ async function saveAvailability() {
         : r
     )
   );
+
+  router.refresh();
 
   setEditingAvailabilityId(null);
   setAvailableAcRooms("");
@@ -368,6 +377,8 @@ async function saveAvailability() {
     setResorts((old) =>
       old.filter((x) => x.id !== r.id)
     );
+
+    router.refresh();
   }}
   className="rounded-md bg-red-600 px-4 py-2 font-bold text-white hover:bg-red-700"
 >
@@ -457,7 +468,7 @@ async function saveAvailability() {
         Select destination
       </option>
 
-      {destinations.map((d) => (
+      {destinationOptions.map((d) => (
         <option
           key={d.slug}
           value={d.slug}

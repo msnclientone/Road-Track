@@ -12,7 +12,8 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
-import { destinations, emergencyPhone } from "@/lib/data";
+import { prisma } from "@/lib/prisma";
+import { emergencyPhone } from "@/lib/data";
 import { buildWhatsAppUrl } from "@/lib/utils";
 
 const serviceLinks = [
@@ -30,8 +31,13 @@ const partnerLinks = [
   { href: "/terms", label: "Terms" },
 ];
 
-export function SiteFooter() {
+export async function SiteFooter() {
   const year = new Date().getFullYear();
+  const dbDestinations = await prisma.destination.findMany({
+    where: { published: true },
+    select: { name: true, slug: true },
+    orderBy: { name: "asc" },
+  });
 
   return (
     <footer className="bg-ink text-ivory">
@@ -88,7 +94,7 @@ export function SiteFooter() {
           </FooterColumn>
 
           <FooterColumn title="Destinations">
-            {destinations.map((destination) => (
+            {dbDestinations.map((destination) => (
               <FooterLink
                 key={destination.slug}
                 href={`/destinations/${destination.slug}`}

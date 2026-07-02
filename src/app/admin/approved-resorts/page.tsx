@@ -6,6 +6,8 @@ import { prisma } from "@/lib/prisma";
 import { SiteHeader } from "@/components/SiteHeader";
 import { getListingImageUrl } from "@/lib/placeholders";
 
+export const dynamic = "force-dynamic";
+
 export default async function ApprovedResortsPage() {
   const resorts = await prisma.resort.findMany({
     where: {

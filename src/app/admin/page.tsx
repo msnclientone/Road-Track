@@ -20,13 +20,14 @@ import {
 import { prisma } from "@/lib/prisma";
 import { buildWhatsAppUrl } from "@/lib/utils";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminPage() {
   const [
   destinationCount,
   resortCount,
   vehicleCount,
   pendingPartners,
-  superAdminCount,
   analytics,
 ] = await Promise.all([
     prisma.destination.count(),
@@ -51,11 +52,6 @@ export default async function AdminPage() {
       },
     }),
 
-    prisma.user.count({
-      where: {
-        role: "SUPER_ADMIN",
-      },
-    }),
     prisma.websiteAnalytics.findUnique({
   where: {
     id: "main",
@@ -124,16 +120,7 @@ export default async function AdminPage() {
                 Refresh
               </button>
 
-              {superAdminCount === 0 && (
 
-                <a
-                  href="/admin/create-super-admin"
-                  className="inline-flex h-12 items-center rounded-xl bg-white px-5 font-black text-ink"
-                >
-                  Create Super Admin
-                </a>
-
-              )}
 
             </div>
 

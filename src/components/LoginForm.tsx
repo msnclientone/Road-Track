@@ -16,6 +16,7 @@ import {
   ShieldAlert,
   User,
   UserPlus,
+  Lock,
 } from "lucide-react";
 
 import {
@@ -33,8 +34,7 @@ type LoginFormProps = {
 export function LoginForm({ portal }: LoginFormProps) {
   const router = useRouter();
   const config = getLoginPortalConfig(portal);
-  const [adminBootstrapAllowed, setAdminBootstrapAllowed] = useState(false);
-  const canSignUp = config.canSelfRegister || adminBootstrapAllowed;
+  const canSignUp = config.canSelfRegister;
 
   const [mode, setMode] = useState<AuthMode>("login");
   const [email, setEmail] = useState("");
@@ -63,28 +63,6 @@ export function LoginForm({ portal }: LoginFormProps) {
     const timer = window.setTimeout(() => setSeconds((value) => value - 1), 1000);
     return () => window.clearTimeout(timer);
   }, [seconds]);
-
-  useEffect(() => {
-    let mounted = true;
-    async function checkAdminBootstrap() {
-      if (portal !== "admin") return;
-
-      try {
-        const res = await fetch("/api/admin/super-admin-exists");
-        const data = await res.json();
-        if (!mounted) return;
-        setAdminBootstrapAllowed(!data.exists);
-      } catch (e) {
-        if (mounted) setAdminBootstrapAllowed(false);
-      }
-    }
-
-    checkAdminBootstrap();
-
-    return () => {
-      mounted = false;
-    };
-  }, [portal]);
 
   function resetSignupFlow() {
     setOtpSent(false);
@@ -339,36 +317,6 @@ export function LoginForm({ portal }: LoginFormProps) {
           ))}
         </div>
 
-        {portal === "admin" && adminBootstrapAllowed ? (
-          <div className="mt-8 rounded-lg border border-coral/30 bg-coral/10 p-4">
-            <p className="text-sm font-black uppercase tracking-[0.18em] text-coral">
-              First-time setup
-            </p>
-            <p className="mt-2 text-sm font-semibold text-stone">
-              No Super Admin exists yet. Use the Sign up tab to verify your
-              email with OTP and create the first admin account.
-            </p>
-          </div>
-        ) : null}
-
-        {portal === "admin" && !adminBootstrapAllowed ? (
-          <div className="mt-8 rounded-lg border border-ink/10 bg-white/70 p-4">
-            <p className="text-sm font-black uppercase tracking-[0.18em] text-stone">
-              Add another admin
-            </p>
-            <p className="mt-2 text-sm font-semibold text-stone">
-              Already signed in as Super Admin? Create additional admin accounts
-              from the admin panel.
-            </p>
-            <Link
-              href="/admin/create-super-admin"
-              className="mt-3 inline-flex text-sm font-black text-coral hover:underline"
-            >
-              Create Super Admin account
-            </Link>
-          </div>
-        ) : null}
-
         {otherPortals.length > 0 ? (
           <div className="mt-8 rounded-lg border border-ink/10 bg-white/70 p-4">
             <p className="text-sm font-black uppercase tracking-[0.18em] text-stone">
@@ -459,6 +407,13 @@ export function LoginForm({ portal }: LoginFormProps) {
                 </button>
               </span>
             </label>
+            <Link
+              href="/forgot-password"
+              className="-mt-2 text-right text-sm font-bold text-coral hover:underline"
+            >
+              <Lock className="mr-1 inline h-3.5 w-3.5" />
+              Forgot password?
+            </Link>
             <div className="grid gap-3 sm:grid-cols-2">
               <button
                 disabled={loading}

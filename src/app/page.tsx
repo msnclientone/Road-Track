@@ -1,4 +1,4 @@
-import VisitorTracker from "@/components/VisitorTracker";
+import ViewLocationButton from "@/components/ViewLocationButton";
 import type { Destination } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import Image from "next/image";
@@ -7,7 +7,6 @@ import {
   BusFront,
   Building2,
   CalendarCheck,
-  MapPin,
   MessageCircle,
   ShieldCheck,
 } from "lucide-react";
@@ -29,7 +28,6 @@ export default async function Home() {
 });
   return (
   <main className="min-h-screen bg-ivory text-ink">
-    <VisitorTracker />
     <SiteHeader
       destinations={destinations.map((d) => ({
         id: d.id,
@@ -56,11 +54,11 @@ export default async function Home() {
               and local support.
             </p>
             <div className="mt-6 max-w-5xl sm:mt-8">
-  <h1 className="text-4xl font-black text-ivory sm:text-5xl md:text-6xl lg:text-7xl">
+  <h1 className="text-5xl font-black text-ivory sm:text-6xl md:text-7xl lg:text-8xl">
     Explore UDUPI
   </h1>
 
-  <p className="mt-2 text-base text-white/80 sm:mt-3 sm:text-lg">
+  <p className="mt-2 text-lg text-white/80 sm:mt-3 sm:text-xl md:text-2xl">
     Search your favourite destination and start planning instantly.
   </p>
 
@@ -176,16 +174,7 @@ export default async function Home() {
                   </span>
                 </div>
                 {destination.googleMapsLink && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      window.open(destination.googleMapsLink!, "_blank", "noreferrer");
-                    }}
-                    className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-coral/40 px-3 py-2 text-sm font-bold text-coral transition hover:bg-coral hover:text-ink"
-                  >
-                    <MapPin className="h-4 w-4" />
-                    View Location
-                  </button>
+                  <ViewLocationButton href={destination.googleMapsLink} />
                 )}
               </div>
             </Link>

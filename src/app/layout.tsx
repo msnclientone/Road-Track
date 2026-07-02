@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import LayoutWrapper from "./LayoutWrapper";
+import VisitorTracker from "@/components/VisitorTracker";
 
 export const metadata: Metadata = {
   title: "Road Track | Udupi Tourism Platform",
@@ -16,6 +17,7 @@ export default function RootLayout({
   return (
     <html lang="en" data-scroll-behavior="smooth">
       <body>
+        <VisitorTracker />
         <LayoutWrapper>{children}</LayoutWrapper>
       </body>
     </html>

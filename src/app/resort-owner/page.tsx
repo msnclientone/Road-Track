@@ -46,7 +46,7 @@ export default async function ResortOwnerDashboardPage() {
     redirect("/resort-owner/pending");
   }
 
-  const [owner, resorts, assignedLeads, bookings] = await Promise.all([
+  const [owner, resorts, assignedLeads, bookings, destinationOptions] = await Promise.all([
     prisma.user.findUnique({
       where: { id: session.sub },
       select: {
@@ -120,6 +120,10 @@ export default async function ResortOwnerDashboardPage() {
       },
       orderBy: { createdAt: "desc" },
       take: 6,
+    }),
+    prisma.destination.findMany({
+      select: { slug: true, name: true },
+      orderBy: { name: "asc" },
     }),
   ]);
 
@@ -217,14 +221,19 @@ export default async function ResortOwnerDashboardPage() {
             />
 
             <div className="p-5">
-              <ResortManager initialResorts={resorts.map((resort) => ({
+              <ResortManager destinationOptions={destinationOptions} initialResorts={resorts.map((resort) => ({
                 id: resort.id,
                 name: resort.name,
+                slug: resort.slug,
+                description: resort.description,
                 destinationId: resort.destinationId,
                 destination: resort.destination,
                 address: resort.address,
                 priceMin: resort.priceMin,
                 priceMax: resort.priceMax,
+                availableAcRooms: resort.availableAcRooms,
+                availableNonAcRooms: resort.availableNonAcRooms,
+                imageUrl: resort.media[0]?.url ?? null,
                 status: resort.status,
               }))} />
             </div>

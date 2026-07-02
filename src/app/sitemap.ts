@@ -1,10 +1,14 @@
 import type { MetadataRoute } from "next";
 
-import { destinations } from "@/lib/data";
+import { prisma } from "@/lib/prisma";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
   const now = new Date();
+
+  const dbDestinations = await prisma.destination.findMany({
+    select: { slug: true },
+  });
 
   return [
     {
@@ -25,7 +29,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "yearly",
       priority: 0.3,
     },
-    ...destinations.map((destination) => ({
+    ...dbDestinations.map((destination) => ({
       url: `${siteUrl}/destinations/${destination.slug}`,
       lastModified: now,
       changeFrequency: "monthly" as const,
