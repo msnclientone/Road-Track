@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+
 import type { ReactNode } from "react";
 import {
   Building2,
@@ -109,17 +110,32 @@ export function SiteFooter() {
 
       <div className="grid gap-5 px-5 py-6 text-sm text-white/65 sm:px-8 lg:grid-cols-[1fr_auto] lg:items-center lg:px-10 2xl:px-12">
         <div className="flex flex-wrap gap-x-6 gap-y-3">
-          <span className="inline-flex items-center gap-2">
-            <MapPin className="h-4 w-4 text-coral" />
-            Udupi, Karnataka
-          </span>
+          <div className="inline-flex items-center gap-2 transition hover:text-coral">
+          <Link
+  href="https://maps.app.goo.gl/65BizSW5tN7V2wP58?g_st=ac"
+  target="_blank"
+  rel="noopener noreferrer"
+>
+ 📍 Road Track Office
+</Link>
+</div>
           <a
-            href="mailto:hello@roadtrack.in"
+            href="mailto:roadtrack.udupi@gmail.com"
             className="inline-flex items-center gap-2 transition hover:text-coral"
           >
             <Mail className="h-4 w-4 text-coral" />
-            hello@roadtrack.in
+            roadtrack.udupi@gmail.com
           </a>
+
+            <a
+  href="https://www.instagram.com/road_track.udupi?igsh=NGN4OHZmZXJ0a2hz"
+  target="_blank"
+  rel="noopener noreferrer"
+  className="inline-flex items-center gap-2 transition hover:text-pink-500"
+>
+  📷 Instagram
+</a>
+
           <span className="inline-flex items-center gap-2">
             <ShieldCheck className="h-4 w-4 text-coral" />
             Verified local network
