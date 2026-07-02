@@ -9,7 +9,7 @@ import {
   Gauge,
   IndianRupee,
   Mail,
-  MapPin,
+  MapPinned,
   MessageCircle,
   Phone,
   Plus,
@@ -255,7 +255,7 @@ export default async function VehicleOwnerDashboardPage() {
                               {vehicle.vehicleType}
                             </h3>
                             <p className="mt-1 flex items-center gap-2 text-sm font-semibold text-stone">
-                              <MapPin className="h-4 w-4 text-coral" />
+                              <MapPinned className="h-4 w-4 text-coral" />
                               {vehicle.destination?.name ?? "All routes"}
                             </p>
                           </div>

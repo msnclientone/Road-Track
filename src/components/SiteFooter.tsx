@@ -2,11 +2,12 @@ import Image from "next/image";
 import Link from "next/link";
 
 import type { ReactNode } from "react";
+import { FaInstagram } from "react-icons/fa";
 import {
   Building2,
   CarFront,
   Mail,
-  MapPin,
+  MapPinned,
   MessageCircle,
   Phone,
   ShieldCheck,
@@ -116,15 +117,16 @@ export async function SiteFooter() {
 
       <div className="grid gap-5 px-5 py-6 text-sm text-white/65 sm:px-8 lg:grid-cols-[1fr_auto] lg:items-center lg:px-10 2xl:px-12">
         <div className="flex flex-wrap gap-x-6 gap-y-3">
-          <div className="inline-flex items-center gap-2 transition hover:text-coral">
-          <Link
+          <a
   href="https://maps.app.goo.gl/65BizSW5tN7V2wP58?g_st=ac"
   target="_blank"
   rel="noopener noreferrer"
+  className="inline-flex items-center gap-2 transition-all duration-300 hover:text-coral hover:scale-105"
+  aria-label="Road Track Office location on Google Maps"
 >
- 📍 Road Track Office
-</Link>
-</div>
+  <MapPinned className="h-4 w-4 text-coral" />
+  Road Track Office
+</a>
           <a
             href="mailto:roadtrack.udupi@gmail.com"
             className="inline-flex items-center gap-2 transition hover:text-coral"
@@ -137,9 +139,11 @@ export async function SiteFooter() {
   href="https://www.instagram.com/road_track.udupi?igsh=NGN4OHZmZXJ0a2hz"
   target="_blank"
   rel="noopener noreferrer"
-  className="inline-flex items-center gap-2 transition hover:text-pink-500"
+  className="inline-flex items-center gap-2 transition-all duration-300 hover:text-coral hover:scale-105"
+  aria-label="Road Track Instagram profile"
 >
-  📷 Instagram
+  <FaInstagram className="h-4 w-4 text-coral" />
+  Instagram
 </a>
 
           <span className="inline-flex items-center gap-2">
@@ -149,7 +153,28 @@ export async function SiteFooter() {
         </div>
 
         <div className="flex flex-wrap gap-x-5 gap-y-2 lg:justify-end">
-          <span>Copyright {year} Road Track</span>
+          <span>
+            &copy; {year} RoadTrack Udupi. All Rights Reserved. Owned by
+            RoadTrack Udupi. Designed &amp; Developed by{" "}
+            <a
+              href="https://www.linkedin.com/in/sumantha-narayana-m-6b2a05257/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-bold text-coral transition hover:underline"
+            >
+              Sumantha Narayana M
+            </a>{" "}
+            and{" "}
+            <a
+              href="https://www.linkedin.com/in/pratham-k-chandra/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-bold text-coral transition hover:underline"
+            >
+              Pratham K
+            </a>
+            .
+          </span>
           <Link href="/privacy" className="transition hover:text-coral">
             Privacy Policy
           </Link>

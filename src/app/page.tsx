@@ -7,6 +7,7 @@ import {
   BusFront,
   Building2,
   CalendarCheck,
+  MapPinned,
   MessageCircle,
   ShieldCheck,
 } from "lucide-react";
@@ -156,8 +157,9 @@ export default async function Home() {
 
 </div>
                 </div>
-                <p className="mt-2 text-sm font-bold capitalize text-stone">
-  📍 {destination.slug?.replace(/-/g, " ") || "Unknown Location"}
+                <p className="mt-2 flex items-center gap-1.5 text-sm font-bold capitalize text-stone">
+  <MapPinned className="h-4 w-4 shrink-0 text-coral" />
+  {destination.slug?.replace(/-/g, " ") || "Unknown Location"}
 </p>
                 <p className="mt-4 line-clamp-3 text-sm leading-6 text-stone">
                   {destination.description}

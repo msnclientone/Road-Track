@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { vehicleImages } from "@/lib/vehicleImages";
 import Image from "next/image";
-import { Mail, Phone, MapPin, Users, Zap, IndianRupee } from "lucide-react";
+import { Mail, Phone, Users, Zap, IndianRupee } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { prisma } from "@/lib/prisma";

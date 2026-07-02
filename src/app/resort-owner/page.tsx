@@ -10,7 +10,7 @@ import {
   Hotel,
   IndianRupee,
   Mail,
-  MapPin,
+  MapPinned,
   MessageCircle,
   Phone,
   Plus,
@@ -266,7 +266,7 @@ export default async function ResortOwnerDashboardPage() {
                               {resort.name}
                             </h3>
                             <p className="mt-1 flex items-center gap-2 text-sm font-semibold text-stone">
-                              <MapPin className="h-4 w-4 text-coral" />
+                              <MapPinned className="h-4 w-4 text-coral" />
                               {resort.destination.name}
                             </p>
                           </div>

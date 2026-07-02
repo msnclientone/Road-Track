@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { MapPin } from "lucide-react";
+import { MapPinned } from "lucide-react";
 
 interface Resort {
   id: string;
@@ -201,7 +201,7 @@ export default function AdminResortApprovals() {
                     rel="noreferrer"
                     className="mt-1 inline-flex items-center gap-1 text-sm font-semibold text-coral hover:underline"
                   >
-                    <MapPin className="h-3.5 w-3.5" />
+                    <MapPinned className="h-3.5 w-3.5" />
                     View Location
                   </a>
                 )}

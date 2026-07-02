@@ -179,15 +179,6 @@ export function SiteHeader({
    <User className="h-4 w-4" />
    {user.name ?? user.email}
 </Link>
-              {user.role === "SUPER_ADMIN" && (
-                <Link
-                  href="/admin"
-                  className="inline-flex items-center gap-2 rounded-md bg-coral px-3 py-2 text-sm font-black text-ink transition hover:bg-coral/90"
-                >
-                  <LayoutDashboard className="h-4 w-4" />
-                  Super Admin
-                </Link>
-              )}
               <button
                 onClick={handleLogout}
                 className="inline-flex h-11 items-center gap-2 rounded-md border border-white/15 px-4 text-base font-bold text-white transition hover:border-coral hover:text-coral"

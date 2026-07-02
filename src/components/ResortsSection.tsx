@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { MapPin, Loader2, Search, X } from "lucide-react";
+import { MapPinned, Loader2, Search, X } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { getListingImageUrl } from "@/lib/placeholders";
 
@@ -384,7 +384,7 @@ export default function ResortsSection() {
                     <div>
                       <h3 className="text-2xl font-black">{resort.name}</h3>
                       <p className="mt-1 flex items-center gap-2 text-sm text-white/70">
-                        <MapPin className="h-4 w-4 text-coral" />
+                        <MapPinned className="h-4 w-4 text-coral" />
                         {resort.address ?? ""}
                       </p>
                     </div>
@@ -429,7 +429,7 @@ export default function ResortsSection() {
                       }}
                       className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-white/20 px-3 py-2 text-sm font-bold text-white/80 transition hover:bg-white hover:text-ink"
                     >
-                      <MapPin className="h-4 w-4" />
+                      <MapPinned className="h-4 w-4" />
                       View Location
                     </button>
                   )}

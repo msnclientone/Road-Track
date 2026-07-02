@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Search, MapPin, ChevronDown } from "lucide-react";
+import { Search, MapPinned, ChevronDown } from "lucide-react";
 
 type Destination = {
   id: string;
@@ -105,7 +105,7 @@ export default function DestinationSearch({
                 onClick={() => selectDestination(destination)}
                 className="flex w-full items-center gap-3 border-b px-4 py-3 text-left text-sm transition hover:bg-ivory"
               >
-                <MapPin className="h-4 w-4 shrink-0 text-coral" />
+                <MapPinned className="h-4 w-4 shrink-0 text-coral" />
                 <span className="font-semibold text-ink">
                   {destination.name}
                 </span>

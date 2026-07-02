@@ -7,7 +7,7 @@ import {
   ArrowLeft,
   CalendarDays,
   IndianRupee,
-  MapPin,
+  MapPinned,
   MessageCircle,
 } from "lucide-react";
 
@@ -153,7 +153,7 @@ export default async function DestinationPage({
               className="flex items-center justify-center gap-2 rounded-3xl border border-coral/40 bg-white p-8 shadow-sm transition hover:bg-coral hover:text-ink sm:justify-start"
             >
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-coral/10 text-coral">
-                <MapPin className="h-5 w-5" />
+                <MapPinned className="h-5 w-5" />
               </div>
               <div>
                 <p className="text-sm font-black uppercase tracking-widest text-stone">

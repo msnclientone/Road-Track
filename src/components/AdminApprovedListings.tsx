@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Mail, Phone, MapPin, IndianRupee } from "lucide-react";
+import { Mail, Phone, IndianRupee } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 
 type Resort = {

@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import { Mail, Phone, MapPin, IndianRupee } from "lucide-react";
+import { Mail, Phone, MapPinned, IndianRupee } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { prisma } from "@/lib/prisma";
@@ -74,7 +74,7 @@ export default async function ResortDetailPage({
               {resort.name}
             </h1>
             <p className="mt-2 flex items-center gap-2 text-base font-bold text-stone sm:mt-3 sm:text-lg">
-              <MapPin className="h-4 w-4 text-coral sm:h-5 sm:w-5" />
+              <MapPinned className="h-4 w-4 text-coral sm:h-5 sm:w-5" />
               {resort.address}
             </p>
             {resort.googleMapsLink && (
@@ -84,7 +84,7 @@ export default async function ResortDetailPage({
                 rel="noreferrer"
                 className="mt-1 inline-flex items-center gap-1 text-sm font-semibold text-coral hover:underline"
               >
-                <MapPin className="h-3.5 w-3.5" />
+                <MapPinned className="h-3.5 w-3.5" />
                 View on Google Maps
               </a>
             )}
@@ -164,7 +164,7 @@ export default async function ResortDetailPage({
                     rel="noreferrer"
                     className="mt-1 flex items-center gap-2 font-semibold text-coral hover:underline"
                   >
-                    <MapPin className="h-4 w-4" />
+                    <MapPinned className="h-4 w-4" />
                     View on Google Maps
                   </a>
                 </div>
