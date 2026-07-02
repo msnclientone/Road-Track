@@ -16,7 +16,7 @@ export type Lead = {
 
 export const roadTrackPhone =
   process.env.NEXT_PUBLIC_ROAD_TRACK_WHATSAPP ?? "919876543210";
-export const emergencyPhone = "+91 98765 43210";
+export const emergencyPhone = "+91 94808 56097";
 
 export const heroImage = "/images/kapu-beach.jpg";
 
