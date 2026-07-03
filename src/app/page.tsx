@@ -18,6 +18,8 @@ import VehiclesSection from "@/components/VehiclesSection";
 import { heroImage } from "@/lib/data";
 import { buildWhatsAppUrl, formatCurrency } from "@/lib/utils";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   const destinations: Destination[] = await prisma.destination.findMany({
   where: {
