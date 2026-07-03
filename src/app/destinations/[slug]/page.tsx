@@ -14,6 +14,8 @@ import {
 import { prisma } from "@/lib/prisma";
 import { SiteHeader } from "@/components/SiteHeader";
 import { buildWhatsAppUrl, formatCurrency } from "@/lib/utils";
+import ResortCard from "@/components/ResortCard";
+import VehicleCard from "@/components/VehicleCard";
 
 export async function generateStaticParams() {
   const destinations = await prisma.destination.findMany({
@@ -74,6 +76,45 @@ export default async function DestinationPage({
   if (!destination) {
     notFound();
   }
+
+  const [resorts, vehicles] = await Promise.all([
+    prisma.resort.findMany({
+      where: { destinationId: destination.id, status: "APPROVED" },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        address: true,
+        googleMapsLink: true,
+        priceMin: true,
+        amenities: true,
+        media: {
+          select: { url: true, type: true, order: true },
+          orderBy: { order: "asc" },
+          take: 1,
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.vehicle.findMany({
+      where: { destinationId: destination.id, status: "APPROVED" },
+      select: {
+        id: true,
+        vehicleType: true,
+        registrationNo: true,
+        seatingCapacity: true,
+        pricePerDay: true,
+        pricePerKm: true,
+        driverName: true,
+        media: {
+          select: { url: true, order: true },
+          orderBy: { order: "asc" },
+          take: 1,
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    }),
+  ]);
 
   return (
     <main className="min-h-screen bg-ivory text-ink">
@@ -254,6 +295,102 @@ export default async function DestinationPage({
                   </div>
                 </div>
               </Link>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* AVAILABLE RESORTS */}
+
+      <section className="bg-ink py-20 text-ivory">
+        <div className="mx-auto max-w-7xl px-5 sm:px-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-black sm:text-3xl">
+                Available Resorts
+              </h2>
+
+              <p className="mt-2 text-sm text-white/70 sm:text-base">
+                Stay options available in {destination.name}.
+              </p>
+            </div>
+          </div>
+
+          {resorts.length === 0 ? (
+            <div className="mt-8 rounded-lg border border-white/10 bg-white/[0.06] p-10 text-center">
+              <p className="text-lg font-bold text-ivory">
+                No resorts available for this destination.
+              </p>
+
+              <p className="mt-2 text-sm text-white/70">
+                Check back soon for new listings!
+              </p>
+            </div>
+          ) : (
+            <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {resorts.map((resort, index) => (
+                <ResortCard
+                  key={resort.id}
+                  resort={{
+                    id: resort.id,
+                    name: resort.name,
+                    address: resort.address,
+                    description: resort.description ?? "",
+                    priceMin: resort.priceMin,
+                    amenities: (resort.amenities as string[]) || [],
+                    googleMapsLink: resort.googleMapsLink,
+                    media: resort.media,
+                  }}
+                  index={index}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* AVAILABLE VEHICLES */}
+
+      <section className="mx-auto max-w-7xl px-5 pb-12 sm:px-6 sm:pb-16">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-black sm:text-3xl">
+              Available Vehicles
+            </h2>
+
+            <p className="mt-2 text-sm text-stone sm:text-base">
+              Transport options available in {destination.name}.
+            </p>
+          </div>
+        </div>
+
+        {vehicles.length === 0 ? (
+          <div className="mt-8 rounded-lg border border-ink/10 bg-white p-10 text-center">
+            <p className="text-lg font-bold text-stone">
+              No vehicles available for this destination.
+            </p>
+
+            <p className="mt-2 text-sm text-stone">
+              Check back soon for new listings!
+            </p>
+          </div>
+        ) : (
+          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {vehicles.map((vehicle) => (
+              <VehicleCard
+                key={vehicle.id}
+                vehicle={{
+                  id: vehicle.id,
+                  vehicleType: vehicle.vehicleType,
+                  registrationNo: vehicle.registrationNo,
+                  seatingCapacity: vehicle.seatingCapacity,
+                  pricePerDay: vehicle.pricePerDay,
+                  pricePerKm: vehicle.pricePerKm,
+                  driverName: vehicle.driverName,
+                  destinationName: destination.name,
+                  media: vehicle.media,
+                }}
+              />
             ))}
           </div>
         )}

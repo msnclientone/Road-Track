@@ -150,6 +150,11 @@ export default function AdminVehicleApprovals() {
                     {v.seatingCapacity}
                   </p>
 
+                  <p>
+                    <b>Destination :</b>{" "}
+                    {v.destination?.name ?? "Not Assigned"}
+                  </p>
+
                 </div>
 
                 <div className="space-y-4">

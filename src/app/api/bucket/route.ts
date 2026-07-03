@@ -20,8 +20,24 @@ export async function GET() {
       include: {
         items: {
           include: {
-            resort: true,
-            vehicle: true,
+            resort: {
+              include: {
+                destination: true,
+                media: {
+                  orderBy: { order: "asc" },
+                  take: 1,
+                },
+              },
+            },
+            vehicle: {
+              include: {
+                destination: true,
+                media: {
+                  orderBy: { order: "asc" },
+                  take: 1,
+                },
+              },
+            },
           },
         },
       },

@@ -46,7 +46,7 @@ export default async function VehicleOwnerDashboardPage() {
     redirect("/vehicle-owner/pending");
   }
 
-  const [owner, vehicles, assignedLeads, bookings] = await Promise.all([
+  const [owner, vehicles, assignedLeads, bookings, destinations] = await Promise.all([
     prisma.user.findUnique({
       where: { id: session.sub },
       select: {
@@ -119,6 +119,10 @@ export default async function VehicleOwnerDashboardPage() {
       },
       orderBy: { createdAt: "desc" },
       take: 6,
+    }),
+    prisma.destination.findMany({
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
     }),
   ]);
 
@@ -212,18 +216,22 @@ export default async function VehicleOwnerDashboardPage() {
               text="Vehicle details, driver contact, pricing, and current availability."
             />
 
-            <VehicleManager initialVehicles={vehicles.map((vehicle) => ({
-              id: vehicle.id,
-              vehicleType: vehicle.vehicleType,
-              seatingCapacity: vehicle.seatingCapacity,
-              pricePerKm: vehicle.pricePerKm,
-              pricePerDay: vehicle.pricePerDay,
-              driverName: vehicle.driverName,
-              driverPhone: vehicle.driverPhone,
-              registrationNo: vehicle.registrationNo,
-              availability: vehicle.availability,
-              status: vehicle.status,
-            }))} />
+            <VehicleManager
+              initialVehicles={vehicles.map((vehicle) => ({
+                id: vehicle.id,
+                vehicleType: vehicle.vehicleType,
+                seatingCapacity: vehicle.seatingCapacity,
+                pricePerKm: vehicle.pricePerKm,
+                pricePerDay: vehicle.pricePerDay,
+                driverName: vehicle.driverName,
+                driverPhone: vehicle.driverPhone,
+                registrationNo: vehicle.registrationNo,
+                availability: vehicle.availability,
+                status: vehicle.status,
+                destinationId: vehicle.destinationId,
+              }))}
+              destinationOptions={destinations}
+            />
 
             {vehicles.length > 0 ? (
               <div className="grid gap-4 p-5 lg:grid-cols-2">
@@ -322,25 +330,7 @@ export default async function VehicleOwnerDashboardPage() {
           </section>
 
           <aside className="grid gap-6">
-            <section className="rounded-lg border border-ink/10 bg-ink p-6 text-ivory">
-              <div className="flex items-center gap-3">
-                <IndianRupee className="h-6 w-6 text-mint" />
-                <h2 className="text-2xl font-black">Trip payout</h2>
-              </div>
-              <div className="mt-6 grid gap-4">
-                <PayoutRow label="Confirmed bookings" value={bookings.length} />
-                <PayoutRow
-                  label="Gross booking value"
-                  value={formatCurrency(confirmedBookingValue)}
-                />
-                <PayoutRow
-                  label="Estimated payout"
-                  value={formatCurrency(payoutDue)}
-                />
-              </div>
-            </section>
-
-            <section className="rounded-lg border border-ink/10 bg-white p-6 shadow-sm">
+<section className="rounded-lg border border-ink/10 bg-white p-6 shadow-sm">
               <div className="flex items-center gap-3">
                 <CarFront className="h-6 w-6 text-coral" />
                 <h2 className="text-2xl font-black">Partner profile</h2>
@@ -491,21 +481,6 @@ function MiniStat({
         </p>
       </div>
       <p className="mt-2 text-lg font-black">{value}</p>
-    </div>
-  );
-}
-
-function PayoutRow({
-  label,
-  value,
-}: {
-  label: string;
-  value: string | number;
-}) {
-  return (
-    <div className="rounded-md bg-white/10 p-4">
-      <p className="text-sm text-white/65">{label}</p>
-      <p className="mt-1 text-2xl font-black">{value}</p>
     </div>
   );
 }

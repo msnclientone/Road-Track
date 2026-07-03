@@ -9,12 +9,15 @@ type VehicleInput = {
   driverName?: string;
   driverPhone?: string;
   registrationNo?: string;
+  destinationId?: string;
 };
 
 export default function VehicleManager({
   initialVehicles,
+  destinationOptions = [],
 }: {
   initialVehicles: any[];
+  destinationOptions?: { id: string; name: string }[];
 }) {
   const [tab, setTab] = useState<"list" | "add">("list");
   const [vehicles, setVehicles] = useState(initialVehicles || []);
@@ -28,6 +31,7 @@ export default function VehicleManager({
     driverName: "",
     driverPhone: "",
     registrationNo: "",
+    destinationId: "",
   });
 
   const [error, setError] = useState<string | null>(null);
@@ -44,6 +48,7 @@ const [pricePerKm, setPricePerKm] = useState("");
       driverName: "",
       driverPhone: "",
       registrationNo: "",
+      destinationId: "",
     });
   }
 
@@ -144,6 +149,7 @@ const [pricePerKm, setPricePerKm] = useState("");
       driverName: vehicle.driverName,
       driverPhone: vehicle.driverPhone,
       registrationNo: vehicle.registrationNo,
+      destinationId: vehicle.destinationId ?? "",
     });
 
     setTab("add");
@@ -242,6 +248,14 @@ async function updatePrice() {
                       <span className="font-semibold">
                         {" "}
                         {vehicle.registrationNo}
+                      </span>
+                    </p>
+
+                    <p className="text-sm text-stone">
+                      Destination :
+                      <span className="font-semibold">
+                        {" "}
+                        {vehicle.destination?.name ?? "Not Assigned"}
                       </span>
                     </p>
 
@@ -445,6 +459,32 @@ async function updatePrice() {
               }
               className="rounded-md border px-3 py-2"
             />
+          </label>
+
+          <label className="grid gap-1 text-sm">
+            Destination
+            <select
+              value={form.destinationId ?? ""}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  destinationId: e.target.value,
+                })
+              }
+              className="rounded-md border px-3 py-2"
+            >
+              <option value="">
+                Select Destination
+              </option>
+              {destinationOptions.map((dest) => (
+                <option
+                  key={dest.id}
+                  value={dest.id}
+                >
+                  {dest.name}
+                </option>
+              ))}
+            </select>
           </label>
 
           <div className="flex gap-3 pt-2">

@@ -25,9 +25,6 @@ const serviceLinks = [
 
 const partnerLinks = [
   { href: "/login", label: "Customer login" },
-  { href: "/login/admin", label: "Admin login" },
-  { href: "/login/resort-owner", label: "Resort owner login" },
-  { href: "/login/vehicle-owner", label: "Vehicle owner login" },
   { href: "/privacy", label: "Privacy Policy" },
   { href: "/terms", label: "Terms" },
 ];
@@ -171,7 +168,7 @@ export async function SiteFooter() {
               rel="noopener noreferrer"
               className="font-bold text-coral transition hover:underline"
             >
-              Pratham K
+              Pratham K Chandra
             </a>
             .
           </span>

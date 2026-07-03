@@ -1,17 +1,8 @@
 "use client";
 
 import { useEffect, useState, useMemo, useCallback } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import {
-  Loader2,
-  Users,
-  Search,
-  X,
-} from "lucide-react";
-import { formatCurrency } from "@/lib/utils";
-import { getListingImageUrl } from "@/lib/placeholders";
-import { vehicleImages } from "@/lib/vehicleImages";
+import { Loader2, Search, X } from "lucide-react";
+import VehicleCard from "@/components/VehicleCard";
 
 type Vehicle = {
   id: string;
@@ -152,6 +143,7 @@ export default function VehiclesSection() {
     useState("All Vehicles");
   const [seatingFilter, setSeatingFilter] = useState(0);
   const [priceFilterIndex, setPriceFilterIndex] = useState(0);
+  const [destinationFilter, setDestinationFilter] = useState("All");
   const [sortOption, setSortOption] = useState("default");
 
   useEffect(() => {
@@ -172,6 +164,13 @@ export default function VehiclesSection() {
     fetchVehicles();
   }, []);
 
+  const uniqueDestinations = useMemo(() => {
+    const names = Array.from(
+      new Set(vehicles.map((v) => v.destination?.name).filter(Boolean))
+    ) as string[];
+    return names.sort();
+  }, [vehicles]);
+
   const filteredVehicles = useMemo(() => {
     const priceRange = PRICE_OPTIONS[priceFilterIndex];
     let result = vehicles.filter((v) => {
@@ -185,6 +184,11 @@ export default function VehiclesSection() {
       if (!matchesPrice(v.pricePerDay, priceRange.min, priceRange.max))
         return false;
       if (!matchesSearch(v, searchQuery)) return false;
+      if (
+        destinationFilter !== "All" &&
+        v.destination?.name !== destinationFilter
+      )
+        return false;
       return true;
     });
     result = sortVehicles(result, sortOption);
@@ -196,6 +200,7 @@ export default function VehiclesSection() {
     priceFilterIndex,
     searchQuery,
     sortOption,
+    destinationFilter,
   ]);
 
   const clearFilters = useCallback(() => {
@@ -203,6 +208,7 @@ export default function VehiclesSection() {
     setVehicleTypeFilter("All Vehicles");
     setSeatingFilter(0);
     setPriceFilterIndex(0);
+    setDestinationFilter("All");
     setSortOption("default");
   }, []);
 
@@ -211,6 +217,7 @@ export default function VehiclesSection() {
     vehicleTypeFilter !== "All Vehicles" ||
     seatingFilter !== 0 ||
     priceFilterIndex !== 0 ||
+    destinationFilter !== "All" ||
     sortOption !== "default";
 
   if (loading) {
@@ -296,6 +303,23 @@ export default function VehiclesSection() {
               ))}
             </select>
 
+            {uniqueDestinations.length > 0 && (
+              <select
+                value={destinationFilter}
+                onChange={(e) =>
+                  setDestinationFilter(e.target.value)
+                }
+                className="cursor-pointer rounded-lg border border-ink/10 bg-white px-3 py-2.5 text-sm font-bold text-ink outline-none transition focus:border-coral focus:ring-2 focus:ring-coral/20"
+              >
+                <option value="All">All Destinations</option>
+                {uniqueDestinations.map((name) => (
+                  <option key={name} value={name}>
+                    {name}
+                  </option>
+                ))}
+              </select>
+            )}
+
             <select
               value={sortOption}
               onChange={(e) => setSortOption(e.target.value)}
@@ -337,66 +361,7 @@ export default function VehiclesSection() {
       ) : (
         <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {filteredVehicles.map((vehicle) => (
-            <Link
-              href={`/vehicle/${vehicle.id}`}
-              key={vehicle.id}
-              className="group overflow-hidden rounded-lg border border-ink/10 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
-            >
-              <article className="h-full">
-                <div className="relative aspect-[16/10]">
-                  <Image
-                    src={
-                      vehicle.media?.length
-                        ? getListingImageUrl(vehicle.media, "vehicle")
-                        : vehicleImages[vehicle.vehicleType] ??
-                          "/vehicle-images/default.jpg"
-                    }
-                    alt={vehicle.vehicleType}
-                    fill
-                    className="object-cover transition duration-500 group-hover:scale-105"
-                    sizes="(min-width: 1024px) 33vw, 100vw"
-                  />
-                </div>
-                <div className="p-5">
-                  <div className="flex items-center justify-between gap-4">
-                    <div>
-                      <h3 className="text-2xl font-black">
-                        {vehicle.vehicleType}
-                      </h3>
-                      <p className="mt-1 text-sm font-bold text-stone">
-                        {vehicle.registrationNo}
-                      </p>
-                    </div>
-                  </div>
-
-                  <p className="mt-2 text-sm font-bold text-stone">
-                    Driver: {vehicle.driverName}
-                  </p>
-
-                  <div className="mt-5 grid grid-cols-3 gap-3 text-sm">
-                    <div className="rounded-lg bg-sky/10 p-3">
-                      <Users className="h-4 w-4" />
-                      <p className="mt-1 font-black">
-                        {vehicle.seatingCapacity}
-                      </p>
-                      <p className="text-xs font-bold text-stone">Seats</p>
-                    </div>
-                    <div className="rounded-lg bg-coral/10 p-3">
-                      <p className="font-black text-coral">
-                        {formatCurrency(vehicle.pricePerDay)}
-                      </p>
-                      <p className="text-xs font-bold text-stone">Per Day</p>
-                    </div>
-                    <div className="rounded-md bg-mint/10 p-3">
-                      <p className="font-black text-emerald-700">
-                        {formatCurrency(vehicle.pricePerKm)}
-                      </p>
-                      <p className="text-xs font-bold text-stone">Per KM</p>
-                    </div>
-                  </div>
-                </div>
-              </article>
-            </Link>
+            <VehicleCard key={vehicle.id} vehicle={{ ...vehicle, destinationName: vehicle.destination?.name }} />
           ))}
         </div>
       )}

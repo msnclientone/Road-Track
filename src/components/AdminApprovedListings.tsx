@@ -163,6 +163,7 @@ export default function AdminApprovedListings() {
               <thead className="bg-ivory text-xs uppercase tracking-[0.14em] text-stone">
                 <tr>
                   <th className="px-4 py-3">Vehicle Type</th>
+                  <th className="px-4 py-3">Destination</th>
                   <th className="px-4 py-3">Registration No</th>
                   <th className="px-4 py-3">Seats</th>
                   <th className="px-4 py-3">Driver Name</th>
@@ -179,6 +180,7 @@ export default function AdminApprovedListings() {
                 {vehicles.map((vehicle) => (
                   <tr key={vehicle.id} className="border-t border-ink/10 hover:bg-ivory/50">
                     <td className="px-4 py-3 font-bold">{vehicle.vehicleType}</td>
+                    <td className="px-4 py-3">{vehicle.destination?.name || "—"}</td>
                     <td className="px-4 py-3 text-xs">{vehicle.registrationNo || "—"}</td>
                     <td className="px-4 py-3 font-semibold">{vehicle.seatingCapacity}</td>
                     <td className="px-4 py-3">{vehicle.driverName}</td>

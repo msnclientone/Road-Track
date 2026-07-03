@@ -22,6 +22,7 @@ export async function POST(request: Request) {
       driverName,
       driverPhone,
       registrationNo,
+      destinationId,
     } = body;
 
     if (!id) {
@@ -70,6 +71,12 @@ export async function POST(request: Request) {
         driverPhone,
         registrationNo:
           registrationNo.toUpperCase(),
+        destinationId: destinationId || null,
+      },
+      include: {
+        destination: {
+          select: { name: true },
+        },
       },
     });
 

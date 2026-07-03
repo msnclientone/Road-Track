@@ -11,7 +11,10 @@ export async function GET() {
 
     const pending = await prisma.vehicle.findMany({
       where: { status: "PENDING" },
-      include: { owner: { select: { id: true, email: true, name: true, phone: true } } },
+      include: {
+        owner: { select: { id: true, email: true, name: true, phone: true } },
+        destination: { select: { id: true, name: true } },
+      },
       orderBy: { createdAt: "asc" },
     });
 

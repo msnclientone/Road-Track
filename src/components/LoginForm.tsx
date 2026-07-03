@@ -279,7 +279,7 @@ export function LoginForm({ portal }: LoginFormProps) {
   }
 
   const otherPortals = Object.values(LOGIN_PORTALS).filter(
-    (item) => item.portal !== portal,
+    (item) => item.portal !== portal && item.portal !== "admin",
   );
 
   return (

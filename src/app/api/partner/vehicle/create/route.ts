@@ -86,6 +86,11 @@ export async function POST(request: Request) {
 
         status: "PENDING",
       },
+      include: {
+        destination: {
+          select: { name: true },
+        },
+      },
     });
 
     return NextResponse.json({
