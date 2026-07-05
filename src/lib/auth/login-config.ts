@@ -51,7 +51,7 @@ export const LOGIN_PORTALS: Record<LoginPortal, LoginPortalConfig> = {
     title: "Manage your resort listings and leads.",
     description:
       "Resort owner accounts are created after Super Admin approval. You can request access by signing up; a Super Admin will approve your account.",
-    emailPlaceholder: "owner@yourresort.com",
+    emailPlaceholder: "ROADR0012 or owner@yourresort.com",
   },
   "vehicle-owner": {
     portal: "vehicle-owner",
@@ -64,7 +64,7 @@ export const LOGIN_PORTALS: Record<LoginPortal, LoginPortalConfig> = {
     title: "Manage fleet availability and assigned leads.",
     description:
       "Vehicle owner accounts are created after Super Admin approval. You can request access by signing up; a Super Admin will approve your account.",
-    emailPlaceholder: "owner@yourfleet.com",
+    emailPlaceholder: "ROADV0007 or owner@yourfleet.com",
   },
 };
 

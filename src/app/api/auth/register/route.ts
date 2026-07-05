@@ -9,6 +9,7 @@ import {
   setSessionCookie,
 } from "@/lib/auth/session";
 import { registerSchema } from "@/lib/auth/validation";
+import { generateResortOwnerId, generateVehicleOwnerId } from "@/lib/generate-id";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(request: Request) {
@@ -62,6 +63,12 @@ export async function POST(request: Request) {
     ? "APPROVED"
     : null;
 
+    const vehicleOwnerId =
+      role === "VEHICLE_OWNER" ? await generateVehicleOwnerId() : undefined;
+
+    const resortOwnerId =
+      role === "RESORT_OWNER" ? await generateResortOwnerId() : undefined;
+
     // Prevent self-registration for admin after initial bootstrap
     if (role === "SUPER_ADMIN") {
       const superAdminCount = await prisma.user.count({ where: { role: "SUPER_ADMIN" } });
@@ -82,6 +89,8 @@ export async function POST(request: Request) {
             emailVerifiedAt: new Date(),
             role,
             partnerStatus,
+            ...(vehicleOwnerId ? { vehicleOwnerId } : {}),
+            ...(resortOwnerId ? { resortOwnerId } : {}),
           },
         })
       : await prisma.user.create({
@@ -94,6 +103,8 @@ export async function POST(request: Request) {
             emailVerifiedAt: new Date(),
             role,
             partnerStatus,
+            ...(vehicleOwnerId ? { vehicleOwnerId } : {}),
+            ...(resortOwnerId ? { resortOwnerId } : {}),
           },
         });
 

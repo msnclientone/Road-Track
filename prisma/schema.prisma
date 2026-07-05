@@ -7,29 +7,34 @@ datasource db {
 }
 
 model User {
-  id              String         @id @default(cuid())
-  email           String         @unique
-  passwordHash    String?
-  phone           String?
-  name            String?
-  role            UserRole       @default(CUSTOMER)
-  partnerStatus   PartnerStatus?
-  emailVerifiedAt DateTime?
-  termsAcceptedAt DateTime?
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
-  auditLogs       AuditLog[]
-  blogPosts       BlogPost[]
-  buckets         Bucket[]
-  enquiries       Enquiry[]
-  guideProfile    Guide?
-  notifications   Notification[]
-  resorts         Resort[]
-  reviews         Review[]
-  vehicles        Vehicle[]
+  id                String         @id @default(cuid())
+  email             String         @unique
+  passwordHash      String?
+  phone             String?
+  name              String?
+  role              UserRole       @default(CUSTOMER)
+  partnerStatus     PartnerStatus?
+  vehicleOwnerId    String?        @unique
+  resortOwnerId     String?        @unique
+  mustChangePassword Boolean       @default(false)
+  emailVerifiedAt   DateTime?
+  termsAcceptedAt   DateTime?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  auditLogs         AuditLog[]
+  blogPosts         BlogPost[]
+  buckets           Bucket[]
+  enquiries         Enquiry[]
+  guideProfile      Guide?
+  notifications     Notification[]
+  resorts           Resort[]
+  reviews           Review[]
+  vehicles          Vehicle[]
 
   @@index([role])
   @@index([partnerStatus])
+  @@index([vehicleOwnerId])
+  @@index([resortOwnerId])
 }
 
 model OtpCode {

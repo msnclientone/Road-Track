@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { INDIAN_PHONE_REGEX } from "@/lib/phone";
 import type { LoginPortal } from "@/lib/auth/login-config";
 
 export const loginPortalSchema = z.enum([
@@ -15,7 +16,7 @@ export const passwordSchema = z
   .max(128, "Password is too long.");
 
 export const loginSchema = z.object({
-  email: z.string().trim().email("Enter a valid email address."),
+  email: z.string().trim().min(1, "Enter your email or login ID."),
   password: z.string().min(1, "Enter your password."),
   portal: loginPortalSchema,
 });
@@ -49,10 +50,7 @@ export const registerSchema = z
     phone: z
       .string()
       .trim()
-      .regex(
-        /^\+?[0-9\s-]{8,18}$/,
-        "Enter a valid phone number with country code.",
-      ),
+      .regex(INDIAN_PHONE_REGEX, "Enter a valid 10-digit Indian phone number."),
     password: passwordSchema,
     confirmPassword: z.string().min(1, "Confirm your password."),
     acceptTerms: z.literal(true, {
@@ -63,6 +61,46 @@ export const registerSchema = z
     message: "Passwords do not match.",
     path: ["confirmPassword"],
   });
+
+export const vehicleCreateSchema = z.object({
+  vehicleType: z.string().min(1, "Vehicle type is required."),
+  seatingCapacity: z.coerce.number().int().min(1),
+  driverName: z.string().trim().min(1, "Driver name is required.").max(120),
+  driverPhone: z.string().trim().regex(INDIAN_PHONE_REGEX, "Enter a valid 10-digit phone number."),
+  registrationNo: z.string().trim().min(1, "Registration number is required.").max(40),
+  destinationId: z.string().min(1, "Destination is required."),
+});
+
+export const vehicleUpdateSchema = vehicleCreateSchema.partial();
+
+export const addVehicleOwnerSchema = z.object({
+  ownerName: z.string().trim().min(1, "Owner name is required.").max(120),
+  ownerPhone: z.string().trim().regex(INDIAN_PHONE_REGEX, "Enter a valid 10-digit phone number."),
+  vehicleType: z.string().min(1, "Vehicle type is required."),
+  seatingCapacity: z.coerce.number().int().min(1),
+  driverName: z.string().trim().min(1, "Driver name is required.").max(120),
+  driverPhone: z.string().trim().regex(INDIAN_PHONE_REGEX, "Enter a valid 10-digit phone number."),
+  registrationNo: z.string().trim().min(1, "Registration number is required.").max(40),
+  destinationId: z.string().min(1, "Destination is required."),
+  pricePerKm: z.coerce.number().int().min(0).optional(),
+  pricePerDay: z.coerce.number().int().min(0).optional(),
+});
+
+export const addResortOwnerSchema = z.object({
+  ownerName: z.string().trim().min(1, "Owner name is required.").max(120),
+  ownerPhone: z.string().trim().regex(INDIAN_PHONE_REGEX, "Enter a valid 10-digit phone number."),
+  name: z.string().trim().min(1, "Resort name is required.").max(120),
+  description: z.string().trim().min(1, "Description is required.").max(2000),
+  address: z.string().trim().optional(),
+  acRooms: z.coerce.number().int().min(0).optional(),
+  nonAcRooms: z.coerce.number().int().min(0).optional(),
+  amenities: z.string().trim().optional(),
+  destinationId: z.string().min(1, "Destination is required."),
+  imageUrl: z.string().url().optional().or(z.literal("")),
+  googleMapsLink: z.string().url().optional().or(z.literal("")),
+  nonAcPrice: z.coerce.number().int().min(0).optional(),
+  acPrice: z.coerce.number().int().min(0).optional(),
+});
 
 export const forgotPasswordSchema = z.object({
   email: z.string().trim().email("Enter a valid email address."),

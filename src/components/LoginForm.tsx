@@ -12,12 +12,13 @@ import {
   Mail,
   Eye,
   EyeOff,
-  Phone,
   ShieldAlert,
   User,
   UserPlus,
   Lock,
 } from "lucide-react";
+
+import PhoneInput from "@/components/PhoneInput";
 
 import {
   getLoginPortalConfig,
@@ -39,6 +40,10 @@ export function LoginForm({ portal }: LoginFormProps) {
   const [mode, setMode] = useState<AuthMode>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const isOwnerPortal =
+    portal === "vehicle-owner" || portal === "resort-owner";
+  const isIdInput = isOwnerPortal && /^(ROAD[VR]\d)/i.test(email);
   const [confirmPassword, setConfirmPassword] = useState("");
   const [otp, setOtp] = useState("");
   const [name, setName] = useState("");
@@ -371,15 +376,19 @@ export function LoginForm({ portal }: LoginFormProps) {
           <form onSubmit={handleLogin} className="grid gap-5">
             <h2 className="text-3xl font-black">Sign in</h2>
             <label className="grid gap-2 text-sm font-black">
-              Email address
+              {isOwnerPortal ? "Login ID or Email" : "Email address"}
               <span className="relative">
-                <Mail className="pointer-events-none absolute left-3 top-3.5 h-5 w-5 text-stone" />
+                {isOwnerPortal && isIdInput ? (
+                  <User className="pointer-events-none absolute left-3 top-3.5 h-5 w-5 text-stone" />
+                ) : (
+                  <Mail className="pointer-events-none absolute left-3 top-3.5 h-5 w-5 text-stone" />
+                )}
                 <input
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                   placeholder={config.emailPlaceholder}
-                  type="email"
-                  autoComplete="email"
+                  type={isOwnerPortal ? "text" : "email"}
+                  autoComplete={isOwnerPortal ? "username" : "email"}
                   required
                   className="h-12 w-full rounded-md border border-ink/15 bg-ivory px-3 pl-11 text-base outline-none focus:border-coral"
                 />
@@ -426,19 +435,21 @@ export function LoginForm({ portal }: LoginFormProps) {
                 )}
                 Sign in
               </button>
-              <button
-                type="button"
-                disabled={loading}
-                onClick={() => sendLoginOtp()}
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-ink/15 px-4 font-black transition hover:border-coral hover:text-coral disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {loading ? (
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                ) : (
-                  <Mail className="h-5 w-5" />
-                )}
-                Email OTP
-              </button>
+              {!isOwnerPortal || !isIdInput ? (
+                <button
+                  type="button"
+                  disabled={loading}
+                  onClick={() => sendLoginOtp()}
+                  className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-ink/15 px-4 font-black transition hover:border-coral hover:text-coral disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {loading ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <Mail className="h-5 w-5" />
+                  )}
+                  Email OTP
+                </button>
+              ) : null}
             </div>
             {canSignUp ? (
               <p className="text-sm font-semibold text-stone">
@@ -661,19 +672,15 @@ export function LoginForm({ portal }: LoginFormProps) {
                 />
               </span>
             </label>
-            <label className="grid gap-2 text-sm font-black">
-              Phone with country code
-              <span className="relative">
-                <Phone className="pointer-events-none absolute left-3 top-3.5 h-5 w-5 text-stone" />
-                <input
-                  value={phone}
-                  onChange={(event) => setPhone(event.target.value)}
-                  placeholder="+91 98765 43210"
-                  required
-                  className="h-12 w-full rounded-md border border-ink/15 bg-ivory px-3 pl-11 text-base outline-none focus:border-coral"
-                />
-              </span>
-            </label>
+            <PhoneInput
+              value={phone}
+              onChange={setPhone}
+              required
+              label="Phone"
+              showIcon
+              labelClassName="text-sm font-black"
+              wrapperClassName="grid gap-2"
+            />
             <label className="grid gap-2 text-sm font-black">
               Password
               <span className="relative">

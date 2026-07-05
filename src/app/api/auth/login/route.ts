@@ -13,6 +13,21 @@ import {
 import { loginSchema } from "@/lib/auth/validation";
 import { prisma } from "@/lib/prisma";
 
+const VEHICLE_PREFIX = "ROADV";
+const RESORT_PREFIX = "ROADR";
+
+function isEmail(value: string): boolean {
+  return value.includes("@");
+}
+
+function isVehicleOwnerId(value: string): boolean {
+  return /^ROADV\d{4}$/i.test(value);
+}
+
+function isResortOwnerId(value: string): boolean {
+  return /^ROADR\d{4}$/i.test(value);
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -25,10 +40,31 @@ export async function POST(request: Request) {
       );
     }
 
-    const email = parsed.data.email.toLowerCase();
+    const raw = parsed.data.email.trim();
     const portal = parsed.data.portal;
 
-    const user = await prisma.user.findUnique({ where: { email } });
+    let user = null;
+
+    if (isEmail(raw)) {
+      const email = raw.toLowerCase();
+      user = await prisma.user.findUnique({ where: { email } });
+    } else if (isVehicleOwnerId(raw)) {
+      const id = raw.toUpperCase();
+      user = await prisma.user.findUnique({ where: { vehicleOwnerId: id } });
+    } else if (isResortOwnerId(raw)) {
+      const id = raw.toUpperCase();
+      user = await prisma.user.findUnique({ where: { resortOwnerId: id } });
+    } else if (portal === "customer" || portal === "admin") {
+      return NextResponse.json(
+        { error: "Enter a valid email address." },
+        { status: 400 },
+      );
+    } else {
+      return NextResponse.json(
+        { error: "Enter a valid email or login ID." },
+        { status: 400 },
+      );
+    }
 
     if (!user?.passwordHash) {
       return NextResponse.json(

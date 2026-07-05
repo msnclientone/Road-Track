@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/prisma";
+import { isValidImageUrl } from "@/lib/placeholders";
 
 export async function POST(request: Request) {
   try {
@@ -32,6 +33,13 @@ export async function POST(request: Request) {
     if (typeof destinationId !== "string" || destinationId.trim() === "") {
       return NextResponse.json({ error: "Missing required field: destinationId" }, { status: 400 });
     }
+    if (imageUrl && !isValidImageUrl(imageUrl)) {
+      return NextResponse.json(
+        { error: "Please enter a valid direct image URL. Search engine image links (Bing, Google Images, Yahoo, etc.) are not supported." },
+        { status: 400 },
+      );
+    }
+
     if (acRooms == null || nonAcRooms == null) {
   return NextResponse.json(
     {

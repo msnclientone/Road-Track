@@ -3,6 +3,8 @@ import DestinationManager from "@/components/DestinationManager";
 import AdminPartnerApprovals from "@/components/AdminPartnerApprovals";
 import AdminResortApprovals from "@/components/AdminResortApprovals";
 import AdminVehicleApprovals from "@/components/AdminVehicleApprovals";
+import AdminAddVehicle from "@/components/AdminAddVehicle";
+import AdminAddResort from "@/components/AdminAddResort";
 import ResetVisitorCounter from "@/components/ResetVisitorCounter";
 
 import { SiteHeader } from "@/components/SiteHeader";
@@ -29,6 +31,7 @@ export default async function AdminPage() {
   vehicleCount,
   pendingPartners,
   analytics,
+  destinationOptions,
 ] = await Promise.all([
     prisma.destination.count(),
 
@@ -56,6 +59,11 @@ export default async function AdminPage() {
   where: {
     id: "main",
   },
+}),
+
+    prisma.destination.findMany({
+  select: { id: true, name: true, slug: true },
+  orderBy: { name: "asc" },
 }),
   ]);
 
@@ -221,6 +229,19 @@ export default async function AdminPage() {
 
           <DestinationManager />
 
+        </section>
+
+        {/* ADD VEHICLE / ADD RESORT */}
+
+        <section className="mt-12">
+          <h2 className="text-3xl font-black">Add Listing + Create Owner</h2>
+          <p className="mt-2 text-stone">
+            Create a new vehicle or resort listing and automatically generate an owner account with unique ID and temporary password.
+          </p>
+          <div className="mt-8 grid gap-6 lg:grid-cols-2">
+            <AdminAddVehicle destinationOptions={destinationOptions} />
+            <AdminAddResort destinationOptions={destinationOptions} />
+          </div>
         </section>
               </section>
     </main>

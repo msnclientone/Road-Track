@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { FormEvent, useEffect, useState } from "react";
 
+import PhoneInput from "@/components/PhoneInput";
 import { buildLeadMessage, buildWhatsAppUrl } from "@/lib/utils";
 
 const labelClass = "grid gap-1 text-[11px] font-semibold";
@@ -157,21 +158,19 @@ useEffect(() => {
           />
         </label>
 
-        <label className={labelClass}>
-          Phone
-          <input
-  type="tel"
-  value={phone}
-  onChange={(event) =>
-    setPhone(event.target.value.replace(/\D/g, "").slice(0, 10))
-  }
-  placeholder="9876543210"
-  maxLength={10}
-  pattern="[0-9]{10}"
-  required
-  className={inputClass}
-/>
-        </label>
+        <div className="grid gap-1">
+          <PhoneInput
+            value={phone}
+            onChange={setPhone}
+            required
+            label="Phone"
+            placeholder="9876543210"
+            labelClassName="text-[11px] font-semibold"
+            inputClassName="h-9 rounded-r-md border border-white/15 bg-white/10 px-2.5 text-xs text-white outline-none transition focus:border-coral"
+            prefixClassName="h-9 border border-r-0 border-white/15 bg-white/10 text-xs text-white/55"
+            wrapperClassName="grid gap-1"
+          />
+        </div>
 
 
         <label className={labelClass}>

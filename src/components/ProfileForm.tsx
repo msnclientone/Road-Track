@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+import PhoneInput from "@/components/PhoneInput";
+
 type Props = {
   name: string;
   email: string;
@@ -17,11 +19,17 @@ export default function ProfileForm({
 }: Props) {
   const [name, setName] = useState(initialName);
   const [phone, setPhone] = useState(initialPhone ?? "");
+  const [phoneError, setPhoneError] = useState<string | null>(null);
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
   async function saveProfile() {
+    if (phoneError) {
+      setMessage("❌ Please fix the phone number errors before saving.");
+      return;
+    }
+
     setLoading(true);
     setMessage("");
 
@@ -73,14 +81,14 @@ export default function ProfileForm({
       </div>
 
       <div>
-        <p className="text-sm font-bold text-stone">
-          Phone
-        </p>
-
-        <input
+        <PhoneInput
           value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          className="mt-2 w-full rounded border p-3"
+          onChange={setPhone}
+          onError={setPhoneError}
+          label="Phone"
+          labelClassName="text-sm font-bold text-stone"
+          wrapperClassName="mt-2"
+          inputClassName="w-full rounded border p-3"
         />
       </div>
 

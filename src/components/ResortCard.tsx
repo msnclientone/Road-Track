@@ -1,10 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { MapPinned } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
-import { getListingImageUrl } from "@/lib/placeholders";
+import { getListingImageUrl, PLACEHOLDER_IMAGES } from "@/lib/placeholders";
 
 type ResortData = {
   id: string;
@@ -32,6 +33,10 @@ export default function ResortCard({
   itemId,
   onRemove,
 }: Props) {
+  const [imgSrc, setImgSrc] = useState(() =>
+    getListingImageUrl(resort.media, "resort"),
+  );
+
   return (
     <Link
       href={`/resort/${resort.id}`}
@@ -40,13 +45,14 @@ export default function ResortCard({
       <article className="flex h-full flex-col text-ivory">
         <div className="relative aspect-[16/10]">
           <Image
-            src={getListingImageUrl(resort.media, "resort")}
+            src={imgSrc}
             alt={resort.name}
             fill
             priority={index === 0}
             loading={index === 0 ? "eager" : "lazy"}
             className="object-cover transition duration-500 group-hover:scale-105"
             sizes="(min-width: 1024px) 33vw, 100vw"
+            onError={() => setImgSrc(PLACEHOLDER_IMAGES.resort)}
           />
         </div>
         <div className="flex flex-1 flex-col p-5">

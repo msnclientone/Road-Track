@@ -1,10 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Users } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
-import { getListingImageUrl } from "@/lib/placeholders";
+import { getListingImageUrl, PLACEHOLDER_IMAGES } from "@/lib/placeholders";
 import { vehicleImages } from "@/lib/vehicleImages";
 
 type VehicleData = {
@@ -32,6 +33,12 @@ export default function VehicleCard({
   itemId,
   onRemove,
 }: Props) {
+  const [imgSrc, setImgSrc] = useState(() =>
+    vehicle.media?.length
+      ? getListingImageUrl(vehicle.media, "vehicle")
+      : vehicleImages[vehicle.vehicleType] ?? "/vehicle-images/default.jpg",
+  );
+
   return (
     <Link
       href={`/vehicle/${vehicle.id}`}
@@ -40,16 +47,12 @@ export default function VehicleCard({
       <article className="flex h-full flex-col">
         <div className="relative aspect-[16/10]">
           <Image
-            src={
-              vehicle.media?.length
-                ? getListingImageUrl(vehicle.media, "vehicle")
-                : vehicleImages[vehicle.vehicleType] ??
-                  "/vehicle-images/default.jpg"
-            }
+            src={imgSrc}
             alt={vehicle.vehicleType}
             fill
             className="object-cover transition duration-500 group-hover:scale-105"
             sizes="(min-width: 1024px) 33vw, 100vw"
+            onError={() => setImgSrc(PLACEHOLDER_IMAGES.vehicle)}
           />
         </div>
         <div className="flex flex-1 flex-col p-5">

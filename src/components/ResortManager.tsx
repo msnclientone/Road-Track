@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { isValidImageUrl } from "@/lib/placeholders";
 
 type ResortInput = {
   name: string;
@@ -60,6 +61,7 @@ const [availableNonAcRooms, setAvailableNonAcRooms] =
       imageUrl: "",
       googleMapsLink: "",
     });
+  const [imageUrlError, setImageUrlError] = useState<string | null>(null);
 
   async function submit(
     e: React.FormEvent
@@ -68,6 +70,13 @@ const [availableNonAcRooms, setAvailableNonAcRooms] =
 
     setLoading(true);
     setError(null);
+    setImageUrlError(null);
+
+    if (form.imageUrl && !isValidImageUrl(form.imageUrl)) {
+      setImageUrlError("Please enter a valid direct image URL. Search engine image links (Bing, Google Images, Yahoo, etc.) are not supported.");
+      setLoading(false);
+      return;
+    }
 
     try {
       const res = await fetch(
@@ -566,14 +575,18 @@ async function saveAvailability() {
     <input
       placeholder="https://example.com/resort-image.jpg"
       value={form.imageUrl ?? ""}
-      onChange={(e) =>
+      onChange={(e) => {
         setForm({
           ...form,
           imageUrl: e.target.value,
-        })
-      }
+        });
+        setImageUrlError(null);
+      }}
       className="rounded-md border px-3 py-2"
     />
+    {imageUrlError ? (
+      <p className="text-xs font-semibold text-coral">{imageUrlError}</p>
+    ) : null}
   </label>
 
   <label className="grid gap-1 text-sm">

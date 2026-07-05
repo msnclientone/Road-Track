@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth/session";
+import { isValidImageUrl } from "@/lib/placeholders";
 
 export async function GET() {
   try {
@@ -30,6 +31,13 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     console.log("[DESTINATION POST] Authenticated user:", session.email);
     console.log("[DESTINATION POST] Request body:", JSON.stringify(body, null, 2));
+
+    if (body.heroImageUrl && !isValidImageUrl(body.heroImageUrl)) {
+      return NextResponse.json(
+        { error: "Please enter a valid direct image URL. Search engine image links (Bing, Google Images, Yahoo, etc.) are not supported." },
+        { status: 400 },
+      );
+    }
 
     const destination = await prisma.destination.create({
       data: {

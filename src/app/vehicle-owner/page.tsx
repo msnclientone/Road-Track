@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 
 import { MetricCard, StatusBadge } from "@/components/DashboardBits";
+import PasswordChangeGuard from "@/components/PasswordChangeGuard";
 import { SiteHeader } from "@/components/SiteHeader";
 import { getSession } from "@/lib/auth/session";
 import {
@@ -54,6 +55,7 @@ export default async function VehicleOwnerDashboardPage() {
         email: true,
         phone: true,
         partnerStatus: true,
+        mustChangePassword: true,
       },
     }),
     prisma.vehicle.findMany({
@@ -146,6 +148,7 @@ export default async function VehicleOwnerDashboardPage() {
   const partnerName = owner?.name ?? session.email;
 
   return (
+    <PasswordChangeGuard mustChangePassword={owner?.mustChangePassword ?? false}>
     <main className="min-h-screen bg-ivory text-ink">
       <SiteHeader />
       <section className="mx-auto max-w-none px-5 pb-20 pt-28 sm:px-8 lg:px-10 2xl:px-12">
@@ -438,6 +441,7 @@ export default async function VehicleOwnerDashboardPage() {
         </section>
       </section>
     </main>
+    </PasswordChangeGuard>
   );
 }
 

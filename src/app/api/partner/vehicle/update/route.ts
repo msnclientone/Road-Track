@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth/session";
+import { vehicleUpdateSchema } from "@/lib/auth/validation";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(request: Request) {
@@ -14,6 +15,14 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
+    const parsed = vehicleUpdateSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: parsed.error.issues[0].message },
+        { status: 400 }
+      );
+    }
 
     const {
       id,
@@ -23,39 +32,11 @@ export async function POST(request: Request) {
       driverPhone,
       registrationNo,
       destinationId,
-    } = body;
+    } = { ...parsed.data, id: body.id };
 
     if (!id) {
       return NextResponse.json(
         { error: "Vehicle not found." },
-        { status: 400 }
-      );
-    }
-
-    if (
-      driverPhone &&
-      !/^[0-9]{10}$/.test(driverPhone)
-    ) {
-      return NextResponse.json(
-        {
-          error:
-            "Driver phone must contain exactly 10 digits.",
-        },
-        { status: 400 }
-      );
-    }
-
-    if (
-      registrationNo &&
-      !/^[A-Z]{2}[0-9]{2}[A-Z]{1,2}[0-9]{4}$/.test(
-        registrationNo.toUpperCase()
-      )
-    ) {
-      return NextResponse.json(
-        {
-          error:
-            "Registration number is invalid.",
-        },
         { status: 400 }
       );
     }
@@ -70,7 +51,7 @@ export async function POST(request: Request) {
         driverName,
         driverPhone,
         registrationNo:
-          registrationNo.toUpperCase(),
+          registrationNo?.toUpperCase(),
         destinationId: destinationId || null,
       },
       include: {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { isValidImageUrl } from "@/lib/placeholders";
 
 export default function DestinationManager() {
   const [destinations, setDestinations] = useState<any[]>([]);
@@ -73,6 +74,10 @@ const [editingId, setEditingId] = useState<string | null>(null);
 
   async function saveDestination() {
     try {
+      if (heroImageUrl && !isValidImageUrl(heroImageUrl)) {
+        alert("Please enter a valid direct image URL. Search engine image links (Bing, Google Images, Yahoo, etc.) are not supported.");
+        return;
+      }
       console.log("[DESTINATION UI] Saving destination, editingId:", editingId);
       const body = {
         name,

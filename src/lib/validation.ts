@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { INDIAN_PHONE_REGEX } from "@/lib/phone";
+
 const optionalText = (max = 160) =>
   z
     .string()
@@ -13,7 +15,7 @@ export const enquirySchema = z.object({
   phone: z
     .string()
     .trim()
-    .regex(/^\+?[0-9\s-]{8,18}$/, "Enter a valid phone number with country code."),
+    .regex(INDIAN_PHONE_REGEX, "Enter a valid 10-digit Indian phone number."),
   email: optionalText().pipe(z.string().email().optional()),
   destination: z.string().trim().min(2).max(120),
   destinationSlug: optionalText(80),

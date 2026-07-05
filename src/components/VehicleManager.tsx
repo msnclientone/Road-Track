@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+import PhoneInput from "@/components/PhoneInput";
+
 type VehicleInput = {
   id?: string;
   vehicleType: string;
@@ -35,6 +37,7 @@ export default function VehicleManager({
   });
 
   const [error, setError] = useState<string | null>(null);
+  const [driverPhoneError, setDriverPhoneError] = useState<string | null>(null);
   const [priceVehicle, setPriceVehicle] = useState<any>(null);
 const [pricePerDay, setPricePerDay] = useState("");
 const [pricePerKm, setPricePerKm] = useState("");
@@ -58,8 +61,8 @@ const [pricePerKm, setPricePerKm] = useState("");
     setLoading(true);
     setError(null);
 
-    if (!/^[0-9]{10}$/.test(form.driverPhone ?? "")) {
-      setError("Driver phone must contain exactly 10 digits.");
+    if (driverPhoneError) {
+      setError("Please fix the phone number errors before submitting.");
       setLoading(false);
       return;
     }
@@ -420,26 +423,15 @@ async function updatePrice() {
             />
           </label>
 
-          <label className="grid gap-1 text-sm">
-            Driver Phone
-            <input
-              required
-              type="tel"
-              inputMode="numeric"
-              maxLength={10}
-              placeholder="9876543210"
-              value={form.driverPhone ?? ""}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  driverPhone: e.target.value
-                    .replace(/\D/g, "")
-                    .slice(0, 10),
-                })
-              }
-              className="rounded-md border px-3 py-2"
-            />
-          </label>
+          <PhoneInput
+            value={form.driverPhone ?? ""}
+            onChange={(val) => setForm({ ...form, driverPhone: val })}
+            onError={setDriverPhoneError}
+            required
+            label="Driver Phone"
+            labelClassName="text-sm"
+            wrapperClassName="grid gap-1"
+          />
 
           <label className="grid gap-1 text-sm">
             Registration Number
