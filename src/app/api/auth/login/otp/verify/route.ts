@@ -4,8 +4,11 @@ import {
   getPortalMismatchMessage,
   roleMatchesPortal,
 } from "@/lib/auth/access";
+import { sendOtpEmail } from "@/lib/auth/email";
 import { getRedirectForUser } from "@/lib/auth/login-config";
 import {
+  generateOtpCode,
+  getOtpExpiryDate,
   hasExceededOtpAttempts,
   hashOtpCode,
   isOtpExpired,
@@ -105,6 +108,37 @@ export async function POST(request: Request) {
           where: { id: user.id },
           data: { emailVerifiedAt: new Date() },
         });
+
+    if (verifiedUser.role === "SUPER_ADMIN") {
+      // Generate second OTP for security email verification
+      const secondCode = generateOtpCode();
+      const secondCodeHash = hashOtpCode(secondCode);
+      const secondExpiresAt = getOtpExpiryDate();
+
+      // Invalidate any previous unconsumed second OTPs
+      await prisma.otpCode.updateMany({
+        where: { email: `second_otp:${email}`, consumedAt: null },
+        data: { consumedAt: new Date() },
+      });
+
+      await prisma.otpCode.create({
+        data: {
+          email: `second_otp:${email}`,
+          codeHash: secondCodeHash,
+          expiresAt: secondExpiresAt,
+        },
+      });
+
+      const otpRecipient = process.env.SUPER_ADMIN_OTP_EMAIL;
+      if (otpRecipient) {
+        await sendOtpEmail({ to: otpRecipient, code: secondCode, purpose: "admin-login" });
+      }
+
+      return NextResponse.json({
+        ok: true,
+        requiresSecondOtp: true,
+      });
+    }
 
     const token = await createSessionToken({
       sub: verifiedUser.id,

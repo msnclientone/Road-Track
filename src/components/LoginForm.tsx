@@ -72,6 +72,15 @@ export function LoginForm({ portal }: LoginFormProps) {
   const [adminOtpError, setAdminOtpError] = useState<string | null>(null);
   const adminOtpRefs = useRef<(HTMLInputElement | null)[]>([]);
 
+  // Second OTP (email OTP flow) state
+  const [secondOtpMode, setSecondOtpMode] = useState(false);
+  const [secondOtpDigits, setSecondOtpDigits] = useState<string[]>(Array(6).fill(""));
+  const [secondOtpCountdown, setSecondOtpCountdown] = useState(300);
+  const [secondOtpResendCooldown, setSecondOtpResendCooldown] = useState(0);
+  const [secondOtpLoading, setSecondOtpLoading] = useState(false);
+  const [secondOtpError, setSecondOtpError] = useState<string | null>(null);
+  const secondOtpRefs = useRef<(HTMLInputElement | null)[]>([]);
+
   useEffect(() => {
     if (seconds <= 0) {
       return;
@@ -93,6 +102,18 @@ export function LoginForm({ portal }: LoginFormProps) {
     return () => clearTimeout(timer);
   }, [adminResendCooldown]);
 
+  useEffect(() => {
+    if (!secondOtpMode || secondOtpCountdown <= 0) return;
+    const timer = setTimeout(() => setSecondOtpCountdown((v) => v - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [secondOtpMode, secondOtpCountdown]);
+
+  useEffect(() => {
+    if (secondOtpResendCooldown <= 0) return;
+    const timer = setTimeout(() => setSecondOtpResendCooldown((v) => v - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [secondOtpResendCooldown]);
+
   function resetSignupFlow() {
     setOtpSent(false);
     setEmailVerified(false);
@@ -108,6 +129,11 @@ export function LoginForm({ portal }: LoginFormProps) {
     setDevCode(null);
     setResendCount(0);
     setSeconds(0);
+    setSecondOtpMode(false);
+    setSecondOtpDigits(Array(6).fill(""));
+    setSecondOtpCountdown(300);
+    setSecondOtpResendCooldown(0);
+    setSecondOtpError(null);
   }
 
   function switchMode(nextMode: AuthMode) {
@@ -211,6 +237,16 @@ export function LoginForm({ portal }: LoginFormProps) {
 
       if (!response.ok) {
         setNotice(data.error ?? "Unable to verify login OTP.");
+        return;
+      }
+
+      if (data.requiresSecondOtp) {
+        setSecondOtpMode(true);
+        setSecondOtpDigits(Array(6).fill(""));
+        setSecondOtpCountdown(300);
+        setSecondOtpError(null);
+        setSecondOtpResendCooldown(0);
+        setTimeout(() => secondOtpRefs.current[0]?.focus(), 100);
         return;
       }
 
@@ -331,6 +367,117 @@ export function LoginForm({ portal }: LoginFormProps) {
       adminOtpRefs.current[index - 1]?.focus();
     } else if (e.key === "ArrowRight" && index < 5) {
       adminOtpRefs.current[index + 1]?.focus();
+    }
+  }
+
+  async function handleSecondOtpVerify() {
+    const code = secondOtpDigits.join("");
+    if (code.length !== 6) {
+      setSecondOtpError("Please enter the complete 6-digit security code.");
+      return;
+    }
+
+    setSecondOtpLoading(true);
+    setSecondOtpError(null);
+
+    try {
+      const res = await fetch("/api/auth/login/otp/verify-second", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, code }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setSecondOtpError(data.error ?? "Invalid security code.");
+        setSecondOtpDigits(Array(6).fill(""));
+        setTimeout(() => secondOtpRefs.current[0]?.focus(), 50);
+        return;
+      }
+
+      sessionStorage.setItem("justLoggedIn", "true");
+      setSecondOtpMode(false);
+      router.push(data.redirectTo ?? "/admin");
+    } catch {
+      setSecondOtpError("Unable to verify security code.");
+      setSecondOtpDigits(Array(6).fill(""));
+      setTimeout(() => secondOtpRefs.current[0]?.focus(), 50);
+    } finally {
+      setSecondOtpLoading(false);
+    }
+  }
+
+  async function handleSecondOtpResend() {
+    if (secondOtpResendCooldown > 0) return;
+
+    setSecondOtpLoading(true);
+    setSecondOtpError(null);
+
+    try {
+      const res = await fetch("/api/auth/login/otp/resend-second", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setSecondOtpError(data.error ?? "Unable to resend security code.");
+        return;
+      }
+
+      setSecondOtpResendCooldown(60);
+      setSecondOtpCountdown(300);
+      setSecondOtpDigits(Array(6).fill(""));
+      setSecondOtpError(null);
+      setTimeout(() => secondOtpRefs.current[0]?.focus(), 50);
+    } catch {
+      setSecondOtpError("Unable to resend security code.");
+    } finally {
+      setSecondOtpLoading(false);
+    }
+  }
+
+  function handleSecondOtpDigitChange(index: number, value: string) {
+    if (value.length > 1) {
+      const pasted = value.replace(/\D/g, "").slice(0, 6);
+      const newDigits = [...secondOtpDigits];
+      for (let i = 0; i < 6; i++) {
+        newDigits[i] = pasted[i] ?? "";
+      }
+      setSecondOtpDigits(newDigits);
+      setSecondOtpError(null);
+      const nextEmpty = newDigits.findIndex((d) => !d);
+      const focusIndex = nextEmpty === -1 ? 5 : nextEmpty;
+      secondOtpRefs.current[focusIndex]?.focus();
+      return;
+    }
+
+    const digit = value.replace(/\D/g, "").slice(0, 1);
+    const newDigits = [...secondOtpDigits];
+    newDigits[index] = digit;
+    setSecondOtpDigits(newDigits);
+    setSecondOtpError(null);
+
+    if (digit && index < 5) {
+      secondOtpRefs.current[index + 1]?.focus();
+    }
+  }
+
+  function handleSecondOtpKeyDown(index: number, e: React.KeyboardEvent) {
+    if (e.key === "Backspace") {
+      if (!secondOtpDigits[index] && index > 0) {
+        const newDigits = [...secondOtpDigits];
+        newDigits[index - 1] = "";
+        setSecondOtpDigits(newDigits);
+        secondOtpRefs.current[index - 1]?.focus();
+      }
+    } else if (e.key === "ArrowLeft" && index > 0) {
+      secondOtpRefs.current[index - 1]?.focus();
+    } else if (e.key === "ArrowRight" && index < 5) {
+      secondOtpRefs.current[index + 1]?.focus();
     }
   }
 
@@ -605,7 +752,89 @@ export function LoginForm({ portal }: LoginFormProps) {
           </div>
         ) : null}
 
-        {!adminOtpMode && mode === "login" && !loginOtpSent ? (
+        {secondOtpMode ? (
+          <div className="grid gap-5">
+            <div className="text-center">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-coral/10">
+                <ShieldAlert className="h-7 w-7 text-coral" />
+              </div>
+              <h2 className="text-3xl font-black">Second Verification Required</h2>
+              <p className="mt-1 text-sm font-semibold text-stone">
+                A second security code has been sent to the admin security email.
+              </p>
+            </div>
+
+            {secondOtpError ? (
+              <div className="rounded-md bg-coral/15 p-3 text-center text-sm font-bold text-coral">
+                {secondOtpError}
+              </div>
+            ) : null}
+
+            <div className="flex justify-center gap-2">
+              {secondOtpDigits.map((digit, index) => (
+                <input
+                  key={index}
+                  ref={(el) => { secondOtpRefs.current[index] = el; }}
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  maxLength={6}
+                  value={digit}
+                  onChange={(e) => handleSecondOtpDigitChange(index, e.target.value)}
+                  onKeyDown={(e) => handleSecondOtpKeyDown(index, e)}
+                  className="h-14 w-12 rounded-lg border-2 border-ink/15 text-center text-xl font-black outline-none transition focus:border-coral focus:ring-2 focus:ring-coral/30 sm:w-14"
+                  disabled={secondOtpLoading}
+                />
+              ))}
+            </div>
+
+            <button
+              onClick={handleSecondOtpVerify}
+              disabled={secondOtpLoading || secondOtpDigits.join("").length !== 6}
+              className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-md bg-ink font-black text-white transition hover:bg-stone disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {secondOtpLoading ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <Shield className="h-5 w-5" />
+              )}
+              Verify Security Code
+            </button>
+
+            <div className="flex items-center justify-between text-sm">
+              <div className="flex items-center gap-1.5 text-stone">
+                <Timer className="h-4 w-4" />
+                <span className={secondOtpCountdown <= 60 ? "font-bold text-coral" : ""}>
+                  {formatOtpTime(secondOtpCountdown)}
+                </span>
+              </div>
+              <button
+                onClick={handleSecondOtpResend}
+                disabled={secondOtpResendCooldown > 0 || secondOtpLoading}
+                className="font-semibold text-coral underline-offset-2 hover:underline disabled:cursor-not-allowed disabled:text-stone/50 disabled:no-underline"
+              >
+                {secondOtpResendCooldown > 0 ? `Resend in ${secondOtpResendCooldown}s` : "Resend Security Code"}
+              </button>
+            </div>
+
+            <div className="border-t border-ink/10 pt-4 text-center">
+              <button
+                onClick={() => {
+                  setSecondOtpMode(false);
+                  setSecondOtpError(null);
+                  setSecondOtpDigits(Array(6).fill(""));
+                  setNotice("");
+                }}
+                className="inline-flex items-center gap-1 text-sm font-semibold text-stone hover:text-ink"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back
+              </button>
+            </div>
+          </div>
+        ) : null}
+
+        {!adminOtpMode && !secondOtpMode && mode === "login" && !loginOtpSent ? (
           <form onSubmit={handleLogin} className="grid gap-5">
             <h2 className="text-3xl font-black">Sign in</h2>
             <label className="grid gap-2 text-sm font-black">
@@ -699,7 +928,7 @@ export function LoginForm({ portal }: LoginFormProps) {
           </form>
         ) : null}
 
-        {!adminOtpMode && mode === "login" && loginOtpSent ? (
+        {!adminOtpMode && !secondOtpMode && mode === "login" && loginOtpSent ? (
           <form onSubmit={verifyLoginOtp} className="grid gap-5">
             <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
               <div>
