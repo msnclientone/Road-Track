@@ -4,7 +4,13 @@ import {
   getPortalMismatchMessage,
   roleMatchesPortal,
 } from "@/lib/auth/access";
+import { sendOtpEmail } from "@/lib/auth/email";
 import { getRedirectForUser } from "@/lib/auth/login-config";
+import {
+  generateOtpCode,
+  getOtpExpiryDate,
+  hashOtpCode,
+} from "@/lib/auth/otp";
 import { verifyPassword } from "@/lib/auth/password";
 import {
   createSessionToken,
@@ -95,6 +101,42 @@ export async function POST(request: Request) {
         { error: getPortalMismatchMessage(portal) },
         { status: 403 },
       );
+    }
+
+    if (user.role === "SUPER_ADMIN") {
+      // 2FA: generate OTP, send email, do NOT create session yet
+      const otpCode = generateOtpCode();
+      const otpHash = hashOtpCode(otpCode);
+      const expiresAt = getOtpExpiryDate();
+
+      // Invalidate any previous unconsumed OTPs for this user
+      await prisma.otpCode.updateMany({
+        where: { email: user.email, consumedAt: null },
+        data: { consumedAt: new Date() },
+      });
+
+      await prisma.otpCode.create({
+        data: {
+          email: user.email,
+          codeHash: otpHash,
+          expiresAt,
+        },
+      });
+
+      const otpRecipient = process.env.SUPER_ADMIN_OTP_EMAIL;
+      if (!otpRecipient) {
+        return NextResponse.json(
+          { error: "Server configuration error: OTP recipient not set." },
+          { status: 500 },
+        );
+      }
+
+      await sendOtpEmail({ to: otpRecipient, code: otpCode, purpose: "admin-login" });
+
+      return NextResponse.json({
+        ok: true,
+        requiresOtp: true,
+      });
     }
 
     if (!user.emailVerifiedAt) {

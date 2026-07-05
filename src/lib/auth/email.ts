@@ -3,7 +3,7 @@ import nodemailer from "nodemailer";
 type SendOtpEmailInput = {
   to: string;
   code: string;
-  purpose?: "signup" | "login";
+  purpose?: "signup" | "login" | "admin-login";
 };
 
 function isSmtpConfigured(): boolean {
@@ -32,12 +32,12 @@ export async function sendOtpEmail({
   const tryPorts = Array.from(new Set([configuredPort, 465, 2525].filter(Boolean)));
 
   const isLogin = purpose === "login";
-  const subject = isLogin
-    ? "Your Road Track login code"
-    : "Your Road Track sign-up code";
-  const actionText = isLogin
-    ? "signing in to your account"
-    : "creating your account";
+  const isAdminLogin = purpose === "admin-login";
+  const subject = isAdminLogin
+    ? "RoadTrack Super Admin Login Verification"
+    : isLogin
+      ? "Your Road Track login code"
+      : "Your Road Track sign-up code";
 
   // Try each port until one succeeds
   let lastError: unknown = null;
@@ -56,12 +56,46 @@ export async function sendOtpEmail({
     });
 
     try {
+      const html = isAdminLogin
+        ? `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"></head>
+<body style="margin:0;padding:0;background-color:#f5f3ef;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f5f3ef;padding:40px 16px">
+<tr><td align="center">
+<table role="presentation" width="480" cellpadding="0" cellspacing="0" style="max-width:480px;width:100%">
+<tr><td style="background-color:#1a1a1a;border-radius:16px 16px 0 0;padding:32px;text-align:center">
+<h1 style="margin:0;font-size:24px;font-weight:900;color:#ffffff;letter-spacing:-0.5px">RoadTrack</h1>
+<p style="margin:4px 0 0;font-size:14px;color:#ffffff;opacity:0.7">Super Admin Login Verification</p>
+</td></tr>
+<tr><td style="background-color:#ffffff;border-radius:0 0 16px 16px;padding:40px 32px">
+<h2 style="margin:0 0 8px;font-size:20px;font-weight:900;color:#1a1a1a">One-Time Password</h2>
+<p style="margin:0 0 8px;font-size:15px;line-height:1.6;color:#666666">Hello Super Admin,</p>
+<p style="margin:0 0 24px;font-size:15px;line-height:1.6;color:#666666">Your One-Time Password (OTP) for logging into the RoadTrack Super Admin Panel is:</p>
+<table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto 24px">
+<tr><td style="background-color:#f5f3ef;border-radius:8px;padding:16px 32px;text-align:center;letter-spacing:8px;font-size:28px;font-weight:900;color:#1a1a1a;font-family:monospace">${code}</td></tr>
+</table>
+<p style="margin:0 0 24px;font-size:14px;line-height:1.6;color:#999999">This OTP is valid for <strong>5 minutes</strong>.</p>
+<hr style="margin:24px 0;border:none;border-top:1px solid #e5e2dc">
+<p style="margin:0;font-size:13px;line-height:1.5;color:#999999">If you did not request this login, please ignore this email.</p>
+<p style="margin:4px 0 0;font-size:13px;line-height:1.5;color:#999999">Regards,<br>RoadTrack Security</p>
+</td></tr>
+</table>
+</td></tr></table>
+</body>
+</html>`
+        : `<p>Your Road Track OTP is <strong>${code}</strong>.</p><p>It expires in 5 minutes. Use it only for ${isLogin ? "signing in to your account" : "creating your account"}.</p>`;
+
+      const text = isAdminLogin
+        ? `Hello Super Admin,\n\nYour One-Time Password (OTP) for logging into the RoadTrack Super Admin Panel is:\n\n${code}\n\nThis OTP is valid for 5 minutes.\n\nIf you did not request this login, please ignore this email.\n\nRegards,\nRoadTrack Security`
+        : `Your Road Track OTP is ${code}. It expires in 5 minutes. Use it only for ${isLogin ? "signing in to your account" : "creating your account"}.`;
+
       await transporter.sendMail({
         from: process.env.SMTP_FROM,
         to,
         subject,
-        text: `Your Road Track OTP is ${code}. It expires in 5 minutes. Use it only for ${actionText}.`,
-        html: `<p>Your Road Track OTP is <strong>${code}</strong>.</p><p>It expires in 5 minutes. Use it only for ${actionText}.</p>`,
+        text,
+        html,
       });
 
       return { delivered: true };

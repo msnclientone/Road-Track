@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import {
+  ArrowLeft,
   CheckCircle2,
   Edit3,
   KeyRound,
@@ -12,7 +13,9 @@ import {
   Mail,
   Eye,
   EyeOff,
+  Shield,
   ShieldAlert,
+  Timer,
   User,
   UserPlus,
   Lock,
@@ -60,6 +63,15 @@ export function LoginForm({ portal }: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  // Admin 2FA OTP state
+  const [adminOtpMode, setAdminOtpMode] = useState(false);
+  const [adminOtpDigits, setAdminOtpDigits] = useState<string[]>(Array(6).fill(""));
+  const [adminOtpCountdown, setAdminOtpCountdown] = useState(300);
+  const [adminResendCooldown, setAdminResendCooldown] = useState(0);
+  const [adminOtpLoading, setAdminOtpLoading] = useState(false);
+  const [adminOtpError, setAdminOtpError] = useState<string | null>(null);
+  const adminOtpRefs = useRef<(HTMLInputElement | null)[]>([]);
+
   useEffect(() => {
     if (seconds <= 0) {
       return;
@@ -68,6 +80,18 @@ export function LoginForm({ portal }: LoginFormProps) {
     const timer = window.setTimeout(() => setSeconds((value) => value - 1), 1000);
     return () => window.clearTimeout(timer);
   }, [seconds]);
+
+  useEffect(() => {
+    if (!adminOtpMode || adminOtpCountdown <= 0) return;
+    const timer = setTimeout(() => setAdminOtpCountdown((v) => v - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [adminOtpMode, adminOtpCountdown]);
+
+  useEffect(() => {
+    if (adminResendCooldown <= 0) return;
+    const timer = setTimeout(() => setAdminResendCooldown((v) => v - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [adminResendCooldown]);
 
   function resetSignupFlow() {
     setOtpSent(false);
@@ -110,6 +134,16 @@ export function LoginForm({ portal }: LoginFormProps) {
 
       if (!response.ok) {
         setNotice(data.error ?? "Unable to sign in.");
+        return;
+      }
+
+      if (data.requiresOtp) {
+        setAdminOtpMode(true);
+        setAdminOtpCountdown(300);
+        setAdminOtpDigits(Array(6).fill(""));
+        setAdminOtpError(null);
+        setLoading(false);
+        setTimeout(() => adminOtpRefs.current[0]?.focus(), 100);
         return;
       }
 
@@ -187,6 +221,123 @@ export function LoginForm({ portal }: LoginFormProps) {
     } finally {
       setLoading(false);
     }
+  }
+
+  async function handleAdminVerifyOtp() {
+    const code = adminOtpDigits.join("");
+    if (code.length !== 6) {
+      setAdminOtpError("Please enter the complete 6-digit OTP.");
+      return;
+    }
+
+    setAdminOtpLoading(true);
+    setAdminOtpError(null);
+
+    try {
+      const res = await fetch("/api/auth/login/admin-verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, code }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setAdminOtpError(data.error ?? "Invalid OTP.");
+        setAdminOtpDigits(Array(6).fill(""));
+        setTimeout(() => adminOtpRefs.current[0]?.focus(), 50);
+        return;
+      }
+
+      sessionStorage.setItem("justLoggedIn", "true");
+      setAdminOtpMode(false);
+      router.push(data.redirectTo ?? "/admin");
+    } catch {
+      setAdminOtpError("Unable to verify OTP.");
+      setAdminOtpDigits(Array(6).fill(""));
+      setTimeout(() => adminOtpRefs.current[0]?.focus(), 50);
+    } finally {
+      setAdminOtpLoading(false);
+    }
+  }
+
+  async function handleAdminResendOtp() {
+    if (adminResendCooldown > 0) return;
+
+    setAdminOtpLoading(true);
+    setAdminOtpError(null);
+
+    try {
+      const res = await fetch("/api/auth/login/admin-resend-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setAdminOtpError(data.error ?? "Unable to resend OTP.");
+        return;
+      }
+
+      setAdminResendCooldown(60);
+      setAdminOtpCountdown(300);
+      setAdminOtpDigits(Array(6).fill(""));
+      setAdminOtpError(null);
+      setTimeout(() => adminOtpRefs.current[0]?.focus(), 50);
+    } catch {
+      setAdminOtpError("Unable to resend OTP.");
+    } finally {
+      setAdminOtpLoading(false);
+    }
+  }
+
+  function handleAdminOtpDigitChange(index: number, value: string) {
+    if (value.length > 1) {
+      const pasted = value.replace(/\D/g, "").slice(0, 6);
+      const newDigits = [...adminOtpDigits];
+      for (let i = 0; i < 6; i++) {
+        newDigits[i] = pasted[i] ?? "";
+      }
+      setAdminOtpDigits(newDigits);
+      setAdminOtpError(null);
+      const nextEmpty = newDigits.findIndex((d) => !d);
+      const focusIndex = nextEmpty === -1 ? 5 : nextEmpty;
+      adminOtpRefs.current[focusIndex]?.focus();
+      return;
+    }
+
+    const digit = value.replace(/\D/g, "").slice(0, 1);
+    const newDigits = [...adminOtpDigits];
+    newDigits[index] = digit;
+    setAdminOtpDigits(newDigits);
+    setAdminOtpError(null);
+
+    if (digit && index < 5) {
+      adminOtpRefs.current[index + 1]?.focus();
+    }
+  }
+
+  function handleAdminOtpKeyDown(index: number, e: React.KeyboardEvent) {
+    if (e.key === "Backspace") {
+      if (!adminOtpDigits[index] && index > 0) {
+        const newDigits = [...adminOtpDigits];
+        newDigits[index - 1] = "";
+        setAdminOtpDigits(newDigits);
+        adminOtpRefs.current[index - 1]?.focus();
+      }
+    } else if (e.key === "ArrowLeft" && index > 0) {
+      adminOtpRefs.current[index - 1]?.focus();
+    } else if (e.key === "ArrowRight" && index < 5) {
+      adminOtpRefs.current[index + 1]?.focus();
+    }
+  }
+
+  function formatOtpTime(seconds: number): string {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s.toString().padStart(2, "0")}`;
   }
 
   async function sendOtp(event?: FormEvent<HTMLFormElement>) {
@@ -372,7 +523,89 @@ export function LoginForm({ portal }: LoginFormProps) {
           </div>
         ) : null}
 
-        {mode === "login" && !loginOtpSent ? (
+        {adminOtpMode && portal === "admin" ? (
+          <div className="grid gap-5">
+            <div className="text-center">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-coral/10">
+                <Shield className="h-7 w-7 text-coral" />
+              </div>
+              <h2 className="text-3xl font-black">Verify Super Admin Login</h2>
+              <p className="mt-1 text-sm font-semibold text-stone">
+                We've sent a 6-digit verification code to your registered email.
+              </p>
+            </div>
+
+            {adminOtpError ? (
+              <div className="rounded-md bg-coral/15 p-3 text-center text-sm font-bold text-coral">
+                {adminOtpError}
+              </div>
+            ) : null}
+
+            <div className="flex justify-center gap-2">
+              {adminOtpDigits.map((digit, index) => (
+                <input
+                  key={index}
+                  ref={(el) => { adminOtpRefs.current[index] = el; }}
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  maxLength={6}
+                  value={digit}
+                  onChange={(e) => handleAdminOtpDigitChange(index, e.target.value)}
+                  onKeyDown={(e) => handleAdminOtpKeyDown(index, e)}
+                  className="h-14 w-12 rounded-lg border-2 border-ink/15 text-center text-xl font-black outline-none transition focus:border-coral focus:ring-2 focus:ring-coral/30 sm:w-14"
+                  disabled={adminOtpLoading}
+                />
+              ))}
+            </div>
+
+            <button
+              onClick={handleAdminVerifyOtp}
+              disabled={adminOtpLoading || adminOtpDigits.join("").length !== 6}
+              className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-md bg-ink font-black text-white transition hover:bg-stone disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {adminOtpLoading ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <Shield className="h-5 w-5" />
+              )}
+              Verify OTP
+            </button>
+
+            <div className="flex items-center justify-between text-sm">
+              <div className="flex items-center gap-1.5 text-stone">
+                <Timer className="h-4 w-4" />
+                <span className={adminOtpCountdown <= 60 ? "font-bold text-coral" : ""}>
+                  {formatOtpTime(adminOtpCountdown)}
+                </span>
+              </div>
+              <button
+                onClick={handleAdminResendOtp}
+                disabled={adminResendCooldown > 0 || adminOtpLoading}
+                className="font-semibold text-coral underline-offset-2 hover:underline disabled:cursor-not-allowed disabled:text-stone/50 disabled:no-underline"
+              >
+                {adminResendCooldown > 0 ? `Resend in ${adminResendCooldown}s` : "Resend OTP"}
+              </button>
+            </div>
+
+            <div className="border-t border-ink/10 pt-4 text-center">
+              <button
+                onClick={() => {
+                  setAdminOtpMode(false);
+                  setAdminOtpError(null);
+                  setAdminOtpDigits(Array(6).fill(""));
+                  setNotice("");
+                }}
+                className="inline-flex items-center gap-1 text-sm font-semibold text-stone hover:text-ink"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back to login
+              </button>
+            </div>
+          </div>
+        ) : null}
+
+        {!adminOtpMode && mode === "login" && !loginOtpSent ? (
           <form onSubmit={handleLogin} className="grid gap-5">
             <h2 className="text-3xl font-black">Sign in</h2>
             <label className="grid gap-2 text-sm font-black">
@@ -466,7 +699,7 @@ export function LoginForm({ portal }: LoginFormProps) {
           </form>
         ) : null}
 
-        {mode === "login" && loginOtpSent ? (
+        {!adminOtpMode && mode === "login" && loginOtpSent ? (
           <form onSubmit={verifyLoginOtp} className="grid gap-5">
             <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
               <div>
