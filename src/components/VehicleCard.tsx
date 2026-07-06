@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Users } from "lucide-react";
@@ -26,7 +26,7 @@ type Props = {
   onRemove?: (itemId: string) => void;
 };
 
-export default function VehicleCard({
+function VehicleCard({
   vehicle,
   showRemoveButton,
   itemId,
@@ -116,3 +116,5 @@ export default function VehicleCard({
     </Link>
   );
 }
+
+export default memo(VehicleCard);

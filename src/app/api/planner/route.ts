@@ -22,7 +22,9 @@ export async function GET() {
           include: {
             resort: {
               include: {
-                destination: true,
+                destination: {
+                  select: { name: true, slug: true },
+                },
                 owner: {
                   select: { resortOwnerId: true },
                 },
@@ -30,7 +32,9 @@ export async function GET() {
             },
             vehicle: {
               include: {
-                destination: true,
+                destination: {
+                  select: { name: true, slug: true },
+                },
                 owner: {
                   select: { vehicleOwnerId: true },
                 },

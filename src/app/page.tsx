@@ -1,5 +1,4 @@
 import ViewLocationButton from "@/components/ViewLocationButton";
-import type { Destination } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import Image from "next/image";
 import Link from "next/link";
@@ -21,9 +20,19 @@ import { buildWhatsAppUrl, formatCurrency } from "@/lib/utils";
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const destinations: Destination[] = await prisma.destination.findMany({
+  const destinations = await prisma.destination.findMany({
   where: {
     published: true,
+  },
+  select: {
+    id: true,
+    name: true,
+    slug: true,
+    heroImageUrl: true,
+    description: true,
+    bestTimeToVisit: true,
+    estTripCostMin: true,
+    googleMapsLink: true,
   },
   orderBy: {
     name: "asc",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { MapPinned } from "lucide-react";
@@ -27,7 +27,7 @@ type Props = {
   onRemove?: (itemId: string) => void;
 };
 
-export default function ResortCard({
+function ResortCard({
   resort,
   index = 0,
   showRemoveButton,
@@ -137,3 +137,5 @@ export default function ResortCard({
     </Link>
   );
 }
+
+export default memo(ResortCard);

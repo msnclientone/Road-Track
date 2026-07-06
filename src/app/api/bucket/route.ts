@@ -22,7 +22,9 @@ export async function GET() {
           include: {
             resort: {
               include: {
-                destination: true,
+                destination: {
+                  select: { name: true, slug: true },
+                },
                 media: {
                   orderBy: { order: "asc" },
                   take: 1,
@@ -31,7 +33,9 @@ export async function GET() {
             },
             vehicle: {
               include: {
-                destination: true,
+                destination: {
+                  select: { name: true, slug: true },
+                },
                 media: {
                   orderBy: { order: "asc" },
                   take: 1,

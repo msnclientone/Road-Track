@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 
 type Props = {
   resortId?: string;
   vehicleId?: string;
 };
 
-export default function AddToBucketButton({
+function AddToBucketButton({
   resortId,
   vehicleId,
 }: Props) {
@@ -82,3 +82,5 @@ export default function AddToBucketButton({
     </button>
   );
 }
+
+export default memo(AddToBucketButton);
