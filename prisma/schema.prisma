@@ -167,6 +167,8 @@ model Vehicle {
   driverPhone       String
   pricePerDay       Int?
   pricePerKm        Int?
+  minimumPrice      Int?
+  minimumKm         Int?
   status            PartnerStatus      @default(PENDING)
   availability      AvailabilityStatus @default(AVAILABLE)
   createdAt         DateTime           @default(now())

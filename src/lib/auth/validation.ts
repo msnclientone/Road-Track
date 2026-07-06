@@ -78,8 +78,6 @@ export const addVehicleOwnerSchema = z.object({
   ownerPhone: z.string().trim().regex(INDIAN_PHONE_REGEX, "Enter a valid 10-digit phone number."),
   vehicleType: z.string().min(1, "Vehicle type is required."),
   seatingCapacity: z.coerce.number().int().min(1),
-  driverName: z.string().trim().min(1, "Driver name is required.").max(120),
-  driverPhone: z.string().trim().regex(INDIAN_PHONE_REGEX, "Enter a valid 10-digit phone number."),
   registrationNo: z.string().trim().min(1, "Registration number is required.").max(40),
   destinationId: z.string().min(1, "Destination is required."),
   pricePerKm: z.coerce.number().int().min(0).optional(),

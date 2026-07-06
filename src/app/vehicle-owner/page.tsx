@@ -128,6 +128,8 @@ export default async function VehicleOwnerDashboardPage() {
                 seatingCapacity: vehicle.seatingCapacity,
                 pricePerKm: vehicle.pricePerKm,
                 pricePerDay: vehicle.pricePerDay,
+                minimumPrice: vehicle.minimumPrice,
+                minimumKm: vehicle.minimumKm,
                 driverName: vehicle.driverName,
                 driverPhone: vehicle.driverPhone,
                 registrationNo: vehicle.registrationNo,
@@ -193,6 +195,20 @@ export default async function VehicleOwnerDashboardPage() {
                             label="Per km"
                             value={kmRate}
                           />
+                          {vehicle.minimumPrice != null && (
+                            <MiniStat
+                              icon={IndianRupee}
+                              label="Min charge"
+                              value={formatCurrency(vehicle.minimumPrice)}
+                            />
+                          )}
+                          {vehicle.minimumKm != null && (
+                            <MiniStat
+                              icon={Gauge}
+                              label="Min KM"
+                              value={`${vehicle.minimumKm} KM`}
+                            />
+                          )}
                         </div>
 
                         <div className="mt-5 grid gap-2">

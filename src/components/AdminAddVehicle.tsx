@@ -15,9 +15,6 @@ export default function AdminAddVehicle({ destinationOptions }: Props) {
   const [ownerPhoneError, setOwnerPhoneError] = useState<string | null>(null);
   const [vehicleType, setVehicleType] = useState("");
   const [seatingCapacity, setSeatingCapacity] = useState(4);
-  const [driverName, setDriverName] = useState("");
-  const [driverPhone, setDriverPhone] = useState("");
-  const [driverPhoneError, setDriverPhoneError] = useState<string | null>(null);
   const [registrationNo, setRegistrationNo] = useState("");
   const [pricePerKm, setPricePerKm] = useState(0);
   const [pricePerDay, setPricePerDay] = useState(0);
@@ -35,8 +32,6 @@ export default function AdminAddVehicle({ destinationOptions }: Props) {
     setOwnerPhone("");
     setVehicleType("");
     setSeatingCapacity(4);
-    setDriverName("");
-    setDriverPhone("");
     setRegistrationNo("");
     setPricePerKm(0);
     setPricePerDay(0);
@@ -49,7 +44,7 @@ export default function AdminAddVehicle({ destinationOptions }: Props) {
     setError(null);
     setResult(null);
 
-    if (ownerPhoneError || driverPhoneError) {
+    if (ownerPhoneError) {
       setError("Please fix the phone number errors before submitting.");
       setLoading(false);
       return;
@@ -64,8 +59,6 @@ export default function AdminAddVehicle({ destinationOptions }: Props) {
           ownerPhone,
           vehicleType,
           seatingCapacity,
-          driverName,
-          driverPhone,
           registrationNo,
           pricePerKm: pricePerKm || undefined,
           pricePerDay: pricePerDay || undefined,
@@ -178,26 +171,6 @@ export default function AdminAddVehicle({ destinationOptions }: Props) {
                   className="h-11 rounded-md border border-ink/15 bg-white px-3 text-base outline-none focus:border-coral"
                 />
               </label>
-
-              <label className="grid gap-1.5 text-sm font-black">
-                Driver Name
-                <input
-                  required
-                  value={driverName}
-                  onChange={(e) => setDriverName(e.target.value)}
-                  className="h-11 rounded-md border border-ink/15 bg-white px-3 text-base outline-none focus:border-coral"
-                />
-              </label>
-
-              <PhoneInput
-                value={driverPhone}
-                onChange={setDriverPhone}
-                onError={setDriverPhoneError}
-                required
-                label="Driver Phone"
-                labelClassName="text-sm font-black"
-                wrapperClassName="grid gap-1.5"
-              />
 
               <label className="grid gap-1.5 text-sm font-black">
                 Registration Number

@@ -40,6 +40,10 @@ export default function VehicleManager({
   const [priceVehicle, setPriceVehicle] = useState<any>(null);
 const [pricePerDay, setPricePerDay] = useState("");
 const [pricePerKm, setPricePerKm] = useState("");
+const [minPriceVehicle, setMinPriceVehicle] = useState<any>(null);
+const [minPriceValue, setMinPriceValue] = useState("");
+const [minKmVehicle, setMinKmVehicle] = useState<any>(null);
+const [minKmValue, setMinKmValue] = useState("");
 
   function resetForm() {
     setEditingId(null);
@@ -181,8 +185,57 @@ async function updatePrice() {
     );
 
     setPriceVehicle(null);
-  } catch {
+  } catch (e) {
+    console.error("Update Price error:", e);
     alert("Unable to update price.");
+  }
+}
+async function updateMinPrice() {
+  try {
+    const res = await fetch("/api/partner/vehicle/update-price", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        vehicleId: minPriceVehicle.id,
+        pricePerDay: minPriceVehicle.pricePerDay ?? 0,
+        pricePerKm: minPriceVehicle.pricePerKm ?? 0,
+        minimumPrice: minPriceValue ? Number(minPriceValue) : null,
+        minimumKm: minPriceVehicle.minimumKm ?? null,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) { alert(data.error); return; }
+    setVehicles((old: any[]) =>
+      old.map((v) => v.id === minPriceVehicle.id ? data.vehicle : v)
+    );
+    setMinPriceVehicle(null);
+  } catch (e) {
+    console.error("Update Minimum Price error:", e);
+    alert("Unable to update minimum price.");
+  }
+}
+async function updateMinKm() {
+  try {
+    const res = await fetch("/api/partner/vehicle/update-price", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        vehicleId: minKmVehicle.id,
+        pricePerDay: minKmVehicle.pricePerDay ?? 0,
+        pricePerKm: minKmVehicle.pricePerKm ?? 0,
+        minimumKm: minKmValue ? Number(minKmValue) : null,
+        minimumPrice: minKmVehicle.minimumPrice ?? null,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) { alert(data.error); return; }
+    setVehicles((old: any[]) =>
+      old.map((v) => v.id === minKmVehicle.id ? data.vehicle : v)
+    );
+    setMinKmVehicle(null);
+  } catch (e) {
+    console.error("Update Minimum KM error:", e);
+    alert("Unable to update minimum KM.");
   }
 }
   return (
@@ -403,6 +456,16 @@ async function updatePrice() {
                     <p className="font-bold text-green-700">
                       ₹{vehicle.pricePerKm ?? "--"} / KM
                     </p>
+                    {vehicle.minimumPrice != null && (
+                      <p className="mt-1 text-sm font-semibold text-stone">
+                        Min Charge: ₹{vehicle.minimumPrice}
+                      </p>
+                    )}
+                    {vehicle.minimumKm != null && (
+                      <p className="text-sm font-semibold text-stone">
+                        Min KM: {vehicle.minimumKm} KM
+                      </p>
+                    )}
                   </div>
 
                 </div>
@@ -432,6 +495,26 @@ async function updatePrice() {
                     className="rounded-md bg-green-600 px-4 py-2 font-bold text-white hover:bg-green-700"
                   >
                     Request Price Update
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setMinPriceVehicle(vehicle);
+                      setMinPriceValue(String(vehicle.minimumPrice ?? ""));
+                    }}
+                    className="rounded-md bg-ink px-4 py-2 font-bold text-white hover:bg-stone"
+                  >
+                    Update Minimum Price
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setMinKmVehicle(vehicle);
+                      setMinKmValue(String(vehicle.minimumKm ?? ""));
+                    }}
+                    className="rounded-md bg-cyan-600 px-4 py-2 font-bold text-white hover:bg-cyan-700"
+                  >
+                    Update Minimum KM
                   </button>
 
                 </div>
@@ -498,6 +581,74 @@ async function updatePrice() {
 
             </div>
 
+          </div>
+        </div>
+      )}
+
+      {minPriceVehicle && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="w-[400px] rounded-lg bg-white p-6 shadow-xl">
+            <h2 className="mb-5 text-2xl font-black">Update Minimum Price</h2>
+
+            <label className="mb-5 block">
+              <p className="mb-1 font-semibold">Minimum Price (₹)</p>
+              <input
+                type="number"
+                min={0}
+                value={minPriceValue}
+                onChange={(e) => setMinPriceValue(e.target.value)}
+                className="w-full rounded-md border px-3 py-2"
+              />
+            </label>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setMinPriceVehicle(null)}
+                className="rounded-md border px-4 py-2"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={updateMinPrice}
+                className="rounded-md bg-ink px-4 py-2 font-bold text-white hover:bg-stone"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {minKmVehicle && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="w-[400px] rounded-lg bg-white p-6 shadow-xl">
+            <h2 className="mb-5 text-2xl font-black">Update Minimum KM</h2>
+
+            <label className="mb-5 block">
+              <p className="mb-1 font-semibold">Minimum KM (KM)</p>
+              <input
+                type="number"
+                min={0}
+                value={minKmValue}
+                onChange={(e) => setMinKmValue(e.target.value)}
+                className="w-full rounded-md border px-3 py-2"
+              />
+            </label>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setMinKmVehicle(null)}
+                className="rounded-md border px-4 py-2"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={updateMinKm}
+                className="rounded-md bg-cyan-600 px-4 py-2 font-bold text-white hover:bg-cyan-700"
+              >
+                Save
+              </button>
+            </div>
           </div>
         </div>
       )}

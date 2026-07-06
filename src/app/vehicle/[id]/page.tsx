@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { vehicleImages } from "@/lib/vehicleImages";
 import Image from "next/image";
-import { Phone, Users, IndianRupee } from "lucide-react";
+import { Users } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { prisma } from "@/lib/prisma";
@@ -136,62 +136,13 @@ export default async function VehicleDetailPage({
                 </div>
               )}
 
-              <div className="rounded-lg border border-amber/20 bg-amber/5 p-4">
-                <p className="text-sm font-bold text-stone">Driver</p>
-                <p className="mt-2 text-lg font-black">{vehicle.driverName}</p>
-              </div>
             </div>
 
-            {/* Driver Info */}
-            <div className="mt-6 rounded-lg border border-ink/10 bg-white p-5 sm:mt-8 sm:p-6">
-              <h2 className="text-xl font-black sm:text-2xl">Driver Information</h2>
-              <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
-                <div>
-                  <p className="text-sm text-stone">Driver Name</p>
-                  <p className="mt-2 text-lg font-black sm:text-xl">{vehicle.driverName}</p>
-                </div>
-                {vehicle.driverPhone && (
-                  <div>
-                    <p className="text-sm text-stone">Driver Phone</p>
-                    <a
-                      href={`tel:${vehicle.driverPhone}`}
-                      className="mt-2 flex items-center gap-2 text-coral hover:underline font-bold"
-                    >
-                      <Phone className="h-4 w-4" />
-                      {vehicle.driverPhone}
-                    </a>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Pricing */}
-            <div className="mt-6 rounded-lg border border-coral/20 bg-coral/5 p-5 sm:mt-8 sm:p-6">
-              <h2 className="text-xl font-black sm:text-2xl">Pricing</h2>
-              <div className="mt-4 grid grid-cols-2 gap-4 sm:gap-6">
-                <div>
-                  <p className="text-sm text-stone">Per Day</p>
-                  <p className="mt-2 text-2xl font-black text-coral sm:text-3xl">
-                    {vehicle.pricePerDay != null
-  ? formatCurrency(vehicle.pricePerDay)
-  : "Not Set"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-stone">Per KM</p>
-                  <p className="mt-2 text-2xl font-black text-coral sm:text-3xl">
-                    {vehicle.pricePerKm != null
-  ? formatCurrency(vehicle.pricePerKm)
-  : "Not Set"}
-                  </p>
-                </div>
-              </div>
-            </div>
           </div>
 
           {/* Sidebar */}
           <aside className="h-fit rounded-lg border border-ink/10 bg-white p-5 shadow-sm sm:p-6 sm:sticky sm:top-28">
-            <h3 className="text-lg font-black sm:text-xl">Contact Owner</h3>
+            <h3 className="text-lg font-black sm:text-xl">Vehicle Details</h3>
 
             <div className="mt-4 space-y-3 sm:mt-6 sm:space-y-4">
               <div>
@@ -214,14 +165,34 @@ export default async function VehicleDetailPage({
 
               <div className="pt-3 sm:pt-4">
                 <p className="text-sm text-stone">Pricing</p>
-                <p className="mt-1 flex items-center gap-2 font-black text-coral">
-                  <IndianRupee className="h-4 w-4" />
-                  {vehicle.pricePerDay != null
-  ? formatCurrency(vehicle.pricePerDay)
-  : "Not Set"}/day · {vehicle.pricePerKm != null
-  ? formatCurrency(vehicle.pricePerKm)
-  : "Not Set"}/km
-                </p>
+                <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 items-start">
+                  <div className="space-y-1">
+                    <p className="font-black text-coral">
+                      {vehicle.pricePerKm != null
+                        ? `${formatCurrency(vehicle.pricePerKm)} / KM`
+                        : "Not Set"}
+                    </p>
+                    <p className="font-black text-coral">
+                      {vehicle.pricePerDay != null
+                        ? `${formatCurrency(vehicle.pricePerDay)} / Day`
+                        : "Not Set"}
+                    </p>
+                  </div>
+                  <div className="space-y-1 text-right">
+                    {vehicle.minimumPrice != null && (
+                      <p className="font-black text-coral">
+                        {formatCurrency(vehicle.minimumPrice)}{" "}
+                        <span className="text-xs font-semibold text-stone">Minimum Charge</span>
+                      </p>
+                    )}
+                    {vehicle.minimumKm != null && (
+                      <p className="font-black text-coral">
+                        {vehicle.minimumKm} KM{" "}
+                        <span className="text-xs font-semibold text-stone">Minimum Distance</span>
+                      </p>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
 

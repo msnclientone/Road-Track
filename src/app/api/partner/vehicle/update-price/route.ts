@@ -17,6 +17,8 @@ export async function POST(request: Request) {
       vehicleId,
       pricePerDay,
       pricePerKm,
+      minimumPrice,
+      minimumKm,
     } = await request.json();
 
     if (!vehicleId) {
@@ -47,6 +49,8 @@ export async function POST(request: Request) {
       data: {
         pricePerDay: Number(pricePerDay),
         pricePerKm: Number(pricePerKm),
+        minimumPrice: minimumPrice != null ? Number(minimumPrice) : null,
+        minimumKm: minimumKm != null ? Number(minimumKm) : null,
       },
     });
 
@@ -55,15 +59,14 @@ export async function POST(request: Request) {
       vehicle: updated,
     });
   } catch (err) {
-    console.error(err);
+    console.error("update-price error:", err);
+
+    const message =
+      err instanceof Error ? err.message : "Unable to update price.";
 
     return NextResponse.json(
-      {
-        error: "Unable to update price.",
-      },
-      {
-        status: 500,
-      }
+      { error: message },
+      { status: 500 }
     );
   }
 }
