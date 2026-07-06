@@ -16,10 +16,12 @@ import ResortsSection from "@/components/ResortsSection";
 import VehiclesSection from "@/components/VehiclesSection";
 import { heroImage } from "@/lib/data";
 import { buildWhatsAppUrl, formatCurrency } from "@/lib/utils";
+import { getSessionUser } from "@/lib/auth/get-session-user";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
+  const headerUser = await getSessionUser();
   const destinations = await prisma.destination.findMany({
   where: {
     published: true,
@@ -46,6 +48,7 @@ export default async function Home() {
         name: d.name,
         slug: d.slug,
       }))}
+      user={headerUser}
     />
 
       <section className="relative isolate min-h-[92svh] overflow-hidden pt-24 text-ivory">

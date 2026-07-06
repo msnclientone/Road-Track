@@ -4,11 +4,13 @@ import Image from "next/image";
 
 import { prisma } from "@/lib/prisma";
 import { SiteHeader } from "@/components/SiteHeader";
+import { getSessionUser } from "@/lib/auth/get-session-user";
 import { getListingImageUrl } from "@/lib/placeholders";
 
 export const dynamic = "force-dynamic";
 
 export default async function ApprovedResortsPage() {
+  const headerUser = await getSessionUser();
   const resorts = await prisma.resort.findMany({
     where: {
       status: "APPROVED",
@@ -26,7 +28,7 @@ export default async function ApprovedResortsPage() {
   return (
     <main className="min-h-screen bg-ivory text-ink">
 
-      <SiteHeader />
+      <SiteHeader user={headerUser} />
 
       <section className="mx-auto max-w-7xl px-6 pt-28 pb-20">
 

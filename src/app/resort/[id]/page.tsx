@@ -5,6 +5,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { prisma } from "@/lib/prisma";
 import { buildWhatsAppUrl, formatCurrency } from "@/lib/utils";
 import { getSession } from "@/lib/auth/session";
+import { getSessionUser } from "@/lib/auth/get-session-user";
 import AddToBucketButton from "@/components/AddToBucketButton";
 import SafeResortImage from "@/components/SafeResortImage";
 
@@ -26,6 +27,22 @@ export default async function ResortDetailPage({
 }) {
   const { id } = await params;
   const session = await getSession();
+  const headerUser = await getSessionUser();
+
+  let resortInBucket = false;
+  if (session?.role === "CUSTOMER") {
+    const bucket = await prisma.bucket.findFirst({
+      where: { customerId: session.sub },
+      select: {
+        items: {
+          where: { resortId: id },
+          select: { id: true },
+          take: 1,
+        },
+      },
+    });
+    resortInBucket = (bucket?.items?.length ?? 0) > 0;
+  }
 
   const resort = await prisma.resort.findUnique({
     where: { id },
@@ -49,7 +66,7 @@ export default async function ResortDetailPage({
 
   return (
     <main className="min-h-screen bg-ivory text-ink">
-      <SiteHeader />
+      <SiteHeader user={headerUser} />
 
       <section className="mx-auto max-w-none px-5 pb-20 pt-24 sm:px-8 lg:px-10 2xl:px-12 sm:pt-28">
         <div className="grid gap-8 lg:gap-10 lg:grid-cols-[1fr_0.6fr]">
@@ -182,7 +199,7 @@ export default async function ResortDetailPage({
               )}
 
               {session?.role === "CUSTOMER" && (
-                <AddToBucketButton resortId={resort.id} />
+                <AddToBucketButton resortId={resort.id} alreadyInBucket={resortInBucket} />
               )}
 
               <a

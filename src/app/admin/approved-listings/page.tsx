@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
+import { getSessionUser } from "@/lib/auth/get-session-user";
 import { SiteHeader } from "@/components/SiteHeader";
 import AdminApprovedListings from "@/components/AdminApprovedListings";
 import { ShieldCheck } from "lucide-react";
@@ -13,9 +14,11 @@ export default async function AdminApprovedListingsPage() {
     redirect("/login/admin");
   }
 
+  const headerUser = await getSessionUser();
+
   return (
     <main className="min-h-screen bg-ivory text-ink">
-      <SiteHeader />
+      <SiteHeader user={headerUser} />
       <section className="mx-auto max-w-none px-5 pb-20 pt-28 sm:px-8 lg:px-10 2xl:px-12">
         <div className="flex flex-col gap-5">
           <div>

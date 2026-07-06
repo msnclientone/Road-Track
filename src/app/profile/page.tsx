@@ -2,6 +2,7 @@ import ProfileForm from "@/components/ProfileForm";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth/session";
+import { getSessionUser } from "@/lib/auth/get-session-user";
 import { SiteHeader } from "@/components/SiteHeader";
 
 export default async function ProfilePage() {
@@ -10,6 +11,8 @@ export default async function ProfilePage() {
   if (!session) {
     redirect("/login");
   }
+
+  const headerUser = await getSessionUser();
 
   const user = await prisma.user.findUnique({
     where: {
@@ -29,7 +32,7 @@ export default async function ProfilePage() {
 
   return (
     <main className="min-h-screen bg-ivory text-ink">
-      <SiteHeader />
+      <SiteHeader user={headerUser} />
 
       <section className="mx-auto max-w-3xl px-5 pt-24 pb-20 sm:pt-28">
         <div className="rounded-xl border border-ink/10 bg-white p-5 shadow-sm sm:p-8">

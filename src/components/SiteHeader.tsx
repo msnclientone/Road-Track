@@ -21,38 +21,24 @@ type Destination = {
 
 export function SiteHeader({
   destinations = [],
+  user: initialUser = null,
 }: {
   destinations?: Destination[];
+  user?: { name?: string; email: string; role?: string } | null;
 }) {
-  const [user, setUser] = useState<{
-  name?: string;
-  email: string;
-  role?: string;
-} | null>(null);
+  const [user, setUser] = useState(initialUser);
   const [showWelcome, setShowWelcome] = useState(false);
   const welcomeTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
     let mounted = true;
-    (async () => {
-      try {
-        const res = await fetch("/api/auth/session");
-        if (!res.ok) return;
-        const data = await res.json();
-        if (!mounted) return;
-        setUser(data.user ?? null);
-        if (sessionStorage.getItem("justLoggedIn") === "true" && data.user) {
-          sessionStorage.removeItem("justLoggedIn");
-          setShowWelcome(true);
-          welcomeTimer.current = setTimeout(() => {
-            if (mounted) setShowWelcome(false);
-          }, 3500);
-        }
-      } catch {
-        // ignore
-      }
-    })();
-
+    if (sessionStorage.getItem("justLoggedIn") === "true" && initialUser) {
+      sessionStorage.removeItem("justLoggedIn");
+      setShowWelcome(true);
+      welcomeTimer.current = setTimeout(() => {
+        if (mounted) setShowWelcome(false);
+      }, 3500);
+    }
     return () => {
       mounted = false;
       if (welcomeTimer.current) clearTimeout(welcomeTimer.current);

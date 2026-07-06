@@ -17,6 +17,7 @@ import {
 import PasswordChangeGuard from "@/components/PasswordChangeGuard";
 import { SiteHeader } from "@/components/SiteHeader";
 import { getSession } from "@/lib/auth/session";
+import { getSessionUser } from "@/lib/auth/get-session-user";
 import { jsonStringList } from "@/lib/partner-dashboard";
 import { prisma } from "@/lib/prisma";
 import { buildWhatsAppUrl, formatCurrency } from "@/lib/utils";
@@ -29,6 +30,7 @@ const fallbackResortImage =
 
 export default async function ResortOwnerDashboardPage() {
   const session = await getSession();
+  const headerUser = await getSessionUser();
 
   if (!session || session.role !== "RESORT_OWNER") {
     redirect("/login/resort-owner");
@@ -74,7 +76,7 @@ export default async function ResortOwnerDashboardPage() {
   return (
     <PasswordChangeGuard mustChangePassword={owner?.mustChangePassword ?? false}>
     <main className="min-h-screen bg-ivory text-ink">
-      <SiteHeader />
+      <SiteHeader user={headerUser} />
       <section className="mx-auto max-w-none px-5 pb-20 pt-28 sm:px-8 lg:px-10 2xl:px-12">
         <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
           <div>

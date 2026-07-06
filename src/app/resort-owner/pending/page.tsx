@@ -2,11 +2,13 @@ import Link from "next/link";
 import { Clock3, ShieldAlert } from "lucide-react";
 
 import { SiteHeader } from "@/components/SiteHeader";
+import { getSessionUser } from "@/lib/auth/get-session-user";
 
-export default function ResortOwnerPendingPage() {
+export default async function ResortOwnerPendingPage() {
+  const headerUser = await getSessionUser();
   return (
     <main className="min-h-screen bg-ivory text-ink">
-      <SiteHeader />
+      <SiteHeader user={headerUser} />
       <section className="mx-auto max-w-2xl px-5 pb-20 pt-28 sm:px-8 lg:px-10">
         <div className="rounded-lg border border-ink/10 bg-white p-8 shadow-sm">
           <ShieldAlert className="h-10 w-10 text-coral" />

@@ -5,10 +5,12 @@ import Image from "next/image";
 
 import { prisma } from "@/lib/prisma";
 import { SiteHeader } from "@/components/SiteHeader";
+import { getSessionUser } from "@/lib/auth/get-session-user";
 
 export const dynamic = "force-dynamic";
 
 export default async function ApprovedVehiclesPage() {
+  const headerUser = await getSessionUser();
   const vehicles = await prisma.vehicle.findMany({
     where: {
       status: "APPROVED",
@@ -25,7 +27,7 @@ export default async function ApprovedVehiclesPage() {
   return (
     <main className="min-h-screen bg-ivory text-ink">
 
-      <SiteHeader />
+      <SiteHeader user={headerUser} />
 
       <section className="mx-auto max-w-7xl px-6 pt-28 pb-20">
 

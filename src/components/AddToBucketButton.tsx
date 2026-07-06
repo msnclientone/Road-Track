@@ -1,40 +1,20 @@
 "use client";
 
-import { memo, useEffect, useState } from "react";
+import { memo, useState } from "react";
 
 type Props = {
   resortId?: string;
   vehicleId?: string;
+  alreadyInBucket?: boolean;
 };
 
 function AddToBucketButton({
   resortId,
   vehicleId,
+  alreadyInBucket = false,
 }: Props) {
-  const [added, setAdded] = useState(false);
+  const [added, setAdded] = useState(alreadyInBucket);
   const [loading, setLoading] = useState(false);
-  useEffect(() => {
-  async function checkBucket() {
-    const res = await fetch("/api/bucket/check", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        resortId,
-        vehicleId,
-      }),
-    });
-
-    const data = await res.json();
-
-    if (data.exists) {
-      setAdded(true);
-    }
-  }
-
-  checkBucket();
-}, [resortId, vehicleId]);
 
   async function addToBucket() {
     if (added) return;

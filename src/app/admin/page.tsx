@@ -8,6 +8,7 @@ import AdminAddResort from "@/components/AdminAddResort";
 import ResetVisitorCounter from "@/components/ResetVisitorCounter";
 
 import { SiteHeader } from "@/components/SiteHeader";
+import { getSessionUser } from "@/lib/auth/get-session-user";
 
 import {
   Building2,
@@ -25,6 +26,7 @@ import { buildWhatsAppUrl } from "@/lib/utils";
 export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
+  const headerUser = await getSessionUser();
   const [
   destinationCount,
   resortCount,
@@ -70,7 +72,7 @@ export default async function AdminPage() {
   return (
     <main className="min-h-screen bg-ivory text-ink">
 
-      <SiteHeader />
+      <SiteHeader user={headerUser} />
 
       <section className="mx-auto max-w-7xl px-6 pb-24 pt-28">
 

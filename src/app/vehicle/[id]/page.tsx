@@ -7,6 +7,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { prisma } from "@/lib/prisma";
 import { buildWhatsAppUrl, formatCurrency, maskRegistrationNo } from "@/lib/utils";
 import { getSession } from "@/lib/auth/session";
+import { getSessionUser } from "@/lib/auth/get-session-user";
 import AddToBucketButton from "@/components/AddToBucketButton";
 
 export async function generateStaticParams() {
@@ -27,17 +28,31 @@ export default async function VehicleDetailPage({
 }) {
   const { id } = await params;
   const session = await getSession();
-  const customer = session
-  ? await prisma.user.findUnique({
-      where: {
-        id: session.sub,
-      },
-      select: {
-        name: true,
-        phone: true,
-      },
-    })
-  : null;
+  const headerUser = await getSessionUser();
+
+  let customer: { name: string | null; phone: string | null } | null = null;
+  let vehicleInBucket = false;
+
+  if (session?.role === "CUSTOMER") {
+    const [user, bucket] = await Promise.all([
+      prisma.user.findUnique({
+        where: { id: session.sub },
+        select: { name: true, phone: true },
+      }),
+      prisma.bucket.findFirst({
+        where: { customerId: session.sub },
+        select: {
+          items: {
+            where: { vehicleId: id },
+            select: { id: true },
+            take: 1,
+          },
+        },
+      }),
+    ]);
+    customer = user;
+    vehicleInBucket = (bucket?.items?.length ?? 0) > 0;
+  }
 
   const vehicle = await prisma.vehicle.findUnique({
     where: { id },
@@ -57,7 +72,7 @@ export default async function VehicleDetailPage({
   const maskedRegNo = maskRegistrationNo(vehicle.registrationNo ?? "");
   return (
     <main className="min-h-screen bg-ivory text-ink">
-      <SiteHeader />
+      <SiteHeader user={headerUser} />
 
       <section className="mx-auto max-w-none px-5 pb-20 pt-24 sm:px-8 lg:px-10 2xl:px-12 sm:pt-28">
         <div className="grid gap-8 lg:gap-10 lg:grid-cols-[1fr_0.6fr]">
@@ -199,7 +214,7 @@ export default async function VehicleDetailPage({
             <div className="mt-4 space-y-3 sm:mt-6">
   {session?.role === "CUSTOMER" && (
     <>
-      <AddToBucketButton vehicleId={vehicle.id} />
+      <AddToBucketButton vehicleId={vehicle.id} alreadyInBucket={vehicleInBucket} />
 
       <a
         href={buildWhatsAppUrl(

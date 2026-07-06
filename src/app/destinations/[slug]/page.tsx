@@ -14,6 +14,7 @@ import {
 import { prisma } from "@/lib/prisma";
 import { SiteHeader } from "@/components/SiteHeader";
 import { buildWhatsAppUrl, formatCurrency } from "@/lib/utils";
+import { getSessionUser } from "@/lib/auth/get-session-user";
 import ResortCard from "@/components/ResortCard";
 import VehicleCard from "@/components/VehicleCard";
 
@@ -56,6 +57,7 @@ export default async function DestinationPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+  const headerUser = await getSessionUser();
 
   const destination = await prisma.destination.findUnique({
     where: {
@@ -118,7 +120,7 @@ export default async function DestinationPage({
 
   return (
     <main className="min-h-screen bg-ivory text-ink">
-      <SiteHeader />
+      <SiteHeader user={headerUser} />
 
       {/* HERO */}
 

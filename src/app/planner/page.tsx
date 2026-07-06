@@ -1,11 +1,13 @@
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { EnquiryPlanner } from "@/components/EnquiryPlanner";
+import { getSessionUser } from "@/lib/auth/get-session-user";
 
-export default function PlannerPage() {
+export default async function PlannerPage() {
+  const headerUser = await getSessionUser();
   return (
     <main className="min-h-screen bg-ivory">
-      <SiteHeader />
+      <SiteHeader user={headerUser} />
 
       <section className="mx-auto max-w-6xl px-5 py-24 sm:py-28">
         <h1 className="mb-8 text-4xl font-black sm:mb-10 sm:text-5xl">

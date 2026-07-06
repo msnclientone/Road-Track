@@ -2,6 +2,7 @@ import Link from "next/link";
 import { CheckCircle2, FileText, Handshake, ShieldCheck } from "lucide-react";
 
 import { SiteHeader } from "@/components/SiteHeader";
+import { getSessionUser } from "@/lib/auth/get-session-user";
 
 const sections = [
   {
@@ -26,10 +27,11 @@ const sections = [
   },
 ];
 
-export default function TermsPage() {
+export default async function TermsPage() {
+  const headerUser = await getSessionUser();
   return (
     <main className="min-h-screen bg-ivory text-ink">
-      <SiteHeader />
+      <SiteHeader user={headerUser} />
       <section className="mx-auto max-w-5xl px-4 pb-20 pt-28 sm:px-6 lg:px-8">
         <p className="text-sm font-black uppercase tracking-[0.22em] text-coral">
           Terms
