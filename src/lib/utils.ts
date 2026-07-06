@@ -27,6 +27,11 @@ export function calculateQuote(input: {
   return basePlanningFee + vehicleTotal + roomTotal + serviceBuffer;
 }
 
+export function maskRegistrationNo(regNo: string): string {
+  if (regNo.length <= 4) return regNo;
+  return regNo.slice(0, 4) + "*".repeat(regNo.length - 4);
+}
+
 export function buildWhatsAppUrl(message: string, phone = roadTrackPhone) {
   return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 }

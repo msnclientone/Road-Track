@@ -4,10 +4,9 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Users } from "lucide-react";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, maskRegistrationNo } from "@/lib/utils";
 import { getListingImageUrl, PLACEHOLDER_IMAGES } from "@/lib/placeholders";
 import { vehicleImages } from "@/lib/vehicleImages";
-
 type VehicleData = {
   id: string;
   vehicleType: string;
@@ -61,7 +60,7 @@ export default function VehicleCard({
               <h3 className="text-2xl font-black">{vehicle.vehicleType}</h3>
               {vehicle.registrationNo && (
                 <p className="mt-1 text-sm font-bold text-stone">
-                  {vehicle.registrationNo}
+                  {maskRegistrationNo(vehicle.registrationNo)}
                 </p>
               )}
               {vehicle.destinationName && (

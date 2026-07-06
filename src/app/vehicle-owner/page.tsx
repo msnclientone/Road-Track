@@ -2,10 +2,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
-  CalendarClock,
   CarFront,
-  CheckCircle2,
-  ClipboardList,
+  Edit3,
   Gauge,
   IndianRupee,
   Mail,
@@ -13,20 +11,13 @@ import {
   MessageCircle,
   Phone,
   Plus,
-  Route,
   ShieldCheck,
   Users,
 } from "lucide-react";
 
-import { MetricCard, StatusBadge } from "@/components/DashboardBits";
 import PasswordChangeGuard from "@/components/PasswordChangeGuard";
 import { SiteHeader } from "@/components/SiteHeader";
 import { getSession } from "@/lib/auth/session";
-import {
-  formatPanelDate,
-  getWhatsAppPhone,
-  toDashboardLeadStatus,
-} from "@/lib/partner-dashboard";
 import { prisma } from "@/lib/prisma";
 import { buildWhatsAppUrl, formatCurrency } from "@/lib/utils";
 import VehicleManager from "@/components/VehicleManager";
@@ -47,7 +38,7 @@ export default async function VehicleOwnerDashboardPage() {
     redirect("/vehicle-owner/pending");
   }
 
-  const [owner, vehicles, assignedLeads, bookings, destinations] = await Promise.all([
+  const [owner, vehicles, destinations] = await Promise.all([
     prisma.user.findUnique({
       where: { id: session.sub },
       select: {
@@ -73,77 +64,11 @@ export default async function VehicleOwnerDashboardPage() {
       },
       orderBy: { updatedAt: "desc" },
     }),
-    prisma.enquiry.findMany({
-      where: {
-        assignedVehicle: {
-          is: {
-            ownerId: session.sub,
-          },
-        },
-      },
-      include: {
-        assignedVehicle: {
-          select: {
-            vehicleType: true,
-            driverName: true,
-          },
-        },
-        destination: {
-          select: {
-            name: true,
-          },
-        },
-      },
-      orderBy: { createdAt: "desc" },
-      take: 8,
-    }),
-    prisma.booking.findMany({
-      where: {
-        vehicle: {
-          is: {
-            ownerId: session.sub,
-          },
-        },
-      },
-      include: {
-        enquiry: {
-          select: {
-            customerName: true,
-            travelDate: true,
-          },
-        },
-        vehicle: {
-          select: {
-            vehicleType: true,
-            registrationNo: true,
-          },
-        },
-      },
-      orderBy: { createdAt: "desc" },
-      take: 6,
-    }),
     prisma.destination.findMany({
       select: { id: true, name: true },
       orderBy: { name: "asc" },
     }),
   ]);
-
-  const availableVehicles = vehicles.filter(
-    (vehicle) => vehicle.availability === "AVAILABLE",
-  ).length;
-  const totalSeats = vehicles.reduce(
-    (sum, vehicle) => sum + vehicle.seatingCapacity,
-    0,
-  );
-  const activeLeadCount = assignedLeads.filter(
-    (lead) => lead.status !== "CANCELLED",
-  ).length;
-  const confirmedBookingValue = bookings
-    .filter((booking) => booking.status === "CONFIRMED")
-    .reduce((sum, booking) => sum + booking.bookingValue, 0);
-  const payoutDue = bookings
-    .filter((booking) => booking.status === "CONFIRMED")
-    .reduce((sum, booking) => sum + booking.payoutAmt, 0);
 
   const partnerName = owner?.name ?? session.email;
 
@@ -188,31 +113,8 @@ export default async function VehicleOwnerDashboardPage() {
           </div>
         </div>
 
-        <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <MetricCard
-            label="Fleet size"
-            value={String(vehicles.length)}
-            change={`${availableVehicles} available`}
-          />
-          <MetricCard
-            label="Seat capacity"
-            value={String(totalSeats)}
-            change="All vehicles"
-          />
-          <MetricCard
-            label="Assigned leads"
-            value={String(activeLeadCount)}
-            change={`${assignedLeads.length} total`}
-          />
-          <MetricCard
-            label="Payout due"
-            value={formatCurrency(payoutDue)}
-            change="After commission"
-          />
-        </div>
-
         <div className="mt-10 grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-          <section className="rounded-lg border border-ink/10 bg-white shadow-sm">
+          <section className="order-2 rounded-lg border border-ink/10 bg-white shadow-sm xl:order-none">
             <PanelHeader
               icon={CarFront}
               title="Your fleet"
@@ -291,11 +193,6 @@ export default async function VehicleOwnerDashboardPage() {
                             label="Per km"
                             value={kmRate}
                           />
-                          <MiniStat
-                            icon={Route}
-                            label="Status"
-                            value={vehicle.status}
-                          />
                         </div>
 
                         <div className="mt-5 grid gap-2">
@@ -332,113 +229,65 @@ export default async function VehicleOwnerDashboardPage() {
             )}
           </section>
 
-          <aside className="grid gap-6">
-<section className="rounded-lg border border-ink/10 bg-white p-6 shadow-sm">
-              <div className="flex items-center gap-3">
-                <CarFront className="h-6 w-6 text-coral" />
-                <h2 className="text-2xl font-black">Partner profile</h2>
+          <aside className="order-1 grid gap-6 xl:order-none">
+            <section className="overflow-hidden rounded-lg border border-ink/10 bg-white shadow-sm">
+              <div className="bg-gradient-to-br from-coral/[0.07] to-ivory px-6 pb-5 pt-7 text-center">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-coral text-2xl font-black text-white shadow-md">
+                  {partnerName.charAt(0).toUpperCase()}
+                </div>
+                <h3 className="mt-3 text-xl font-black">{partnerName}</h3>
+                <p className="text-sm font-semibold text-stone">Vehicle Owner</p>
+                <div className="mt-3 flex justify-center">
+                  <span
+                    className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-black ${
+                      owner?.partnerStatus === "APPROVED"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-amber-100 text-amber-700"
+                    }`}
+                  >
+                    <span
+                      className={`h-2 w-2 rounded-full ${
+                        owner?.partnerStatus === "APPROVED"
+                          ? "bg-green-500"
+                          : "bg-amber-500"
+                      }`}
+                    />
+                    {owner?.partnerStatus === "APPROVED" ? "Approved" : "Pending"}
+                  </span>
+                </div>
               </div>
-              <div className="mt-5 grid gap-3 text-sm font-semibold text-stone">
-                <ProfileLine icon={Mail} label={session.email} />
-                <ProfileLine icon={Phone} label={owner?.phone ?? "Phone not set"} />
-                <ProfileLine
-                  icon={CheckCircle2}
-                  label={`Status: ${owner?.partnerStatus ?? session.partnerStatus}`}
-                />
+
+              <div className="border-t border-ink/10 px-6 py-4">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3 text-sm">
+                    <Mail className="h-4 w-4 shrink-0 text-coral" />
+                    <span className="truncate font-semibold text-stone">
+                      {session.email}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm">
+                    <Phone className="h-4 w-4 shrink-0 text-coral" />
+                    <span className="font-semibold text-stone">
+                      {owner?.phone ?? "Not set"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-t border-ink/10 p-4">
+                <Link
+                  href="/profile"
+                  className="flex w-full items-center justify-center gap-2 rounded-md bg-ink px-4 py-2.5 text-sm font-black text-white transition hover:bg-stone"
+                >
+                  <Edit3 className="h-4 w-4" />
+                  Edit Profile
+                </Link>
               </div>
             </section>
           </aside>
         </div>
 
-        <section className="mt-10 rounded-lg border border-ink/10 bg-white shadow-sm">
-          <PanelHeader
-            icon={ClipboardList}
-            title="Assigned trip enquiries"
-            text="Customer leads assigned to your vehicles by Road Track."
-          />
 
-          {assignedLeads.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[900px] border-collapse text-left">
-                <thead className="bg-ivory text-xs uppercase tracking-[0.14em] text-stone">
-                  <tr>
-                    <th className="px-5 py-4">Customer</th>
-                    <th className="px-5 py-4">Trip</th>
-                    <th className="px-5 py-4">Requirement</th>
-                    <th className="px-5 py-4">Status</th>
-                    <th className="px-5 py-4">Assigned vehicle</th>
-                    <th className="px-5 py-4">Contact</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {assignedLeads.map((lead) => {
-                    const phone = getWhatsAppPhone(lead.customerPhone);
-                    const destination =
-                      lead.destination?.name ?? "Destination not set";
-                    const vehicleLabel = lead.assignedVehicle
-                      ? `${lead.assignedVehicle.vehicleType} - ${lead.assignedVehicle.driverName}`
-                      : "Not assigned";
-
-                    return (
-                      <tr key={lead.id} className="border-t border-ink/10">
-                        <td className="px-5 py-4">
-                          <p className="font-black">{lead.customerName}</p>
-                          <p className="text-xs font-bold text-stone">
-                            {lead.customerEmail ?? lead.customerPhone}
-                          </p>
-                        </td>
-                        <td className="px-5 py-4">
-                          <p className="font-bold">{destination}</p>
-                          <p className="text-xs font-semibold text-stone">
-                            {formatPanelDate(lead.travelDate)} -{" "}
-                            {lead.numPeople ?? 1} people
-                          </p>
-                        </td>
-                        <td className="px-5 py-4 font-semibold text-stone">
-                          {lead.message ?? "Vehicle trip enquiry"}
-                        </td>
-                        <td className="px-5 py-4">
-                          <StatusBadge
-                            status={toDashboardLeadStatus(lead.status)}
-                          />
-                        </td>
-                        <td className="px-5 py-4 font-semibold text-stone">
-                          {vehicleLabel}
-                        </td>
-                        <td className="px-5 py-4">
-                          {phone ? (
-                            <a
-                              href={buildWhatsAppUrl(
-                                `Hello ${lead.customerName}, this is ${partnerName} from Road Track regarding your ${destination} vehicle enquiry.`,
-                                phone,
-                              )}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="inline-flex h-10 items-center gap-2 rounded-md bg-mint px-3 text-sm font-black text-ink transition hover:bg-mint/90"
-                            >
-                              <MessageCircle className="h-4 w-4" />
-                              WhatsApp
-                            </a>
-                          ) : (
-                            <span className="text-sm font-semibold text-stone">
-                              No phone
-                            </span>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <EmptyState
-              icon={CalendarClock}
-              title="No assigned trip enquiries yet"
-              text="Vehicle leads will appear here after Road Track assigns them to your fleet."
-            />
-          )}
-        </section>
       </section>
     </main>
     </PasswordChangeGuard>
@@ -485,21 +334,6 @@ function MiniStat({
         </p>
       </div>
       <p className="mt-2 text-lg font-black">{value}</p>
-    </div>
-  );
-}
-
-function ProfileLine({
-  icon: Icon,
-  label,
-}: {
-  icon: typeof Mail;
-  label: string;
-}) {
-  return (
-    <div className="flex items-center gap-3 rounded-md bg-ivory p-3">
-      <Icon className="h-4 w-4 text-coral" />
-      <span>{label}</span>
     </div>
   );
 }

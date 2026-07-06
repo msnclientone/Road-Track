@@ -3,10 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
   BedDouble,
-  Building2,
-  CalendarClock,
-  CheckCircle2,
-  ClipboardList,
+  Edit3,
   Hotel,
   IndianRupee,
   Mail,
@@ -17,16 +14,10 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
-import { MetricCard, StatusBadge } from "@/components/DashboardBits";
 import PasswordChangeGuard from "@/components/PasswordChangeGuard";
 import { SiteHeader } from "@/components/SiteHeader";
 import { getSession } from "@/lib/auth/session";
-import {
-  formatPanelDate,
-  getWhatsAppPhone,
-  jsonStringList,
-  toDashboardLeadStatus,
-} from "@/lib/partner-dashboard";
+import { jsonStringList } from "@/lib/partner-dashboard";
 import { prisma } from "@/lib/prisma";
 import { buildWhatsAppUrl, formatCurrency } from "@/lib/utils";
 import ResortManager from "@/components/ResortManager";
@@ -47,7 +38,7 @@ export default async function ResortOwnerDashboardPage() {
     redirect("/resort-owner/pending");
   }
 
-  const [owner, resorts, assignedLeads, bookings, destinationOptions] = await Promise.all([
+  const [owner, resorts] = await Promise.all([
     prisma.user.findUnique({
       where: { id: session.sub },
       select: {
@@ -76,78 +67,7 @@ export default async function ResortOwnerDashboardPage() {
       },
       orderBy: { updatedAt: "desc" },
     }),
-    prisma.enquiry.findMany({
-      where: {
-        assignedResort: {
-          is: {
-            ownerId: session.sub,
-          },
-        },
-      },
-      include: {
-        assignedResort: {
-          select: {
-            name: true,
-          },
-        },
-        destination: {
-          select: {
-            name: true,
-          },
-        },
-      },
-      orderBy: { createdAt: "desc" },
-      take: 8,
-    }),
-    prisma.booking.findMany({
-      where: {
-        resort: {
-          is: {
-            ownerId: session.sub,
-          },
-        },
-      },
-      include: {
-        enquiry: {
-          select: {
-            customerName: true,
-            travelDate: true,
-          },
-        },
-        resort: {
-          select: {
-            name: true,
-          },
-        },
-      },
-      orderBy: { createdAt: "desc" },
-      take: 6,
-    }),
-    prisma.destination.findMany({
-      select: { slug: true, name: true },
-      orderBy: { name: "asc" },
-    }),
   ]);
-
-  const totalRooms = resorts.reduce(
-    (sum, resort) => sum + resort.rooms.length,
-    0,
-  );
-  const availableRooms = resorts.reduce(
-    (sum, resort) =>
-      sum +
-      resort.rooms.filter((room) => room.availability === "AVAILABLE").length,
-    0,
-  );
-  const activeLeadCount = assignedLeads.filter(
-    (lead) => lead.status !== "CANCELLED",
-  ).length;
-  const confirmedBookingValue = bookings
-    .filter((booking) => booking.status === "CONFIRMED")
-    .reduce((sum, booking) => sum + booking.bookingValue, 0);
-  const payoutDue = bookings
-    .filter((booking) => booking.status === "CONFIRMED")
-    .reduce((sum, booking) => sum + booking.payoutAmt, 0);
 
   const partnerName = owner?.name ?? session.email;
 
@@ -165,8 +85,8 @@ export default async function ResortOwnerDashboardPage() {
               Welcome, {partnerName}
             </h1>
             <p className="mt-4 max-w-3xl text-lg leading-8 text-stone">
-              Track resort availability, assigned enquiries, room inventory,
-              bookings, and payout value from your partner workspace.
+              Manage your resort listings, room availability, pricing, and
+              partner profile from one panel.
             </p>
           </div>
 
@@ -192,31 +112,8 @@ export default async function ResortOwnerDashboardPage() {
           </div>
         </div>
 
-        <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <MetricCard
-            label="Listed resorts"
-            value={String(resorts.length)}
-            change={`${availableRooms}/${totalRooms} rooms open`}
-          />
-          <MetricCard
-            label="Assigned leads"
-            value={String(activeLeadCount)}
-            change={`${assignedLeads.length} total`}
-          />
-          <MetricCard
-            label="Confirmed value"
-            value={formatCurrency(confirmedBookingValue)}
-            change="Bookings"
-          />
-          <MetricCard
-            label="Payout due"
-            value={formatCurrency(payoutDue)}
-            change="After commission"
-          />
-        </div>
-
         <div className="mt-10 grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-          <section className="rounded-lg border border-ink/10 bg-white shadow-sm">
+          <section className="order-2 rounded-lg border border-ink/10 bg-white shadow-sm xl:order-none">
             <PanelHeader
               icon={Hotel}
               title="Your resort listings"
@@ -224,7 +121,7 @@ export default async function ResortOwnerDashboardPage() {
             />
 
             <div className="p-5">
-              <ResortManager destinationOptions={destinationOptions} initialResorts={resorts.map((resort) => ({
+              <ResortManager initialResorts={resorts.map((resort) => ({
                 id: resort.id,
                 name: resort.name,
                 slug: resort.slug,
@@ -273,9 +170,6 @@ export default async function ResortOwnerDashboardPage() {
                               {resort.destination.name}
                             </p>
                           </div>
-                          <span className="rounded-full bg-mint/20 px-3 py-1 text-xs font-black text-emerald-700">
-                            {resort.status}
-                          </span>
                         </div>
 
                         <div className="mt-5 grid grid-cols-2 gap-3">
@@ -339,110 +233,65 @@ export default async function ResortOwnerDashboardPage() {
             )}
           </section>
 
-          <aside className="grid gap-6">
-<section className="rounded-lg border border-ink/10 bg-white p-6 shadow-sm">
-              <div className="flex items-center gap-3">
-                <Building2 className="h-6 w-6 text-coral" />
-                <h2 className="text-2xl font-black">Partner profile</h2>
+          <aside className="order-1 grid gap-6 xl:order-none">
+            <section className="overflow-hidden rounded-lg border border-ink/10 bg-white shadow-sm">
+              <div className="bg-gradient-to-br from-coral/[0.07] to-ivory px-6 pb-5 pt-7 text-center">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-coral text-2xl font-black text-white shadow-md">
+                  {partnerName.charAt(0).toUpperCase()}
+                </div>
+                <h3 className="mt-3 text-xl font-black">{partnerName}</h3>
+                <p className="text-sm font-semibold text-stone">Resort Owner</p>
+                <div className="mt-3 flex justify-center">
+                  <span
+                    className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-black ${
+                      owner?.partnerStatus === "APPROVED"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-amber-100 text-amber-700"
+                    }`}
+                  >
+                    <span
+                      className={`h-2 w-2 rounded-full ${
+                        owner?.partnerStatus === "APPROVED"
+                          ? "bg-green-500"
+                          : "bg-amber-500"
+                      }`}
+                    />
+                    {owner?.partnerStatus === "APPROVED" ? "Approved" : "Pending"}
+                  </span>
+                </div>
               </div>
-              <div className="mt-5 grid gap-3 text-sm font-semibold text-stone">
-                <ProfileLine icon={Mail} label={session.email} />
-                <ProfileLine icon={Phone} label={owner?.phone ?? "Phone not set"} />
-                <ProfileLine
-                  icon={CheckCircle2}
-                  label={`Status: ${owner?.partnerStatus ?? session.partnerStatus}`}
-                />
+
+              <div className="border-t border-ink/10 px-6 py-4">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3 text-sm">
+                    <Mail className="h-4 w-4 shrink-0 text-coral" />
+                    <span className="truncate font-semibold text-stone">
+                      {session.email}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm">
+                    <Phone className="h-4 w-4 shrink-0 text-coral" />
+                    <span className="font-semibold text-stone">
+                      {owner?.phone ?? "Not set"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-t border-ink/10 p-4">
+                <Link
+                  href="/profile"
+                  className="flex w-full items-center justify-center gap-2 rounded-md bg-ink px-4 py-2.5 text-sm font-black text-white transition hover:bg-stone"
+                >
+                  <Edit3 className="h-4 w-4" />
+                  Edit Profile
+                </Link>
               </div>
             </section>
           </aside>
         </div>
 
-        <section className="mt-10 rounded-lg border border-ink/10 bg-white shadow-sm">
-          <PanelHeader
-            icon={ClipboardList}
-            title="Assigned enquiries"
-            text="Customer leads assigned to your resort listings by Road Track."
-          />
 
-          {assignedLeads.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[900px] border-collapse text-left">
-                <thead className="bg-ivory text-xs uppercase tracking-[0.14em] text-stone">
-                  <tr>
-                    <th className="px-5 py-4">Customer</th>
-                    <th className="px-5 py-4">Trip</th>
-                    <th className="px-5 py-4">Requirement</th>
-                    <th className="px-5 py-4">Status</th>
-                    <th className="px-5 py-4">Assigned resort</th>
-                    <th className="px-5 py-4">Contact</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {assignedLeads.map((lead) => {
-                    const phone = getWhatsAppPhone(lead.customerPhone);
-                    const destination =
-                      lead.destination?.name ?? "Destination not set";
-
-                    return (
-                      <tr key={lead.id} className="border-t border-ink/10">
-                        <td className="px-5 py-4">
-                          <p className="font-black">{lead.customerName}</p>
-                          <p className="text-xs font-bold text-stone">
-                            {lead.customerEmail ?? lead.customerPhone}
-                          </p>
-                        </td>
-                        <td className="px-5 py-4">
-                          <p className="font-bold">{destination}</p>
-                          <p className="text-xs font-semibold text-stone">
-                            {formatPanelDate(lead.travelDate)} -{" "}
-                            {lead.numPeople ?? 1} people
-                          </p>
-                        </td>
-                        <td className="px-5 py-4 font-semibold text-stone">
-                          {lead.message ?? "Resort stay enquiry"}
-                        </td>
-                        <td className="px-5 py-4">
-                          <StatusBadge
-                            status={toDashboardLeadStatus(lead.status)}
-                          />
-                        </td>
-                        <td className="px-5 py-4 font-semibold text-stone">
-                          {lead.assignedResort?.name ?? "Not assigned"}
-                        </td>
-                        <td className="px-5 py-4">
-                          {phone ? (
-                            <a
-                              href={buildWhatsAppUrl(
-                                `Hello ${lead.customerName}, this is ${partnerName} from Road Track regarding your ${destination} stay enquiry.`,
-                                phone,
-                              )}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="inline-flex h-10 items-center gap-2 rounded-md bg-mint px-3 text-sm font-black text-ink transition hover:bg-mint/90"
-                            >
-                              <MessageCircle className="h-4 w-4" />
-                              WhatsApp
-                            </a>
-                          ) : (
-                            <span className="text-sm font-semibold text-stone">
-                              No phone
-                            </span>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <EmptyState
-              icon={CalendarClock}
-              title="No assigned enquiries yet"
-              text="New resort leads will appear here after Road Track assigns them to your property."
-            />
-          )}
-        </section>
       </section>
     </main>
     </PasswordChangeGuard>
@@ -489,36 +338,6 @@ function MiniStat({
         </p>
       </div>
       <p className="mt-2 text-lg font-black">{value}</p>
-    </div>
-  );
-}
-
-function PayoutRow({
-  label,
-  value,
-}: {
-  label: string;
-  value: string | number;
-}) {
-  return (
-    <div className="rounded-md bg-white/10 p-4">
-      <p className="text-sm text-white/65">{label}</p>
-      <p className="mt-1 text-2xl font-black">{value}</p>
-    </div>
-  );
-}
-
-function ProfileLine({
-  icon: Icon,
-  label,
-}: {
-  icon: typeof Mail;
-  label: string;
-}) {
-  return (
-    <div className="flex items-center gap-3 rounded-md bg-ivory p-3">
-      <Icon className="h-4 w-4 text-coral" />
-      <span>{label}</span>
     </div>
   );
 }

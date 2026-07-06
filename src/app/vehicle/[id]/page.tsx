@@ -1,11 +1,11 @@
 import { notFound } from "next/navigation";
 import { vehicleImages } from "@/lib/vehicleImages";
 import Image from "next/image";
-import { Mail, Phone, Users, Zap, IndianRupee } from "lucide-react";
+import { Phone, Users, IndianRupee } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { prisma } from "@/lib/prisma";
-import { buildWhatsAppUrl, formatCurrency } from "@/lib/utils";
+import { buildWhatsAppUrl, formatCurrency, maskRegistrationNo } from "@/lib/utils";
 import { getSession } from "@/lib/auth/session";
 import AddToBucketButton from "@/components/AddToBucketButton";
 
@@ -54,7 +54,7 @@ export default async function VehicleDetailPage({
   if (!vehicle || vehicle.status !== "APPROVED") {
     notFound();
   }
-console.log(vehicle.vehicleType);
+  const maskedRegNo = maskRegistrationNo(vehicle.registrationNo ?? "");
   return (
     <main className="min-h-screen bg-ivory text-ink">
       <SiteHeader />
@@ -71,7 +71,7 @@ console.log(vehicle.vehicleType);
               {" / "}
               <span>{vehicle.vehicleType}</span>
               {" / "}
-              <span>{vehicle.registrationNo}</span>
+              <span>{maskedRegNo}</span>
             </nav>
 
             {/* Title */}
@@ -79,7 +79,7 @@ console.log(vehicle.vehicleType);
               {vehicle.vehicleType}
             </h1>
             <p className="mt-2 font-bold text-base text-stone sm:mt-3 sm:text-lg">
-              {vehicle.registrationNo}
+              {maskedRegNo}
             </p>
 
             {/* Image Gallery */}
@@ -123,7 +123,7 @@ console.log(vehicle.vehicleType);
               <div className="rounded-lg border border-coral/20 bg-coral/5 p-4">
                 <p className="text-sm font-bold text-stone">Registration</p>
                 <p className="mt-2 text-xl font-black text-coral">
-                  {vehicle.registrationNo}
+                  {maskedRegNo}
                 </p>
               </div>
 
@@ -199,32 +199,6 @@ console.log(vehicle.vehicleType);
                 <p className="mt-1 text-base font-black sm:text-lg">{vehicle.owner?.name ?? "Not Available"}</p>
               </div>
 
-              {vehicle.owner?.email && (
-                <div>
-                  <p className="text-sm font-bold text-stone">Email</p>
-                  <a
-                    href={`mailto:${vehicle.owner.email}`}
-                    className="mt-1 flex items-center gap-2 text-coral hover:underline"
-                  >
-                    <Mail className="h-4 w-4" />
-                    {vehicle.owner.email}
-                  </a>
-                </div>
-              )}
-
-              {vehicle.owner?.phone && (
-                <div>
-                  <p className="text-sm font-bold text-stone">Phone</p>
-                  <a
-                    href={`tel:${vehicle.owner.phone}`}
-                    className="mt-1 flex items-center gap-2 text-coral hover:underline"
-                  >
-                    <Phone className="h-4 w-4" />
-                    {vehicle.owner.phone}
-                  </a>
-                </div>
-              )}
-
               <div className="pt-3 sm:pt-4">
                 <p className="text-sm text-stone">Vehicle Type</p>
                 <p className="mt-1 font-bold">{vehicle.vehicleType}</p>
@@ -272,7 +246,7 @@ Vehicle:
 ${vehicle.vehicleType}
 
 Registration Number:
-${vehicle.registrationNo}
+${maskedRegNo}
 
 Destination:
 ${vehicle.destination?.name ?? "Not Specified"}
@@ -300,7 +274,7 @@ Thank you.`
 
   <a
     href={buildWhatsAppUrl(
-      `Hello Road Track,\nI'm interested in booking a ${vehicle.vehicleType} (${vehicle.registrationNo}). Can you provide details?`
+      `Hello Road Track,\nI'm interested in booking a ${vehicle.vehicleType} (${maskedRegNo}). Can you provide details?`
     )}
     target="_blank"
     rel="noreferrer"

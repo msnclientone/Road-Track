@@ -6,6 +6,7 @@ import Link from "next/link";
 import { MapPinned } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { getListingImageUrl, PLACEHOLDER_IMAGES } from "@/lib/placeholders";
+import NoImagePlaceholder from "./NoImagePlaceholder";
 
 type ResortData = {
   id: string;
@@ -33,9 +34,9 @@ export default function ResortCard({
   itemId,
   onRemove,
 }: Props) {
-  const [imgSrc, setImgSrc] = useState(() =>
-    getListingImageUrl(resort.media, "resort"),
-  );
+  const safeUrl = getListingImageUrl(resort.media, "resort");
+  const [imgSrc, setImgSrc] = useState(safeUrl);
+  const [showPlaceholder, setShowPlaceholder] = useState(safeUrl === PLACEHOLDER_IMAGES.resort);
 
   return (
     <Link
@@ -44,16 +45,20 @@ export default function ResortCard({
     >
       <article className="flex h-full flex-col text-ivory">
         <div className="relative aspect-[16/10]">
-          <Image
-            src={imgSrc}
-            alt={resort.name}
-            fill
-            priority={index === 0}
-            loading={index === 0 ? "eager" : "lazy"}
-            className="object-cover transition duration-500 group-hover:scale-105"
-            sizes="(min-width: 1024px) 33vw, 100vw"
-            onError={() => setImgSrc(PLACEHOLDER_IMAGES.resort)}
-          />
+          {showPlaceholder ? (
+            <NoImagePlaceholder />
+          ) : (
+            <Image
+              src={imgSrc}
+              alt={resort.name}
+              fill
+              priority={index === 0}
+              loading={index === 0 ? "eager" : "lazy"}
+              className="object-cover transition duration-500 group-hover:scale-105"
+              sizes="(min-width: 1024px) 33vw, 100vw"
+              onError={() => setShowPlaceholder(true)}
+            />
+          )}
         </div>
         <div className="flex flex-1 flex-col p-5">
           <div className="flex items-start justify-between gap-4">

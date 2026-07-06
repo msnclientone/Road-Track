@@ -21,7 +21,6 @@ export default function VehicleManager({
   initialVehicles: any[];
   destinationOptions?: { id: string; name: string }[];
 }) {
-  const [tab, setTab] = useState<"list" | "add">("list");
   const [vehicles, setVehicles] = useState(initialVehicles || []);
   const [loading, setLoading] = useState(false);
 
@@ -68,9 +67,7 @@ const [pricePerKm, setPricePerKm] = useState("");
     }
 
     try {
-      const endpoint = editingId
-        ? "/api/partner/vehicle/update"
-        : "/api/partner/vehicle/create";
+      const endpoint = "/api/partner/vehicle/update";
 
       const res = await fetch(endpoint, {
         method: "POST",
@@ -103,8 +100,6 @@ const [pricePerKm, setPricePerKm] = useState("");
       }
 
       resetForm();
-
-      setTab("list");
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -154,8 +149,6 @@ const [pricePerKm, setPricePerKm] = useState("");
       registrationNo: vehicle.registrationNo,
       destinationId: vehicle.destinationId ?? "",
     });
-
-    setTab("add");
   }
 async function updatePrice() {
   try {
@@ -195,175 +188,14 @@ async function updatePrice() {
   return (
     <div className="rounded-md border border-ink/10 bg-white p-4">
 
-      <div className="flex items-center justify-between">
-
-        <div className="flex gap-2">
-
-          <button
-            onClick={() => {
-              resetForm();
-              setTab("list");
-            }}
-            className={`px-3 py-1 font-bold ${
-              tab === "list" ? "bg-ivory" : ""
-            }`}
-          >
-            My Vehicles
-          </button>
-
-          <button
-            onClick={() => {
-              resetForm();
-              setTab("add");
-            }}
-            className={`px-3 py-1 font-bold ${
-              tab === "add" ? "bg-ivory" : ""
-            }`}
-          >
-            {editingId ? "Edit Vehicle" : "Add Vehicle"}
-          </button>
-
-        </div>
-
-      </div>
-            {tab === "list" ? (
-        <div className="mt-5 grid gap-4">
-          {vehicles.length === 0 ? (
-            <p className="text-center text-stone">
-              No vehicles added yet.
-            </p>
-          ) : (
-            vehicles.map((vehicle: any) => (
-              <div
-                key={vehicle.id}
-                className="rounded-lg border border-ink/10 p-5"
-              >
-                <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-
-                  <div>
-
-                    <h3 className="text-xl font-black">
-                      {vehicle.vehicleType}
-                    </h3>
-
-                    <p className="mt-1 text-sm text-stone">
-                      Registration :
-                      <span className="font-semibold">
-                        {" "}
-                        {vehicle.registrationNo}
-                      </span>
-                    </p>
-
-                    <p className="text-sm text-stone">
-                      Destination :
-                      <span className="font-semibold">
-                        {" "}
-                        {vehicle.destination?.name ?? "Not Assigned"}
-                      </span>
-                    </p>
-
-                    <p className="text-sm text-stone">
-                      Driver :
-                      <span className="font-semibold">
-                        {" "}
-                        {vehicle.driverName}
-                      </span>
-                    </p>
-
-                    <p className="text-sm text-stone">
-                      Phone :
-                      <span className="font-semibold">
-                        {" "}
-                        {vehicle.driverPhone}
-                      </span>
-                    </p>
-
-                    <p className="text-sm text-stone">
-                      Seats :
-                      <span className="font-semibold">
-                        {" "}
-                        {vehicle.seatingCapacity}
-                      </span>
-                    </p>
-
-                    <div className="mt-3">
-
-                      {vehicle.status === "APPROVED" ? (
-                        <>
-
-                          <p className="text-green-700 font-bold">
-                            ₹{vehicle.pricePerDay ?? "--"} / Day
-                          </p>
-
-                          <p className="text-green-700 font-bold">
-                            ₹{vehicle.pricePerKm ?? "--"} / KM
-                          </p>
-
-                        </>
-                      ) : (
-                        <p className="font-semibold text-amber-600">
-                          Waiting for Super Admin Approval & Pricing
-                        </p>
-                      )}
-
-                    </div>
-
-                  </div>
-
-                  <div className="flex flex-col gap-2">
-
-                    <span
-                      className={`rounded-md px-3 py-2 text-center font-bold ${
-                        vehicle.status === "APPROVED"
-                          ? "bg-green-100 text-green-700"
-                          : vehicle.status === "REJECTED"
-                          ? "bg-red-100 text-red-700"
-                          : "bg-yellow-100 text-yellow-700"
-                      }`}
-                    >
-                      {vehicle.status}
-                    </span>
-
-                    <button
-                      onClick={() => editVehicle(vehicle)}
-                      className="rounded-md bg-blue-600 px-4 py-2 font-bold text-white hover:bg-blue-700"
-                    >
-                      Edit Details
-                    </button>
-
-                    <button
-                      onClick={() => deleteVehicle(vehicle.id)}
-                      className="rounded-md bg-red-600 px-4 py-2 font-bold text-white hover:bg-red-700"
-                    >
-                      Delete Vehicle
-                    </button>
-
-                    {vehicle.status === "APPROVED" && (
-                      <button
-  onClick={() => {
-    setPriceVehicle(vehicle);
-    setPricePerDay(String(vehicle.pricePerDay ?? ""));
-    setPricePerKm(String(vehicle.pricePerKm ?? ""));
-  }}
-  className="rounded-md bg-green-600 px-4 py-2 font-bold text-white hover:bg-green-700"
->
-  Request Price Update
-</button>
-                    )}
-
-                  </div>
-
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      ) : (
+      {editingId && (
         <form
           onSubmit={submit}
-          className="mt-5 grid gap-3"
+          className="mb-6 grid gap-3 rounded-lg border border-blue-200 bg-blue-50 p-5"
         >
-                    <label className="grid gap-1 text-sm">
+          <h3 className="text-lg font-black">Edit Vehicle</h3>
+
+          <label className="grid gap-1 text-sm">
             Vehicle Type
             <select
               required
@@ -480,30 +312,21 @@ async function updatePrice() {
           </label>
 
           <div className="flex gap-3 pt-2">
-
             <button
               type="submit"
               disabled={loading}
               className="rounded-md bg-ink px-5 py-2 font-black text-white"
             >
-              {loading
-                ? "Saving..."
-                : editingId
-                ? "Update Vehicle"
-                : "Add Vehicle"}
+              {loading ? "Saving..." : "Update Vehicle"}
             </button>
 
             <button
               type="button"
-              onClick={() => {
-                resetForm();
-                setTab("list");
-              }}
+              onClick={resetForm}
               className="rounded-md border px-5 py-2"
             >
               Cancel
             </button>
-
           </div>
 
           {error && (
@@ -511,8 +334,113 @@ async function updatePrice() {
               {error}
             </p>
           )}
-               </form>
+        </form>
       )}
+
+      <div className="grid gap-4">
+        {vehicles.length === 0 ? (
+          <p className="text-center text-stone">
+            No vehicles added yet.
+          </p>
+        ) : (
+          vehicles.map((vehicle: any) => (
+            <div
+              key={vehicle.id}
+              className="rounded-lg border border-ink/10 p-5"
+            >
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+
+                <div>
+
+                  <h3 className="text-xl font-black">
+                    {vehicle.vehicleType}
+                  </h3>
+
+                  <p className="mt-1 text-sm text-stone">
+                    Registration :
+                    <span className="font-semibold">
+                      {" "}
+                      {vehicle.registrationNo}
+                    </span>
+                  </p>
+
+                  <p className="text-sm text-stone">
+                    Destination :
+                    <span className="font-semibold">
+                      {" "}
+                      {vehicle.destination?.name ?? "Not Assigned"}
+                    </span>
+                  </p>
+
+                  <p className="text-sm text-stone">
+                    Driver :
+                    <span className="font-semibold">
+                      {" "}
+                      {vehicle.driverName}
+                    </span>
+                  </p>
+
+                  <p className="text-sm text-stone">
+                    Phone :
+                    <span className="font-semibold">
+                      {" "}
+                      {vehicle.driverPhone}
+                    </span>
+                  </p>
+
+                  <p className="text-sm text-stone">
+                    Seats :
+                    <span className="font-semibold">
+                      {" "}
+                      {vehicle.seatingCapacity}
+                    </span>
+                  </p>
+
+                  <div className="mt-3">
+                    <p className="font-bold text-green-700">
+                      ₹{vehicle.pricePerDay ?? "--"} / Day
+                    </p>
+                    <p className="font-bold text-green-700">
+                      ₹{vehicle.pricePerKm ?? "--"} / KM
+                    </p>
+                  </div>
+
+                </div>
+
+                <div className="flex flex-col gap-2">
+
+                  <button
+                    onClick={() => editVehicle(vehicle)}
+                    className="rounded-md bg-blue-600 px-4 py-2 font-bold text-white hover:bg-blue-700"
+                  >
+                    Edit Details
+                  </button>
+
+                  <button
+                    onClick={() => deleteVehicle(vehicle.id)}
+                    className="rounded-md bg-red-600 px-4 py-2 font-bold text-white hover:bg-red-700"
+                  >
+                    Delete Vehicle
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setPriceVehicle(vehicle);
+                      setPricePerDay(String(vehicle.pricePerDay ?? ""));
+                      setPricePerKm(String(vehicle.pricePerKm ?? ""));
+                    }}
+                    className="rounded-md bg-green-600 px-4 py-2 font-bold text-white hover:bg-green-700"
+                  >
+                    Request Price Update
+                  </button>
+
+                </div>
+
+              </div>
+            </div>
+          ))
+        )}
+      </div>
 
       {priceVehicle && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">

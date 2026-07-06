@@ -1,13 +1,12 @@
 import { notFound } from "next/navigation";
-import Image from "next/image";
-import { Mail, Phone, MapPinned, IndianRupee } from "lucide-react";
+import { MapPinned, IndianRupee } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { prisma } from "@/lib/prisma";
 import { buildWhatsAppUrl, formatCurrency } from "@/lib/utils";
 import { getSession } from "@/lib/auth/session";
-import { getPlaceholderImageUrl } from "@/lib/placeholders";
 import AddToBucketButton from "@/components/AddToBucketButton";
+import SafeResortImage from "@/components/SafeResortImage";
 
 export async function generateStaticParams() {
   const resorts = await prisma.resort.findMany({
@@ -90,16 +89,12 @@ export default async function ResortDetailPage({
             )}
 
             {/* Image Gallery */}
-            <div className="mt-6 rounded-lg overflow-hidden sm:mt-8">
+            <div className="mt-6 overflow-hidden rounded-lg sm:mt-8">
               <div className="relative aspect-video">
-                <Image
-                  src={resort.media?.[0]?.url ?? getPlaceholderImageUrl("resort")}
-                  alt={resort.name}
-                  fill
+                <SafeResortImage
+                  media={resort.media}
+                  name={resort.name}
                   priority
-                  loading="eager"
-                  className="object-cover"
-                  sizes="(min-width: 1024px) 66vw, 100vw"
                 />
               </div>
             </div>
@@ -175,32 +170,6 @@ export default async function ResortDetailPage({
   {resort.owner?.name ?? "Not Available"}
 </p>
               </div>
-
-              {resort.owner?.email && (
-                <div>
-                  <p className="text-sm font-bold text-stone">Email</p>
-                  <a
-                    href={`mailto:${resort.owner?.email}`}
-                    className="mt-1 flex items-center gap-2 text-coral hover:underline"
-                  >
-                    <Mail className="h-4 w-4" />
-                    {resort.owner.email}
-                  </a>
-                </div>
-              )}
-
-              {resort.owner?.phone && (
-                <div>
-                  <p className="text-sm font-bold text-stone">Phone</p>
-                  <a
-                    href={`tel:${resort.owner?.phone}`}
-                    className="mt-1 flex items-center gap-2 text-coral hover:underline"
-                  >
-                    <Phone className="h-4 w-4" />
-                    {resort.owner?.phone}
-                  </a>
-                </div>
-              )}
 
               <div className="pt-3 sm:pt-4">
                 <p className="text-sm text-stone">Destination</p>
