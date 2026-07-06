@@ -23,11 +23,17 @@ export async function GET() {
             resort: {
               include: {
                 destination: true,
+                owner: {
+                  select: { resortOwnerId: true },
+                },
               },
             },
             vehicle: {
               include: {
                 destination: true,
+                owner: {
+                  select: { vehicleOwnerId: true },
+                },
               },
             },
           },

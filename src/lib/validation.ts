@@ -25,7 +25,7 @@ export const enquirySchema = z.object({
   resortRequired: z.boolean().default(false),
   vehicle: optionalText(80),
   hotel: optionalText(80),
-  message: optionalText(500),
+  message: optionalText(2000),
 });
 
 export type EnquiryInput = z.infer<typeof enquirySchema>;
