@@ -21,6 +21,7 @@ type Resort = {
     slug: string;
   };
   owner: {
+    id: string;
     name: string;
     email: string;
     phone: string | null;
@@ -110,7 +111,7 @@ function sortResorts(list: Resort[], sortValue: string): Resort[] {
   return sorted;
 }
 
-export default function ResortsSection() {
+export default function ResortsSection({ userRole, userId }: { userRole?: string; userId?: string }) {
   const [resorts, setResorts] = useState<Resort[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -359,7 +360,16 @@ export default function ResortsSection() {
       ) : (
         <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {filteredResorts.map((resort, index) => (
-            <ResortCard key={resort.id} resort={resort} index={index} />
+            <ResortCard
+              key={resort.id}
+              resort={resort}
+              index={index}
+              showLocation={
+                userRole === "SUPER_ADMIN" ||
+                userRole === "VEHICLE_OWNER" ||
+                (userRole === "RESORT_OWNER" && userId != null && resort.owner?.id === userId)
+              }
+            />
           ))}
         </div>
       )}

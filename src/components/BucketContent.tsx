@@ -32,7 +32,7 @@ type BucketItem = {
   } | null;
 };
 
-export default function BucketContent() {
+export default function BucketContent({ showLocation = false }: { showLocation?: boolean }) {
   const [items, setItems] = useState<BucketItem[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -166,6 +166,7 @@ export default function BucketContent() {
                 showRemoveButton
                 itemId={item.id}
                 onRemove={handleRemove}
+                showLocation={showLocation}
               />
             ))}
           </div>

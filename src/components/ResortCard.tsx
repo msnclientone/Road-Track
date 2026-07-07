@@ -25,6 +25,7 @@ type Props = {
   showRemoveButton?: boolean;
   itemId?: string;
   onRemove?: (itemId: string) => void;
+  showLocation?: boolean;
 };
 
 function ResortCard({
@@ -33,6 +34,7 @@ function ResortCard({
   showRemoveButton,
   itemId,
   onRemove,
+  showLocation = false,
 }: Props) {
   const safeUrl = getListingImageUrl(resort.media, "resort");
   const [imgSrc, setImgSrc] = useState(safeUrl);
@@ -64,7 +66,7 @@ function ResortCard({
           <div className="flex items-start justify-between gap-4">
             <div>
               <h3 className="text-2xl font-black">{resort.name}</h3>
-              {resort.address && (
+              {showLocation && resort.address && (
                 <p className="mt-1 flex items-center gap-2 text-sm text-white/70">
                   <MapPinned className="h-4 w-4 text-coral" />
                   {resort.address}
@@ -105,7 +107,7 @@ function ResortCard({
               </div>
             </div>
 
-            {resort.googleMapsLink && (
+            {showLocation && resort.googleMapsLink && (
               <button
                 onClick={(e) => {
                   e.preventDefault();

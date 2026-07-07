@@ -15,6 +15,7 @@ import { prisma } from "@/lib/prisma";
 import { SiteHeader } from "@/components/SiteHeader";
 import { buildWhatsAppUrl, formatCurrency } from "@/lib/utils";
 import { getSessionUser } from "@/lib/auth/get-session-user";
+import { getSession } from "@/lib/auth/session";
 import ResortCard from "@/components/ResortCard";
 import VehicleCard from "@/components/VehicleCard";
 
@@ -58,6 +59,7 @@ export default async function DestinationPage({
 }) {
   const { slug } = await params;
   const headerUser = await getSessionUser();
+  const session = await getSession();
 
   const destination = await prisma.destination.findUnique({
     where: {
@@ -90,6 +92,7 @@ export default async function DestinationPage({
         googleMapsLink: true,
         priceMin: true,
         amenities: true,
+        ownerId: true,
         media: {
           select: { url: true, type: true, order: true },
           orderBy: { order: "asc" },
@@ -344,6 +347,11 @@ export default async function DestinationPage({
                     media: resort.media,
                   }}
                   index={index}
+                  showLocation={
+                    headerUser?.role === "SUPER_ADMIN" ||
+                    headerUser?.role === "VEHICLE_OWNER" ||
+                    (headerUser?.role === "RESORT_OWNER" && session?.sub != null && resort.ownerId === session.sub)
+                  }
                 />
               ))}
             </div>

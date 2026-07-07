@@ -29,7 +29,7 @@ export default async function BucketPage() {
       <section className="mx-auto max-w-6xl px-5 py-24 sm:py-28">
         <h1 className="text-4xl font-black sm:text-5xl">My Bucket</h1>
 
-        <BucketContent />
+        <BucketContent showLocation={false} />
       </section>
 
       <SiteFooter />

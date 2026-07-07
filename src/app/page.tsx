@@ -16,6 +16,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { heroImage } from "@/lib/data";
 import { buildWhatsAppUrl, formatCurrency } from "@/lib/utils";
 import { getSessionUser } from "@/lib/auth/get-session-user";
+import { getSession } from "@/lib/auth/session";
 
 const ResortsSection = dynamicImport(() => import("@/components/ResortsSection"), {
   loading: () => (
@@ -37,6 +38,7 @@ export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const headerUser = await getSessionUser();
+  const session = await getSession();
   const destinations = await prisma.destination.findMany({
   where: {
     published: true,
@@ -233,7 +235,7 @@ export default async function Home() {
             </Link>
           </div>
 
-          <ResortsSection />
+          <ResortsSection userRole={session?.role} userId={session?.sub} />
         </div>
       </section>
 

@@ -64,6 +64,11 @@ export default async function ResortDetailPage({
     notFound();
   }
 
+  const canSeeLocation =
+    session?.role === "SUPER_ADMIN" ||
+    session?.role === "VEHICLE_OWNER" ||
+    (session?.role === "RESORT_OWNER" && resort.ownerId === session.sub);
+
   return (
     <main className="min-h-screen bg-ivory text-ink">
       <SiteHeader user={headerUser} />
@@ -89,11 +94,13 @@ export default async function ResortDetailPage({
             <h1 className="text-3xl font-black tracking-tight sm:text-4xl md:text-5xl lg:text-6xl">
               {resort.name}
             </h1>
-            <p className="mt-2 flex items-center gap-2 text-base font-bold text-stone sm:mt-3 sm:text-lg">
-              <MapPinned className="h-4 w-4 text-coral sm:h-5 sm:w-5" />
-              {resort.address}
-            </p>
-            {resort.googleMapsLink && (
+            {canSeeLocation && (
+              <p className="mt-2 flex items-center gap-2 text-base font-bold text-stone sm:mt-3 sm:text-lg">
+                <MapPinned className="h-4 w-4 text-coral sm:h-5 sm:w-5" />
+                {resort.address}
+              </p>
+            )}
+            {canSeeLocation && resort.googleMapsLink && (
               <a
                 href={resort.googleMapsLink}
                 target="_blank"
@@ -138,10 +145,12 @@ export default async function ResortDetailPage({
                 </p>
               </div>
 
-              <div className="pt-3 sm:pt-4">
-                <p className="text-sm text-stone">Address</p>
-                <p className="mt-1 font-bold">{resort.address}</p>
-              </div>
+              {canSeeLocation && (
+                <div className="pt-3 sm:pt-4">
+                  <p className="text-sm text-stone">Address</p>
+                  <p className="mt-1 font-bold">{resort.address}</p>
+                </div>
+              )}
 
               <div className="pt-3 sm:pt-4">
                 <p className="text-sm text-stone">Destination</p>
@@ -186,7 +195,7 @@ export default async function ResortDetailPage({
             </div>
 
             <div className="mt-4 space-y-3 sm:mt-6">
-              {resort.googleMapsLink && (
+              {canSeeLocation && resort.googleMapsLink && (
                 <a
                   href={resort.googleMapsLink}
                   target="_blank"
