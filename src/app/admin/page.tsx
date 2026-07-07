@@ -41,6 +41,10 @@ const AdminAddResort = dynamicImport(() => import("@/components/AdminAddResort")
   loading: () => <div className="h-64 animate-pulse rounded-xl bg-stone/10" />,
 });
 
+const AdminBookings = dynamicImport(() => import("@/components/AdminBookings"), {
+  loading: () => <div className="h-64 animate-pulse rounded-xl bg-stone/10" />,
+});
+
 export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
@@ -245,6 +249,14 @@ export default async function AdminPage() {
             <AdminAddVehicle destinationOptions={destinationOptions} />
             <AdminAddResort destinationOptions={destinationOptions} />
           </div>
+        </section>
+
+        {/* BOOKINGS */}
+
+        <section className="mt-12 rounded-3xl border bg-white p-8 shadow-sm">
+
+          <AdminBookings />
+
         </section>
               </section>
     </main>

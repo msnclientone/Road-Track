@@ -239,6 +239,23 @@ Per Head Cost: ${formatCurrency(perHeadCost)}
           vehicle: selectedVehicle?.vehicleType,
           hotel: selectedResort?.name,
           message: leadMessage,
+          tripDestination: destinationName,
+          tripCheckIn: checkIn?.toISOString(),
+          tripCheckOut: checkOut?.toISOString(),
+          tripDays: numDays,
+          tripNights: numNights,
+          tripResortId: selectedResort?.id,
+          tripResortOwnerId: selectedResort?.owner?.resortOwnerId,
+          tripVehicleId: selectedVehicle?.id,
+          tripVehicleOwnerId: selectedVehicle?.owner?.vehicleOwnerId,
+          tripVehicleRegNo: maskedRegNo,
+          tripPricingMode: pricingMode,
+          tripDistance: distance,
+          tripRoomType: roomType,
+          tripVehicleCost: vehicleCost,
+          tripResortCost: resortCost,
+          tripTotalCost: totalCost,
+          tripPerHeadCost: perHeadCost,
         }),
       });
 
@@ -249,9 +266,16 @@ Per Head Cost: ${formatCurrency(perHeadCost)}
         throw new Error(error?.error ?? "Could not save lead");
       }
 
-      const result = (await response.json()) as { leadId: string };
-      setNotice(`Lead ${result.leadId} saved. Opening WhatsApp.`);
-      window.location.href = buildWhatsAppUrl(leadMessage);
+      const result = (await response.json()) as { leadId: string; bookingId?: string };
+      const messageWithBookingId = result.bookingId
+        ? `Booking ID: ${result.bookingId}\n\n${leadMessage}`
+        : leadMessage;
+      setNotice(
+        result.bookingId
+          ? `Booking ${result.bookingId} created. Opening WhatsApp.`
+          : `Lead ${result.leadId} saved. Opening WhatsApp.`,
+      );
+      window.location.href = buildWhatsAppUrl(messageWithBookingId);
     } catch (error) {
       setNotice(
         error instanceof Error

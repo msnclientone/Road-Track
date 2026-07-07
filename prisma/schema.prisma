@@ -121,6 +121,7 @@ model Resort {
   availableNonAcRooms Int           @default(0)
   googleMapsLink      String?
   bookings            Booking[]
+  tripBookings        TripBooking[] @relation("ResortTripBookings")
   bucketItems         BucketItem[]
   enquiries           Enquiry[]
   destination         Destination   @relation(fields: [destinationId], references: [id], onDelete: Cascade)
@@ -175,6 +176,7 @@ model Vehicle {
   updatedAt         DateTime           @updatedAt
   ownerCanEditPrice Boolean            @default(false)
   bookings          Booking[]
+  tripBookings      TripBooking[] @relation("VehicleTripBookings")
   bucketItems       BucketItem[]
   enquiries         Enquiry[]
   reviews           Review[]
@@ -233,6 +235,7 @@ model Enquiry {
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
   bookings          Booking[]
+  tripBooking       TripBooking?
   assignedResort    Resort?       @relation(fields: [assignedResortId], references: [id])
   assignedVehicle   Vehicle?      @relation(fields: [assignedVehicleId], references: [id])
   customer          User?         @relation(fields: [customerId], references: [id])
@@ -372,6 +375,54 @@ model AuditLog {
 
   @@index([userId, createdAt])
   @@index([entityType, entityId])
+}
+
+model TripBooking {
+  id                 String   @id @default(cuid())
+  bookingId          String   @unique
+  customerName       String
+  customerPhone      String
+  destinationName    String?
+  checkIn            DateTime?
+  checkOut           DateTime?
+  numDays            Int?
+  numNights          Int?
+  numPeople          Int?
+  selectedResortId   String?
+  selectedVehicleId  String?
+  vehicleRegNo       String?
+  vehicleOwnerId     String?
+  resortOwnerId      String?
+  pricingMode        String?
+  distance           String?
+  roomType           String?
+  vehicleCost        Int?
+  resortCost         Int?
+  totalCost          Int?
+  perHeadCost        Int?
+  status             TripBookingStatus @default(NEW)
+  enquiryId          String?   @unique
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  selectedResort    Resort?    @relation("ResortTripBookings", fields: [selectedResortId], references: [id])
+  selectedVehicle   Vehicle?   @relation("VehicleTripBookings", fields: [selectedVehicleId], references: [id])
+  enquiry           Enquiry?   @relation(fields: [enquiryId], references: [id])
+
+  @@index([bookingId])
+  @@index([status, createdAt])
+  @@index([customerPhone])
+  @@index([selectedResortId])
+  @@index([selectedVehicleId])
+  @@index([enquiryId])
+}
+
+enum TripBookingStatus {
+  NEW
+  CONTACTED
+  CONFIRMED
+  COMPLETED
+  CANCELLED
 }
 
 model NearbyPlace {
