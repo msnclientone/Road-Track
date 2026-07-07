@@ -19,6 +19,11 @@ export async function GET(request: NextRequest) {
             id: true,
             name: true,
             ownerId: true,
+            priceMin: true,
+            priceMax: true,
+            destination: {
+              select: { name: true },
+            },
             owner: {
               select: {
                 name: true,
@@ -35,6 +40,13 @@ export async function GET(request: NextRequest) {
             vehicleType: true,
             registrationNo: true,
             ownerId: true,
+            pricePerDay: true,
+            pricePerKm: true,
+            minimumPrice: true,
+            minimumKm: true,
+            destination: {
+              select: { name: true },
+            },
             owner: {
               select: {
                 name: true,

@@ -38,6 +38,9 @@ type Booking = {
     id: string;
     name: string;
     ownerId: string | null;
+    priceMin: number;
+    priceMax: number;
+    destination: { name: string } | null;
     owner: BookingOwner | null;
   } | null;
   selectedVehicle: {
@@ -45,6 +48,11 @@ type Booking = {
     vehicleType: string;
     registrationNo: string | null;
     ownerId: string | null;
+    pricePerDay: number | null;
+    pricePerKm: number | null;
+    minimumPrice: number | null;
+    minimumKm: number | null;
+    destination: { name: string } | null;
     owner: BookingOwner | null;
   } | null;
 };
@@ -283,6 +291,14 @@ export default function AdminBookings() {
                     <span className="font-semibold">{selectedBooking.numPeople ?? "—"}</span>
                   </div>
                   <div className="flex justify-between">
+                    <span className="text-stone">Days</span>
+                    <span className="font-semibold">{selectedBooking.numDays ?? "—"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-stone">Nights</span>
+                    <span className="font-semibold">{selectedBooking.numNights ?? "—"}</span>
+                  </div>
+                  <div className="flex justify-between">
                     <span className="text-stone">Distance</span>
                     <span className="font-semibold">{selectedBooking.distance ? `${selectedBooking.distance} KM` : "—"}</span>
                   </div>
@@ -327,31 +343,55 @@ export default function AdminBookings() {
 
               {selectedBooking.selectedVehicle && (
                 <section>
-                  <h4 className="text-base font-black text-stone">Vehicle Information</h4>
+                  <h4 className="text-base font-black text-stone">Vehicle Details</h4>
                   <div className="mt-2 grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-stone">Vehicle Type</span>
+                      <span className="text-stone">Vehicle Name / Type</span>
                       <span className="font-semibold">{selectedBooking.selectedVehicle.vehicleType}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-stone">Vehicle Registration</span>
-                      <span className="font-semibold">{selectedBooking.vehicleRegNo || "—"}</span>
+                      <span className="text-stone">Vehicle Registration Number</span>
+                      <span className="font-semibold">{selectedBooking.selectedVehicle.registrationNo || "—"}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-stone">Vehicle Owner ID</span>
-                      <span className="font-mono font-semibold">{selectedBooking.vehicleOwnerId || "—"}</span>
+                      <span className="font-mono font-semibold">{selectedBooking.selectedVehicle.owner?.vehicleOwnerId ?? selectedBooking.vehicleOwnerId ?? "—"}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-stone">Owner Name</span>
+                      <span className="text-stone">Vehicle Owner Name</span>
                       <span className="font-semibold">{selectedBooking.selectedVehicle.owner?.name ?? "—"}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-stone">Owner Phone</span>
+                      <span className="text-stone">Vehicle Owner Phone</span>
                       <span className="font-semibold">{selectedBooking.selectedVehicle.owner?.phone ?? "—"}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-stone">Owner Email</span>
+                      <span className="text-stone">Vehicle Owner Email</span>
                       <span className="font-semibold">{selectedBooking.selectedVehicle.owner?.email ?? "—"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-stone">Destination</span>
+                      <span className="font-semibold">{selectedBooking.selectedVehicle.destination?.name || "—"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-stone">Current Vehicle Price</span>
+                      <span className="font-semibold">
+                        {selectedBooking.selectedVehicle.pricePerDay != null && selectedBooking.selectedVehicle.pricePerKm != null
+                          ? `${formatCurrency(selectedBooking.selectedVehicle.pricePerDay)} / day • ${formatCurrency(selectedBooking.selectedVehicle.pricePerKm)} / km`
+                          : selectedBooking.selectedVehicle.pricePerDay != null
+                            ? `${formatCurrency(selectedBooking.selectedVehicle.pricePerDay)} / day`
+                            : selectedBooking.selectedVehicle.pricePerKm != null
+                              ? `${formatCurrency(selectedBooking.selectedVehicle.pricePerKm)} / km`
+                              : "—"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-stone">Minimum Charge</span>
+                      <span className="font-semibold">{formatCurrency(selectedBooking.selectedVehicle.minimumPrice)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-stone">Minimum Distance</span>
+                      <span className="font-semibold">{selectedBooking.selectedVehicle.minimumKm != null ? `${selectedBooking.selectedVehicle.minimumKm} KM` : "—"}</span>
                     </div>
                   </div>
                 </section>
@@ -359,7 +399,7 @@ export default function AdminBookings() {
 
               {selectedBooking.selectedResort && (
                 <section>
-                  <h4 className="text-base font-black text-stone">Resort Information</h4>
+                  <h4 className="text-base font-black text-stone">Resort Details</h4>
                   <div className="mt-2 grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
                     <div className="flex justify-between">
                       <span className="text-stone">Resort Name</span>
@@ -367,19 +407,31 @@ export default function AdminBookings() {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-stone">Resort Owner ID</span>
-                      <span className="font-mono font-semibold">{selectedBooking.resortOwnerId || "—"}</span>
+                      <span className="font-mono font-semibold">{selectedBooking.selectedResort.owner?.resortOwnerId ?? selectedBooking.resortOwnerId ?? "—"}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-stone">Owner Name</span>
+                      <span className="text-stone">Resort Owner Name</span>
                       <span className="font-semibold">{selectedBooking.selectedResort.owner?.name ?? "—"}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-stone">Owner Phone</span>
+                      <span className="text-stone">Resort Owner Phone</span>
                       <span className="font-semibold">{selectedBooking.selectedResort.owner?.phone ?? "—"}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-stone">Owner Email</span>
+                      <span className="text-stone">Resort Owner Email</span>
                       <span className="font-semibold">{selectedBooking.selectedResort.owner?.email ?? "—"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-stone">Destination</span>
+                      <span className="font-semibold">{selectedBooking.selectedResort.destination?.name || "—"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-stone">AC Room Price</span>
+                      <span className="font-semibold">{formatCurrency(selectedBooking.selectedResort.priceMax)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-stone">Non-AC Room Price</span>
+                      <span className="font-semibold">{formatCurrency(selectedBooking.selectedResort.priceMin)}</span>
                     </div>
                   </div>
                 </section>
