@@ -61,7 +61,6 @@ export default async function ResortOwnerDashboardPage() {
         },
         media: {
           orderBy: { order: "asc" },
-          take: 1,
         },
         rooms: {
           orderBy: { pricePerNight: "asc" },
@@ -135,6 +134,7 @@ export default async function ResortOwnerDashboardPage() {
                 priceMax: resort.priceMax,
                 availableAcRooms: resort.availableAcRooms,
                 availableNonAcRooms: resort.availableNonAcRooms,
+                media: resort.media,
                 imageUrl: resort.media[0]?.url ?? null,
                 status: resort.status,
               }))} />

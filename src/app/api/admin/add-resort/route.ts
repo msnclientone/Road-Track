@@ -37,6 +37,7 @@ export async function POST(request: Request) {
       amenities,
       destinationId,
       imageUrl,
+      additionalImageUrls,
       googleMapsLink,
       nonAcPrice,
       acPrice,
@@ -143,14 +144,18 @@ export async function POST(request: Request) {
         },
       });
 
-      if (resolvedImageUrl) {
-        await tx.resortMedia.create({
-          data: {
+      const allImageUrls: string[] = [];
+      if (resolvedImageUrl) allImageUrls.push(resolvedImageUrl);
+      if (additionalImageUrls) allImageUrls.push(...additionalImageUrls);
+
+      if (allImageUrls.length > 0) {
+        await tx.resortMedia.createMany({
+          data: allImageUrls.map((url, index) => ({
             resortId: resort.id,
-            url: resolvedImageUrl,
+            url,
             type: "PHOTO",
-            order: 0,
-          },
+            order: index,
+          })),
         });
       }
 

@@ -21,6 +21,7 @@ export async function POST(request: Request) {
   destinationId,
   destinationSlug,
   imageUrl,
+  additionalImageUrls,
   googleMapsLink,
 } = body as any;
 
@@ -147,19 +148,22 @@ const nameFromSlug = slugValue
     },
     media: {
       orderBy: { order: "asc" },
-      take: 1,
     },
   },
 });
 
-if (resolvedImageUrl) {
-  await prisma.resortMedia.create({
-    data: {
+const allImageUrls: string[] = [];
+if (resolvedImageUrl) allImageUrls.push(resolvedImageUrl);
+if (Array.isArray(additionalImageUrls)) allImageUrls.push(...additionalImageUrls.filter(Boolean));
+
+if (allImageUrls.length > 0) {
+  await prisma.resortMedia.createMany({
+    data: allImageUrls.map((url, index) => ({
       resortId: resort.id,
-      url: resolvedImageUrl,
+      url,
       type: "PHOTO",
-      order: 0,
-    },
+      order: index,
+    })),
   });
 }
 

@@ -24,6 +24,7 @@ export default function AdminAddResort({ destinationOptions }: Props) {
   const [amenities, setAmenities] = useState("");
   const [destinationId, setDestinationId] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [additionalImageUrls, setAdditionalImageUrls] = useState<string[]>(["", "", "", "", ""]);
   const [imageUrlError, setImageUrlError] = useState<string | null>(null);
   const [googleMapsLink, setGoogleMapsLink] = useState("");
   const [loading, setLoading] = useState(false);
@@ -47,6 +48,7 @@ export default function AdminAddResort({ destinationOptions }: Props) {
     setAmenities("");
     setDestinationId("");
     setImageUrl("");
+    setAdditionalImageUrls(["", "", "", "", ""]);
     setGoogleMapsLink("");
   }
 
@@ -73,6 +75,30 @@ export default function AdminAddResort({ destinationOptions }: Props) {
       }
     }
 
+    const resolvedAdditionalUrls = await Promise.all(
+      additionalImageUrls.map(async (url) => {
+        if (!url.trim()) return null;
+        let resolved = url;
+        if (isGoogleDriveUrl(url)) {
+          resolved = convertToDirectImageUrl(url);
+          const accessible = await verifyImageAccessible(resolved);
+          if (!accessible) return { error: `Additional image is not publicly accessible: ${url}` };
+        } else if (!isValidImageUrl(url)) {
+          return { error: `Invalid additional image URL: ${url}` };
+        }
+        return resolved;
+      })
+    );
+
+    const additionalErrors = resolvedAdditionalUrls.filter((r): r is { error: string } => r !== null && typeof r === "object" && "error" in r);
+    if (additionalErrors.length > 0) {
+      setError(additionalErrors[0].error);
+      setLoading(false);
+      return;
+    }
+
+    const validAdditionalUrls = resolvedAdditionalUrls.filter((r): r is string => typeof r === "string");
+
     try {
       const res = await fetch("/api/admin/add-resort", {
         method: "POST",
@@ -90,6 +116,7 @@ export default function AdminAddResort({ destinationOptions }: Props) {
           amenities,
           destinationId,
           imageUrl: resolvedImageUrl || undefined,
+          additionalImageUrls: validAdditionalUrls.length > 0 ? validAdditionalUrls : undefined,
           googleMapsLink,
         }),
       });
@@ -270,7 +297,7 @@ export default function AdminAddResort({ destinationOptions }: Props) {
               </label>
 
               <label className="grid gap-1.5 text-sm font-black">
-                Image URL
+                Image URL (Primary)
                 <input
                   placeholder="https://example.com/resort-image.jpg"
                   value={imageUrl}
@@ -284,6 +311,40 @@ export default function AdminAddResort({ destinationOptions }: Props) {
                   <p className="text-xs font-semibold text-coral">{imageUrlError}</p>
                 ) : null}
               </label>
+
+              <div className="grid gap-3">
+                <p className="text-sm font-black text-stone">Additional Images (up to 5)</p>
+                {additionalImageUrls.map((url, index) => (
+                  <label key={index} className="grid gap-1.5 text-sm font-black">
+                    Image {index + 2}
+                    <div className="flex gap-2">
+                      <input
+                        placeholder="https://example.com/additional-image.jpg"
+                        value={url}
+                        onChange={(e) => {
+                          const next = [...additionalImageUrls];
+                          next[index] = e.target.value;
+                          setAdditionalImageUrls(next);
+                        }}
+                        className="h-11 flex-1 rounded-md border border-ink/15 bg-white px-3 text-base outline-none focus:border-coral"
+                      />
+                      {url.trim() && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const next = [...additionalImageUrls];
+                            next[index] = "";
+                            setAdditionalImageUrls(next);
+                          }}
+                          className="h-11 rounded-md border border-coral/30 px-3 text-sm font-bold text-coral hover:bg-coral/10"
+                        >
+                          Clear
+                        </button>
+                      )}
+                    </div>
+                  </label>
+                ))}
+              </div>
 
               <label className="grid gap-1.5 text-sm font-black">
                 Google Maps Location Link

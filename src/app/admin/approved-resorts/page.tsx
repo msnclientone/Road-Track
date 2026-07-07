@@ -1,4 +1,5 @@
 import AdminDeleteResortButton from "@/components/AdminDeleteResortButton";
+import AdminResortImageEditor from "@/components/AdminResortImageEditor";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -20,7 +21,6 @@ export default async function ApprovedResortsPage() {
       destination: true,
       media: {
         orderBy: { order: "asc" },
-        take: 1,
       },
     },
   });
@@ -108,6 +108,11 @@ export default async function ApprovedResortsPage() {
                   >
                     View
                   </Link>
+
+                  <AdminResortImageEditor
+                    resortId={resort.id}
+                    initialMedia={resort.media}
+                  />
 
                   <AdminDeleteResortButton
   resortId={resort.id}

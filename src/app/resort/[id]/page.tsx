@@ -7,7 +7,7 @@ import { buildWhatsAppUrl, formatCurrency } from "@/lib/utils";
 import { getSession } from "@/lib/auth/session";
 import { getSessionUser } from "@/lib/auth/get-session-user";
 import AddToBucketButton from "@/components/AddToBucketButton";
-import SafeResortImage from "@/components/SafeResortImage";
+import ResortImageGallery from "@/components/ResortImageGallery";
 
 export async function generateStaticParams() {
   const resorts = await prisma.resort.findMany({
@@ -55,7 +55,6 @@ export default async function ResortDetailPage({
       },
       media: {
         orderBy: { order: "asc" },
-        take: 1,
       },
     },
   });
@@ -113,14 +112,11 @@ export default async function ResortDetailPage({
             )}
 
             {/* Image Gallery */}
-            <div className="mt-6 overflow-hidden rounded-lg sm:mt-8">
-              <div className="relative aspect-video">
-                <SafeResortImage
-                  media={resort.media}
-                  name={resort.name}
-                  priority
-                />
-              </div>
+            <div className="mt-6 sm:mt-8">
+              <ResortImageGallery
+                media={resort.media}
+                name={resort.name}
+              />
             </div>
 
             {/* Description */}

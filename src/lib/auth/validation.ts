@@ -95,6 +95,7 @@ export const addResortOwnerSchema = z.object({
   amenities: z.string().trim().optional(),
   destinationId: z.string().min(1, "Destination is required."),
   imageUrl: z.string().url().optional().or(z.literal("")),
+  additionalImageUrls: z.array(z.string().url()).max(5).optional(),
   googleMapsLink: z.string().url().optional().or(z.literal("")),
   nonAcPrice: z.coerce.number().int().min(0).optional(),
   acPrice: z.coerce.number().int().min(0).optional(),
