@@ -29,6 +29,7 @@ export async function POST(request: Request) {
     const {
       ownerName,
       ownerPhone,
+      existingOwnerId,
       name,
       description,
       address,
@@ -99,21 +100,68 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid destination." }, { status: 400 });
     }
 
-    // Generate unique ID and temp password for the owner
-    const resortOwnerId = await generateResortOwnerId();
-    const tempPassword = generateTemporaryPassword();
-    const passwordHash = await hashPassword(tempPassword);
+    let tempPassword: string | null = null;
 
-    // Generate a unique email placeholder for the auto-created owner
-    const ownerEmail = `${resortOwnerId.toLowerCase()}@roadtrack.internal`;
-
-    // Create the owner account and resort in a transaction
     const result = await prisma.$transaction(async (tx) => {
+      if (existingOwnerId) {
+        const existingOwner = await tx.user.findUnique({
+          where: { id: existingOwnerId },
+          select: { id: true },
+        });
+        if (!existingOwner) {
+          throw new Error("Selected owner not found.");
+        }
+
+        const resort = await tx.resort.create({
+          data: {
+            ownerId: existingOwner.id,
+            destinationId: finalDestinationId,
+            name,
+            slug,
+            description,
+            address: address ?? null,
+            googleMapsLink: googleMapsLink || null,
+            priceMin: nonAcPrice ?? 0,
+            priceMax: acPrice ?? 0,
+            availableAcRooms: Number(acRooms),
+            availableNonAcRooms: Number(nonAcRooms),
+            amenities: amenitiesArray,
+            status: "APPROVED",
+          },
+          include: {
+            destination: { select: { name: true } },
+          },
+        });
+
+        const allImageUrls: string[] = [];
+        if (resolvedImageUrl) allImageUrls.push(resolvedImageUrl);
+        if (additionalImageUrls) allImageUrls.push(...additionalImageUrls);
+
+        if (allImageUrls.length > 0) {
+          await tx.resortMedia.createMany({
+            data: allImageUrls.map((url, index) => ({
+              resortId: resort.id,
+              url,
+              type: "PHOTO",
+              order: index,
+            })),
+          });
+        }
+
+        return { resort, owner: null as any };
+      }
+
+      const resortOwnerId = await generateResortOwnerId();
+      const pwd = generateTemporaryPassword();
+      tempPassword = pwd;
+      const passwordHash = await hashPassword(pwd);
+      const ownerEmail = `${resortOwnerId.toLowerCase()}@roadtrack.internal`;
+
       const owner = await tx.user.create({
         data: {
           email: ownerEmail,
-          name: ownerName.trim(),
-          phone: ownerPhone,
+          name: ownerName!.trim(),
+          phone: ownerPhone!,
           passwordHash,
           role: "RESORT_OWNER",
           partnerStatus: "APPROVED",
@@ -159,13 +207,13 @@ export async function POST(request: Request) {
         });
       }
 
-      return { owner, resort };
+      return { resort, owner };
     });
 
     return NextResponse.json({
       ok: true,
       resort: result.resort,
-      resortOwnerId: result.owner.resortOwnerId,
+      resortOwnerId: result.owner?.resortOwnerId ?? null,
       tempPassword,
     });
   } catch (error) {

@@ -74,8 +74,9 @@ export const vehicleCreateSchema = z.object({
 export const vehicleUpdateSchema = vehicleCreateSchema.partial();
 
 export const addVehicleOwnerSchema = z.object({
-  ownerName: z.string().trim().min(1, "Owner name is required.").max(120),
-  ownerPhone: z.string().trim().regex(INDIAN_PHONE_REGEX, "Enter a valid 10-digit phone number."),
+  ownerName: z.string().trim().min(1, "Owner name is required.").max(120).optional(),
+  ownerPhone: z.string().trim().regex(INDIAN_PHONE_REGEX, "Enter a valid 10-digit phone number.").optional(),
+  existingOwnerId: z.string().optional(),
   vehicleType: z.string().min(1, "Vehicle type is required."),
   seatingCapacity: z.coerce.number().int().min(1),
   registrationNo: z.string().trim().min(1, "Registration number is required.").max(40),
@@ -85,8 +86,9 @@ export const addVehicleOwnerSchema = z.object({
 });
 
 export const addResortOwnerSchema = z.object({
-  ownerName: z.string().trim().min(1, "Owner name is required.").max(120),
-  ownerPhone: z.string().trim().regex(INDIAN_PHONE_REGEX, "Enter a valid 10-digit phone number."),
+  ownerName: z.string().trim().min(1, "Owner name is required.").max(120).optional(),
+  ownerPhone: z.string().trim().regex(INDIAN_PHONE_REGEX, "Enter a valid 10-digit phone number.").optional(),
+  existingOwnerId: z.string().optional(),
   name: z.string().trim().min(1, "Resort name is required.").max(120),
   description: z.string().trim().min(1, "Description is required.").max(2000),
   address: z.string().trim().optional(),

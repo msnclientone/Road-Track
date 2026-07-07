@@ -28,6 +28,7 @@ export async function POST(request: Request) {
     const {
       ownerName,
       ownerPhone,
+      existingOwnerId,
       vehicleType,
       seatingCapacity,
       registrationNo,
@@ -36,21 +37,50 @@ export async function POST(request: Request) {
       pricePerDay,
     } = parsed.data;
 
-    // Generate unique ID and temp password for the owner
-    const vehicleOwnerId = await generateVehicleOwnerId();
-    const tempPassword = generateTemporaryPassword();
-    const passwordHash = await hashPassword(tempPassword);
+    let tempPassword: string | null = null;
 
-    // Generate a unique email placeholder for the auto-created owner
-    const ownerEmail = `${vehicleOwnerId.toLowerCase()}@roadtrack.internal`;
-
-    // Create the owner account in a transaction with the vehicle
     const result = await prisma.$transaction(async (tx) => {
+      if (existingOwnerId) {
+        const existingOwner = await tx.user.findUnique({
+          where: { id: existingOwnerId },
+          select: { id: true, name: true, phone: true },
+        });
+        if (!existingOwner) {
+          throw new Error("Selected owner not found.");
+        }
+
+        const vehicle = await tx.vehicle.create({
+          data: {
+            ownerId: existingOwner.id,
+            vehicleType,
+            seatingCapacity: Number(seatingCapacity),
+            pricePerKm: pricePerKm ?? null,
+            pricePerDay: pricePerDay ?? null,
+            driverName: existingOwner.name ?? "",
+            driverPhone: existingOwner.phone ?? "",
+            registrationNo: registrationNo?.toUpperCase() || null,
+            destinationId: destinationId || null,
+            status: "APPROVED",
+          },
+          include: {
+            destination: { select: { name: true } },
+          },
+        });
+
+        return { vehicle, owner: null as any };
+      }
+
+      const vehicleOwnerId = await generateVehicleOwnerId();
+      const pwd = generateTemporaryPassword();
+      tempPassword = pwd;
+      const passwordHash = await hashPassword(pwd);
+      const ownerEmail = `${vehicleOwnerId.toLowerCase()}@roadtrack.internal`;
+
       const owner = await tx.user.create({
         data: {
           email: ownerEmail,
-          name: ownerName.trim(),
-          phone: ownerPhone,
+          name: ownerName!.trim(),
+          phone: ownerPhone!,
           passwordHash,
           role: "VEHICLE_OWNER",
           partnerStatus: "APPROVED",
@@ -67,8 +97,8 @@ export async function POST(request: Request) {
           seatingCapacity: Number(seatingCapacity),
           pricePerKm: pricePerKm ?? null,
           pricePerDay: pricePerDay ?? null,
-          driverName: ownerName.trim(),
-          driverPhone: ownerPhone,
+          driverName: ownerName!.trim(),
+          driverPhone: ownerPhone!,
           registrationNo: registrationNo?.toUpperCase() || null,
           destinationId: destinationId || null,
           status: "APPROVED",
@@ -78,13 +108,13 @@ export async function POST(request: Request) {
         },
       });
 
-      return { owner, vehicle };
+      return { vehicle, owner };
     });
 
     return NextResponse.json({
       ok: true,
       vehicle: result.vehicle,
-      vehicleOwnerId: result.owner.vehicleOwnerId,
+      vehicleOwnerId: result.owner?.vehicleOwnerId ?? null,
       tempPassword,
     });
   } catch (error) {
