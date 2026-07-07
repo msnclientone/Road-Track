@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { buildWhatsAppUrl, formatCurrency, maskRegistrationNo } from "@/lib/utils";
+import PhoneInput from "@/components/PhoneInput";
 
 type VehicleData = {
   type: "vehicle";
@@ -31,13 +32,18 @@ export default function EnquiryButton(props: Props) {
   const [showModal, setShowModal] = useState(false);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [phoneError, setPhoneError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!name.trim() || !phone.trim()) {
-      setError("Please fill in your name and phone number.");
+    if (!name.trim()) {
+      setError("Please fill in your name.");
+      return;
+    }
+    if (!phone.trim() || phoneError) {
+      setError("Please enter a valid 10-digit phone number.");
       return;
     }
     setSubmitting(true);
@@ -122,17 +128,15 @@ export default function EnquiryButton(props: Props) {
                 />
               </label>
 
-              <label className="grid gap-1.5 text-sm font-black">
-                Phone Number
-                <input
-                  required
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value.replace(/[^0-9+]/g, ""))}
-                  className="h-11 rounded-md border border-ink/15 bg-white px-3 text-base outline-none focus:border-coral"
-                  placeholder="Enter your phone number"
-                />
-              </label>
+              <PhoneInput
+                value={phone}
+                onChange={setPhone}
+                onError={setPhoneError}
+                required
+                label="Phone Number"
+                labelClassName="text-sm font-black"
+                wrapperClassName="grid gap-1.5"
+              />
 
               {error && (
                 <p className="rounded-md bg-coral/15 p-3 text-sm font-bold text-stone">

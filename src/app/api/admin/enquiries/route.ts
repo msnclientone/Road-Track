@@ -7,15 +7,14 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get("search")?.trim() || "";
 
     const where = search
-      ? { enquiryId: { contains: search, mode: "insensitive" as const } }
-      : {};
+      ? {
+          enquiryId: { contains: search, not: null },
+          tripBooking: null,
+        }
+      : { tripBooking: null };
 
     const enquiries = await prisma.enquiry.findMany({
-      where: {
-        ...where,
-        // Only standalone enquiries (not linked to a TripBooking)
-        tripBooking: null,
-      },
+      where,
       orderBy: { createdAt: "desc" },
       include: {
         assignedVehicle: {
@@ -50,7 +49,6 @@ export async function GET(request: NextRequest) {
           },
         },
       },
-      take: 50,
     });
 
     return NextResponse.json({ enquiries });

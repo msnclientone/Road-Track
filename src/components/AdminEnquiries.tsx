@@ -56,11 +56,14 @@ function formatDate(dateStr: string | null): string {
   });
 }
 
+const DISPLAY_LIMIT = 10;
+
 export default function AdminEnquiries() {
   const [allEnquiries, setAllEnquiries] = useState<Enquiry[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showAll, setShowAll] = useState(false);
   const [selectedEnquiry, setSelectedEnquiry] = useState<Enquiry | null>(null);
   const searchRef = useRef<HTMLInputElement>(null);
 
@@ -90,11 +93,17 @@ export default function AdminEnquiries() {
     }
   }, []);
 
+  const isSearchActive = searchQuery.trim().length > 0;
+  const displayEnquiries = isSearchActive || showAll
+    ? allEnquiries
+    : allEnquiries.slice(0, DISPLAY_LIMIT);
+
   useEffect(() => {
     fetchEnquiries();
   }, [fetchEnquiries]);
 
   useEffect(() => {
+    setShowAll(false);
     const timer = setTimeout(() => {
       fetchEnquiries(searchQuery.trim() || undefined);
     }, 300);
@@ -135,7 +144,7 @@ export default function AdminEnquiries() {
         </p>
       )}
 
-      {!loading && !error && allEnquiries.length > 0 && (
+      {!loading && !error && displayEnquiries.length > 0 && (
         <div className="mt-4 overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
@@ -148,7 +157,7 @@ export default function AdminEnquiries() {
               </tr>
             </thead>
             <tbody>
-              {allEnquiries.map((e) => (
+              {displayEnquiries.map((e) => (
                 <tr
                   key={e.id}
                   className="cursor-pointer border-b border-ink/5 transition hover:bg-ink/[0.02]"
@@ -175,6 +184,14 @@ export default function AdminEnquiries() {
               ))}
             </tbody>
           </table>
+          {!isSearchActive && allEnquiries.length > DISPLAY_LIMIT && (
+            <button
+              onClick={() => setShowAll(!showAll)}
+              className="mt-4 text-sm font-bold text-coral hover:underline"
+            >
+              {showAll ? "Show Less" : `View All (${allEnquiries.length})`}
+            </button>
+          )}
         </div>
       )}
 
