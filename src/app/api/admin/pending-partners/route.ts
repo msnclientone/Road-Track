@@ -20,6 +20,8 @@ export async function GET() {
         phone: true,
         role: true,
         partnerStatus: true,
+        vehicleOwnerId: true,
+        resortOwnerId: true,
         createdAt: true,
       },
       orderBy: { createdAt: "asc" },
