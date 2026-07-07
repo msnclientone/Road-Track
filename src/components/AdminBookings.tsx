@@ -40,6 +40,7 @@ type Booking = {
     ownerId: string | null;
     priceMin: number;
     priceMax: number;
+    googleMapsLink: string | null;
     destination: { name: string } | null;
     owner: BookingOwner | null;
   } | null;
@@ -424,6 +425,21 @@ export default function AdminBookings() {
                     <div className="flex justify-between">
                       <span className="text-stone">Destination</span>
                       <span className="font-semibold">{selectedBooking.selectedResort.destination?.name || "—"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-stone">Google Maps Location</span>
+                      <span className="font-semibold">
+                        {selectedBooking.selectedResort.googleMapsLink ? (
+                          <a
+                            href={selectedBooking.selectedResort.googleMapsLink}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-coral hover:underline"
+                          >
+                            Open Google Maps
+                          </a>
+                        ) : "—"}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-stone">AC Room Price</span>

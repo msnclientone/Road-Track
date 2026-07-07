@@ -21,6 +21,7 @@ export async function GET(request: NextRequest) {
             ownerId: true,
             priceMin: true,
             priceMax: true,
+            googleMapsLink: true,
             destination: {
               select: { name: true },
             },
