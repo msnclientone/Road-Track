@@ -4,7 +4,7 @@ import { hashPassword } from "@/lib/auth/password";
 import { getSession } from "@/lib/auth/session";
 import { generateTemporaryPassword } from "@/lib/auth/temp-password";
 import { addResortOwnerSchema } from "@/lib/auth/validation";
-import { isValidImageUrl } from "@/lib/placeholders";
+import { convertToDirectImageUrl, isGoogleDriveUrl, isValidImageUrl } from "@/lib/placeholders";
 import { generateResortOwnerId } from "@/lib/generate-id";
 import { prisma } from "@/lib/prisma";
 
@@ -42,7 +42,11 @@ export async function POST(request: Request) {
       acPrice,
     } = parsed.data;
 
-    if (imageUrl && !isValidImageUrl(imageUrl)) {
+    const resolvedImageUrl = imageUrl && isGoogleDriveUrl(imageUrl)
+      ? convertToDirectImageUrl(imageUrl)
+      : imageUrl;
+
+    if (resolvedImageUrl && !isValidImageUrl(resolvedImageUrl)) {
       return NextResponse.json(
         { error: "Please enter a valid direct image URL. Search engine image links (Bing, Google Images, Yahoo, etc.) are not supported." },
         { status: 400 },
@@ -139,11 +143,11 @@ export async function POST(request: Request) {
         },
       });
 
-      if (imageUrl) {
+      if (resolvedImageUrl) {
         await tx.resortMedia.create({
           data: {
             resortId: resort.id,
-            url: imageUrl,
+            url: resolvedImageUrl,
             type: "PHOTO",
             order: 0,
           },

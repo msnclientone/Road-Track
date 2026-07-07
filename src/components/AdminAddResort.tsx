@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Building2, CheckCircle2, Copy, Loader2, UserPlus } from "lucide-react";
 
 import PhoneInput from "@/components/PhoneInput";
-import { isValidImageUrl } from "@/lib/placeholders";
+import { convertToDirectImageUrl, isGoogleDriveUrl, isValidImageUrl, verifyImageAccessible } from "@/lib/placeholders";
 
 type Props = {
   destinationOptions: { id: string; name: string; slug: string }[];
@@ -56,10 +56,21 @@ export default function AdminAddResort({ destinationOptions }: Props) {
     setError(null);
     setResult(null);
 
-    if (imageUrl && !isValidImageUrl(imageUrl)) {
-      setError("Please enter a valid direct image URL. Search engine image links (Bing, Google Images, Yahoo, etc.) are not supported.");
-      setLoading(false);
-      return;
+    let resolvedImageUrl = imageUrl;
+    if (imageUrl) {
+      if (isGoogleDriveUrl(imageUrl)) {
+        resolvedImageUrl = convertToDirectImageUrl(imageUrl);
+        const accessible = await verifyImageAccessible(resolvedImageUrl);
+        if (!accessible) {
+          setError("This Google Drive image is not publicly accessible. Please make the file public.");
+          setLoading(false);
+          return;
+        }
+      } else if (!isValidImageUrl(imageUrl)) {
+        setError("Please enter a valid direct image URL. Search engine image links (Bing, Google Images, Yahoo, etc.) are not supported.");
+        setLoading(false);
+        return;
+      }
     }
 
     try {
@@ -78,7 +89,7 @@ export default function AdminAddResort({ destinationOptions }: Props) {
           acPrice: acPrice || undefined,
           amenities,
           destinationId,
-          imageUrl: imageUrl || undefined,
+          imageUrl: resolvedImageUrl || undefined,
           googleMapsLink,
         }),
       });

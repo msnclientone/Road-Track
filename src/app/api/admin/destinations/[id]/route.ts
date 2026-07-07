@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth/session";
-import { isValidImageUrl } from "@/lib/placeholders";
+import { convertToDirectImageUrl, isGoogleDriveUrl, isValidImageUrl } from "@/lib/placeholders";
 
 export async function PUT(
   request: NextRequest,
@@ -20,7 +20,12 @@ export async function PUT(
     const body = await request.json();
     console.log("[DESTINATION PUT] Request body:", JSON.stringify(body, null, 2));
 
-    if (body.heroImageUrl && !isValidImageUrl(body.heroImageUrl)) {
+    let heroImageUrl = body.heroImageUrl;
+    if (heroImageUrl && isGoogleDriveUrl(heroImageUrl)) {
+      heroImageUrl = convertToDirectImageUrl(heroImageUrl);
+    }
+
+    if (heroImageUrl && !isValidImageUrl(heroImageUrl)) {
       return NextResponse.json(
         { error: "Please enter a valid direct image URL. Search engine image links (Bing, Google Images, Yahoo, etc.) are not supported." },
         { status: 400 },
@@ -33,7 +38,7 @@ export async function PUT(
         name: body.name,
         slug: body.slug,
         description: body.description,
-        heroImageUrl: typeof body.heroImageUrl === "string" ? body.heroImageUrl || null : null,
+        heroImageUrl: typeof heroImageUrl === "string" ? heroImageUrl || null : null,
         googleMapsLink: typeof body.googleMapsLink === "string" ? body.googleMapsLink || null : null,
         bestTimeToVisit: typeof body.bestTimeToVisit === "string" ? body.bestTimeToVisit || null : null,
         estTripCostMin: body.estTripCostMin > 0 ? body.estTripCostMin : null,

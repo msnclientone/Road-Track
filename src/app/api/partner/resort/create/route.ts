@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/prisma";
-import { isValidImageUrl } from "@/lib/placeholders";
+import { convertToDirectImageUrl, isGoogleDriveUrl, isValidImageUrl } from "@/lib/placeholders";
 
 export async function POST(request: Request) {
   try {
@@ -33,7 +33,11 @@ export async function POST(request: Request) {
     if (typeof destinationId !== "string" || destinationId.trim() === "") {
       return NextResponse.json({ error: "Missing required field: destinationId" }, { status: 400 });
     }
-    if (imageUrl && !isValidImageUrl(imageUrl)) {
+    const resolvedImageUrl = imageUrl && isGoogleDriveUrl(imageUrl)
+      ? convertToDirectImageUrl(imageUrl)
+      : imageUrl;
+
+    if (resolvedImageUrl && !isValidImageUrl(resolvedImageUrl)) {
       return NextResponse.json(
         { error: "Please enter a valid direct image URL. Search engine image links (Bing, Google Images, Yahoo, etc.) are not supported." },
         { status: 400 },
@@ -148,11 +152,11 @@ const nameFromSlug = slugValue
   },
 });
 
-if (imageUrl) {
+if (resolvedImageUrl) {
   await prisma.resortMedia.create({
     data: {
       resortId: resort.id,
-      url: imageUrl,
+      url: resolvedImageUrl,
       type: "PHOTO",
       order: 0,
     },

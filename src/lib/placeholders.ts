@@ -4,6 +4,7 @@ const ALLOWED_IMAGE_HOSTS = new Set([
   "i.ytimg.com",
   "wallpaperaccess.com",
   "imgs.search.brave.com",
+  "drive.google.com",
 ]);
 
 export const PLACEHOLDER_IMAGES = {
@@ -25,6 +26,50 @@ export function getPlaceholderImageUrl(type: string): string {
   return PLACEHOLDER_IMAGES.default;
 }
 
+const GOOGLE_DRIVE_PATTERN =
+  /^https?:\/\/(drive\.google\.com\/file\/d\/([^\/?#&]+)|drive\.google\.com\/(open|uc)\?.*[&\?]id=([^&#]+))/i;
+
+export function extractGoogleDriveFileId(url: string): string | null {
+  try {
+    const u = new URL(url);
+    if (u.hostname !== "drive.google.com") return null;
+
+    const fileMatch = u.pathname.match(/\/file\/d\/([^\/?#&]+)/);
+    if (fileMatch) return fileMatch[1];
+
+    const idParam = u.searchParams.get("id");
+    if (idParam) return idParam;
+
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+export function isGoogleDriveUrl(url: string): boolean {
+  return GOOGLE_DRIVE_PATTERN.test(url.trim());
+}
+
+export function convertGoogleDriveUrl(url: string): string | null {
+  const fileId = extractGoogleDriveFileId(url);
+  if (!fileId) return null;
+  return `https://drive.google.com/uc?export=view&id=${fileId}`;
+}
+
+export function convertToDirectImageUrl(url: string): string {
+  const converted = convertGoogleDriveUrl(url);
+  return converted ?? url;
+}
+
+export function verifyImageAccessible(url: string): Promise<boolean> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(true);
+    img.onerror = () => resolve(false);
+    img.src = url;
+  });
+}
+
 export function isValidImageUrl(url: string): boolean {
   try {
     const parsed = new URL(url);
@@ -43,5 +88,7 @@ export function getListingImageUrl(
   type: "resort" | "vehicle",
 ): string {
   const url = media?.[0]?.url;
-  return url && isValidImageUrl(url) ? url : PLACEHOLDER_IMAGES[type];
+  if (!url) return PLACEHOLDER_IMAGES[type];
+  const directUrl = convertToDirectImageUrl(url);
+  return isValidImageUrl(directUrl) ? directUrl : PLACEHOLDER_IMAGES[type];
 }
