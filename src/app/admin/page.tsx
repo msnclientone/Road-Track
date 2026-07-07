@@ -1,10 +1,5 @@
 import Link from "next/link";
-import DestinationManager from "@/components/DestinationManager";
-import AdminPartnerApprovals from "@/components/AdminPartnerApprovals";
-import AdminResortApprovals from "@/components/AdminResortApprovals";
-import AdminVehicleApprovals from "@/components/AdminVehicleApprovals";
-import AdminAddVehicle from "@/components/AdminAddVehicle";
-import AdminAddResort from "@/components/AdminAddResort";
+import dynamicImport from "next/dynamic";
 
 import { SiteHeader } from "@/components/SiteHeader";
 import { getSessionUser } from "@/lib/auth/get-session-user";
@@ -21,6 +16,30 @@ import {
 
 import { prisma } from "@/lib/prisma";
 import { buildWhatsAppUrl } from "@/lib/utils";
+
+const AdminPartnerApprovals = dynamicImport(() => import("@/components/AdminPartnerApprovals"), {
+  loading: () => <div className="h-48 animate-pulse rounded-xl bg-stone/10" />,
+});
+
+const AdminResortApprovals = dynamicImport(() => import("@/components/AdminResortApprovals"), {
+  loading: () => <div className="h-48 animate-pulse rounded-xl bg-stone/10" />,
+});
+
+const AdminVehicleApprovals = dynamicImport(() => import("@/components/AdminVehicleApprovals"), {
+  loading: () => <div className="h-48 animate-pulse rounded-xl bg-stone/10" />,
+});
+
+const DestinationManager = dynamicImport(() => import("@/components/DestinationManager"), {
+  loading: () => <div className="h-64 animate-pulse rounded-xl bg-stone/10" />,
+});
+
+const AdminAddVehicle = dynamicImport(() => import("@/components/AdminAddVehicle"), {
+  loading: () => <div className="h-64 animate-pulse rounded-xl bg-stone/10" />,
+});
+
+const AdminAddResort = dynamicImport(() => import("@/components/AdminAddResort"), {
+  loading: () => <div className="h-64 animate-pulse rounded-xl bg-stone/10" />,
+});
 
 export const dynamic = "force-dynamic";
 

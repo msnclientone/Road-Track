@@ -1,7 +1,20 @@
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
-import { EnquiryPlanner } from "@/components/EnquiryPlanner";
+import dynamic from "next/dynamic";
 import { getSessionUser } from "@/lib/auth/get-session-user";
+
+const EnquiryPlanner = dynamic(
+  () => import("@/components/EnquiryPlanner").then((mod) => mod.EnquiryPlanner),
+  {
+    loading: () => (
+      <div className="space-y-6">
+        <div className="h-10 w-1/3 animate-pulse rounded-lg bg-stone/20" />
+        <div className="h-64 animate-pulse rounded-xl bg-stone/20" />
+        <div className="h-64 animate-pulse rounded-xl bg-stone/20" />
+      </div>
+    ),
+  }
+);
 
 export default async function PlannerPage() {
   const headerUser = await getSessionUser();

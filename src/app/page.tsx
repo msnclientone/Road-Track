@@ -2,6 +2,7 @@ import ViewLocationButton from "@/components/ViewLocationButton";
 import { prisma } from "@/lib/prisma";
 import Image from "next/image";
 import Link from "next/link";
+import dynamicImport from "next/dynamic";
 import {
   BusFront,
   Building2,
@@ -12,11 +13,25 @@ import {
 } from "lucide-react";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
-import ResortsSection from "@/components/ResortsSection";
-import VehiclesSection from "@/components/VehiclesSection";
 import { heroImage } from "@/lib/data";
 import { buildWhatsAppUrl, formatCurrency } from "@/lib/utils";
 import { getSessionUser } from "@/lib/auth/get-session-user";
+
+const ResortsSection = dynamicImport(() => import("@/components/ResortsSection"), {
+  loading: () => (
+    <div className="flex items-center justify-center py-20">
+      <div className="h-8 w-8 animate-spin rounded-full border-4 border-mint border-t-transparent" />
+    </div>
+  ),
+});
+
+const VehiclesSection = dynamicImport(() => import("@/components/VehiclesSection"), {
+  loading: () => (
+    <div className="flex items-center justify-center py-20">
+      <div className="h-8 w-8 animate-spin rounded-full border-4 border-coral border-t-transparent" />
+    </div>
+  ),
+});
 
 export const dynamic = "force-dynamic";
 

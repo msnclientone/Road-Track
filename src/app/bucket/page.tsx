@@ -1,9 +1,17 @@
 import { redirect } from "next/navigation";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
+import dynamic from "next/dynamic";
 import { getSession } from "@/lib/auth/session";
 import { getSessionUser } from "@/lib/auth/get-session-user";
-import BucketContent from "@/components/BucketContent";
+
+const BucketContent = dynamic(() => import("@/components/BucketContent"), {
+  loading: () => (
+    <div className="flex items-center justify-center py-20">
+      <div className="h-8 w-8 animate-spin rounded-full border-4 border-coral border-t-transparent" />
+    </div>
+  ),
+});
 
 export default async function BucketPage() {
   const session = await getSession();
