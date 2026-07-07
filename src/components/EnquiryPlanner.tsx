@@ -95,6 +95,8 @@ export function EnquiryPlanner() {
     }
   }, [fullDayAvailable, pricingMode]);
 
+  const isPerKmWithoutDistance = vehicleRequired && pricingMode === "perKm" && !distance;
+
   const vehicleCost = useMemo(() => {
     if (!vehicleRequired || !selectedVehicle) return 0;
     if (pricingMode === "perKm") {
@@ -148,7 +150,11 @@ Selected Resort
 Resort Name: ${selectedResort.name}
 Resort ID: ${selectedResort.owner?.resortOwnerId ?? "—"}
 Room Type: ${roomType === "ac" ? "AC" : "Non-AC"}`
-    : "";
+    : resortRequired ? "" : `
+
+----------------------------------------
+
+No Resort Requested`;
 
   const vehicleBlock = vehicleRequired && selectedVehicle
     ? `
@@ -159,8 +165,29 @@ Selected Vehicle
 
 Vehicle Type: ${selectedVehicle.vehicleType}${maskedRegNo ? `\nRegistration: ${maskedRegNo}` : ""}
 Vehicle ID: ${selectedVehicle.owner?.vehicleOwnerId ?? "—"}
-Pricing Mode: ${pricingMode === "perKm" ? "Per KM" : "Full-Day Rental"}${distance ? `\nDistance: ${distance} KM` : ""}`
+Pricing Mode: ${pricingMode === "perKm" ? "Per KM" : "Full-Day Rental"}
+Distance: ${distance ? `${distance} KM` : "Not Provided"}`
     : "";
+
+  const tripDatesBlock = resortRequired
+    ? `
+Check-in: ${checkIn ? formatDateAmPm(checkIn) : "Not set"}
+Check-out: ${checkOut ? formatDateAmPm(checkOut) : "Not set"}
+Days: ${numDays}
+Nights: ${numNights}`
+    : "";
+
+  const costSummaryBlock = isPerKmWithoutDistance
+    ? `
+Vehicle Cost: Will be calculated after the trip
+Resort Cost: ${resortRequired ? formatCurrency(resortCost) : formatCurrency(0)}
+Total Trip Cost: Will be calculated after the trip
+Per Head Cost: Will be calculated after the trip`
+    : `
+Vehicle Cost: ${formatCurrency(vehicleCost)}
+Resort Cost: ${formatCurrency(resortCost)}
+Total Trip Cost: ${formatCurrency(totalCost)}
+Per Head Cost: ${formatCurrency(perHeadCost)}`;
 
   const leadMessage = `
 ROADTRACK TRIP ENQUIRY
@@ -176,21 +203,12 @@ Phone: ${phone}
 
 Trip Details
 
-Destination: ${destinationName || "Not specified"}
-Check-in: ${checkIn ? formatDateAmPm(checkIn) : "Not set"}
-Check-out: ${checkOut ? formatDateAmPm(checkOut) : "Not set"}
-Days: ${numDays}
-Nights: ${numNights}
+Destination: ${destinationName || "Not specified"}${tripDatesBlock}
 People: ${people}${resortBlock}${vehicleBlock}
 
 ----------------------------------------
 
-Cost Summary
-
-Vehicle Cost: ${formatCurrency(vehicleCost)}
-Resort Cost: ${formatCurrency(resortCost)}
-Total Trip Cost: ${formatCurrency(totalCost)}
-Per Head Cost: ${formatCurrency(perHeadCost)}
+Cost Summary${costSummaryBlock}
 `;
 
   async function saveLead(event: FormEvent<HTMLFormElement>) {
@@ -202,7 +220,7 @@ Per Head Cost: ${formatCurrency(perHeadCost)}
       return;
     }
 
-    if (!checkIn || !checkOut) {
+    if (resortRequired && (!checkIn || !checkOut)) {
       setNotice("Select check-in and check-out dates.");
       return;
     }
@@ -212,12 +230,12 @@ Per Head Cost: ${formatCurrency(perHeadCost)}
       return;
     }
 
-    if (vehicleRequired && !distance) {
+    if (vehicleRequired && pricingMode === "fullDay" && !distance) {
       setNotice("Enter the total travel distance.");
       return;
     }
 
-    if (distanceNum < 0) {
+    if (distance && distanceNum < 0) {
       setNotice("Distance must be a positive number.");
       return;
     }
@@ -252,10 +270,10 @@ Per Head Cost: ${formatCurrency(perHeadCost)}
           tripPricingMode: pricingMode,
           tripDistance: distance,
           tripRoomType: roomType,
-          tripVehicleCost: vehicleCost,
+          tripVehicleCost: isPerKmWithoutDistance ? undefined : vehicleCost,
           tripResortCost: resortCost,
-          tripTotalCost: totalCost,
-          tripPerHeadCost: perHeadCost,
+          tripTotalCost: isPerKmWithoutDistance ? undefined : totalCost,
+          tripPerHeadCost: isPerKmWithoutDistance ? undefined : perHeadCost,
         }),
       });
 
