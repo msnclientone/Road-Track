@@ -26,6 +26,23 @@ export const enquirySchema = z.object({
   vehicle: optionalText(80),
   hotel: optionalText(80),
   message: optionalText(2000),
+  tripDestination: z.string().optional(),
+  tripCheckIn: z.string().optional(),
+  tripCheckOut: z.string().optional(),
+  tripDays: z.coerce.number().optional(),
+  tripNights: z.coerce.number().optional(),
+  tripResortId: z.string().optional(),
+  tripResortOwnerId: z.string().optional(),
+  tripVehicleId: z.string().optional(),
+  tripVehicleOwnerId: z.string().optional(),
+  tripVehicleRegNo: z.string().optional(),
+  tripPricingMode: z.string().optional(),
+  tripDistance: z.string().optional(),
+  tripRoomType: z.string().optional(),
+  tripVehicleCost: z.coerce.number().optional(),
+  tripResortCost: z.coerce.number().optional(),
+  tripTotalCost: z.coerce.number().optional(),
+  tripPerHeadCost: z.coerce.number().optional(),
 });
 
 export type EnquiryInput = z.infer<typeof enquirySchema>;
