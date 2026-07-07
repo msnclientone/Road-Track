@@ -5,7 +5,6 @@ import AdminResortApprovals from "@/components/AdminResortApprovals";
 import AdminVehicleApprovals from "@/components/AdminVehicleApprovals";
 import AdminAddVehicle from "@/components/AdminAddVehicle";
 import AdminAddResort from "@/components/AdminAddResort";
-import ResetVisitorCounter from "@/components/ResetVisitorCounter";
 
 import { SiteHeader } from "@/components/SiteHeader";
 import { getSessionUser } from "@/lib/auth/get-session-user";
@@ -32,7 +31,6 @@ export default async function AdminPage() {
   resortCount,
   vehicleCount,
   pendingPartners,
-  analytics,
   destinationOptions,
 ] = await Promise.all([
     prisma.destination.count(),
@@ -56,12 +54,6 @@ export default async function AdminPage() {
         },
       },
     }),
-
-    prisma.websiteAnalytics.findUnique({
-  where: {
-    id: "main",
-  },
-}),
 
     prisma.destination.findMany({
   select: { id: true, name: true, slug: true },
@@ -187,16 +179,6 @@ export default async function AdminPage() {
               value={pendingPartners}
               subtitle="Registered partners"
             />
-            <DashboardCard
-  icon={<Eye className="h-8 w-8" />}
-  title="Website Visitors"
-  value={analytics?.totalViews ?? 0}
-  subtitle="Total website visits"
-/>
-<div className="mt-6">
-  <ResetVisitorCounter />
-</div>
-
           </div>
 
         </section>
