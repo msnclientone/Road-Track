@@ -218,6 +218,7 @@ model Package {
 
 model Enquiry {
   id                String        @id @default(cuid())
+  enquiryId         String?       @unique
   customerId        String?
   customerName      String
   customerPhone     String

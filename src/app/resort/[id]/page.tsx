@@ -3,11 +3,12 @@ import { MapPinned } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { prisma } from "@/lib/prisma";
-import { buildWhatsAppUrl, formatCurrency } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils";
 import { getSession } from "@/lib/auth/session";
 import { getSessionUser } from "@/lib/auth/get-session-user";
 import AddToBucketButton from "@/components/AddToBucketButton";
 import ResortImageGallery from "@/components/ResortImageGallery";
+import EnquiryButton from "@/components/EnquiryButton";
 
 export async function generateStaticParams() {
   const resorts = await prisma.resort.findMany({
@@ -207,16 +208,14 @@ export default async function ResortDetailPage({
                 <AddToBucketButton resortId={resort.id} alreadyInBucket={resortInBucket} />
               )}
 
-              <a
-                href={buildWhatsAppUrl(
-                  `Hello Road Track,\nI'm interested in ${resort.name} in ${resort.destination.name}. Can you provide more details?`
-                )}
-                target="_blank"
-                rel="noreferrer"
-                className="block w-full rounded-lg bg-coral px-4 py-3 text-center font-black text-ink transition hover:bg-coral/90"
-              >
-                Enquire on WhatsApp
-              </a>
+              <EnquiryButton
+                type="resort"
+                resortId={resort.id}
+                resortName={resort.name}
+                destinationName={resort.destination.name}
+                acPrice={resort.priceMax}
+                nonAcPrice={resort.priceMin}
+              />
             </div>
           </aside>
         </div>

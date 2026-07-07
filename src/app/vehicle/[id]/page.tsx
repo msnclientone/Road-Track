@@ -9,6 +9,7 @@ import { buildWhatsAppUrl, formatCurrency, maskRegistrationNo } from "@/lib/util
 import { getSession } from "@/lib/auth/session";
 import { getSessionUser } from "@/lib/auth/get-session-user";
 import AddToBucketButton from "@/components/AddToBucketButton";
+import EnquiryButton from "@/components/EnquiryButton";
 
 export async function generateStaticParams() {
   const vehicles = await prisma.vehicle.findMany({
@@ -258,16 +259,17 @@ Thank you.`
     </>
   )}
 
-  <a
-    href={buildWhatsAppUrl(
-      `Hello Road Track,\nI'm interested in booking a ${vehicle.vehicleType} (${maskedRegNo}). Can you provide details?`
-    )}
-    target="_blank"
-    rel="noreferrer"
-    className="block w-full rounded-lg bg-coral px-4 py-3 text-center font-black text-ink transition hover:bg-coral/90"
-  >
-    Enquire on WhatsApp
-  </a>
+  <EnquiryButton
+    type="vehicle"
+    vehicleId={vehicle.id}
+    vehicleType={vehicle.vehicleType}
+    registrationNo={vehicle.registrationNo ?? ""}
+    destinationName={vehicle.destination?.name ?? null}
+    pricePerKm={vehicle.pricePerKm}
+    pricePerDay={vehicle.pricePerDay}
+    minimumPrice={vehicle.minimumPrice}
+    minimumKm={vehicle.minimumKm}
+  />
 </div>
           </aside>
         </div>

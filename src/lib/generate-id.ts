@@ -23,6 +23,27 @@ export async function generateVehicleOwnerId(): Promise<string> {
   return `${VEHICLE_PREFIX}${String(nextNum).padStart(PAD_LENGTH, "0")}`;
 }
 
+const ENQUIRY_PREFIX = "ROADE";
+const ENQUIRY_PAD_LENGTH = 6;
+
+export async function generateEnquiryId(): Promise<string> {
+  const lastEnquiry = await prisma.enquiry.findFirst({
+    where: { enquiryId: { not: null } },
+    orderBy: { enquiryId: "desc" },
+    select: { enquiryId: true },
+  });
+
+  let nextNum = 1;
+  if (lastEnquiry?.enquiryId) {
+    const match = lastEnquiry.enquiryId.match(/ROADE(\d+)/);
+    if (match) {
+      nextNum = parseInt(match[1], 10) + 1;
+    }
+  }
+
+  return `${ENQUIRY_PREFIX}${String(nextNum).padStart(ENQUIRY_PAD_LENGTH, "0")}`;
+}
+
 export async function generateResortOwnerId(): Promise<string> {
   const lastUser = await prisma.user.findFirst({
     where: { resortOwnerId: { not: null } },

@@ -45,6 +45,10 @@ const AdminBookings = dynamicImport(() => import("@/components/AdminBookings"), 
   loading: () => <div className="h-64 animate-pulse rounded-xl bg-stone/10" />,
 });
 
+const AdminEnquiries = dynamicImport(() => import("@/components/AdminEnquiries"), {
+  loading: () => <div className="h-64 animate-pulse rounded-xl bg-stone/10" />,
+});
+
 export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
@@ -256,6 +260,14 @@ export default async function AdminPage() {
         <section className="mt-12 rounded-3xl border bg-white p-8 shadow-sm">
 
           <AdminBookings />
+
+        </section>
+
+        {/* ENQUIRIES */}
+
+        <section className="mt-12 rounded-3xl border bg-white p-8 shadow-sm">
+
+          <AdminEnquiries />
 
         </section>
               </section>
