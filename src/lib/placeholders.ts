@@ -62,6 +62,14 @@ export function convertToDirectImageUrl(url: string): string {
 }
 
 export function verifyImageAccessible(url: string): Promise<boolean> {
+  // Google Drive URLs cannot be verified via the Image() constructor because
+  // Drive may serve an HTML interstitial (virus scan warning, confirmation page)
+  // instead of the raw image, causing false negatives for valid public files.
+  // The URL format is already validated by isGoogleDriveUrl() and extractGoogleDriveFileId().
+  if (url.includes("drive.google.com")) {
+    return Promise.resolve(true);
+  }
+
   return new Promise((resolve) => {
     const img = new Image();
     img.onload = () => resolve(true);
