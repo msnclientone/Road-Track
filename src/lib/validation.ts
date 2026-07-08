@@ -39,6 +39,8 @@ export const enquirySchema = z.object({
   tripPricingMode: z.string().optional(),
   tripDistance: z.string().optional(),
   tripRoomType: z.string().optional(),
+  tripAcRoomsRequired: z.coerce.number().optional(),
+  tripNonAcRoomsRequired: z.coerce.number().optional(),
   tripVehicleCost: z.coerce.number().optional(),
   tripResortCost: z.coerce.number().optional(),
   tripTotalCost: z.coerce.number().optional(),

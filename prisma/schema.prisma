@@ -398,6 +398,8 @@ model TripBooking {
   pricingMode        String?
   distance           String?
   roomType           String?
+  acRoomsRequired    Int      @default(1)
+  nonAcRoomsRequired Int      @default(0)
   vehicleCost        Int?
   resortCost         Int?
   totalCost          Int?

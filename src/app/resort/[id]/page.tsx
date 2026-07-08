@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/utils";
 import { getSession } from "@/lib/auth/session";
 import { getSessionUser } from "@/lib/auth/get-session-user";
+import { getCurrentActiveReservations } from "@/lib/booking-availability";
 import AddToBucketButton from "@/components/AddToBucketButton";
 import ResortImageGallery from "@/components/ResortImageGallery";
 import EnquiryButton from "@/components/EnquiryButton";
@@ -63,6 +64,10 @@ export default async function ResortDetailPage({
   if (!resort || resort.status !== "APPROVED") {
     notFound();
   }
+
+  const currentReserved = await getCurrentActiveReservations(id);
+  const availableAcDynamic = Math.max(0, resort.availableAcRooms - currentReserved.ac);
+  const availableNonAcDynamic = Math.max(0, resort.availableNonAcRooms - currentReserved.nonAc);
 
   const canSeeLocation =
     session?.role === "SUPER_ADMIN" ||
@@ -155,22 +160,22 @@ export default async function ResortDetailPage({
               </div>
 
               <div className="pt-3 sm:pt-4">
-                <p className="text-sm text-stone">Available AC Rooms</p>
-                <p className="mt-1 font-bold">{resort.availableAcRooms}</p>
-              </div>
-
-              <div className="pt-3 sm:pt-4">
-                <p className="text-sm text-stone">Available Non-AC Rooms</p>
-                <p className="mt-1 font-bold">{resort.availableNonAcRooms}</p>
-              </div>
-
-              <div className="pt-3 sm:pt-4">
-                <p className="text-sm text-stone">Room Pricing</p>
+                <p className="text-sm text-stone">Room Pricing &amp; Availability</p>
                 <p className="mt-1 font-black text-coral">
-                  AC Room: {formatCurrency(resort.priceMax)}
+                  AC Room: {formatCurrency(resort.priceMax)} / night
+                  {" — "}
+                  <span className={availableAcDynamic <= 0 ? "text-red-500" : "text-emerald-600"}>
+                    {availableAcDynamic <= 0 ? "Sold Out" : `${availableAcDynamic} Available`}
+                  </span>
+                  <span className="text-xs text-stone"> (Total: {resort.availableAcRooms})</span>
                 </p>
                 <p className="font-black text-coral">
-                  Non-AC Room: {formatCurrency(resort.priceMin)}
+                  Non-AC Room: {formatCurrency(resort.priceMin)} / night
+                  {" — "}
+                  <span className={availableNonAcDynamic <= 0 ? "text-red-500" : "text-emerald-600"}>
+                    {availableNonAcDynamic <= 0 ? "Sold Out" : `${availableNonAcDynamic} Available`}
+                  </span>
+                  <span className="text-xs text-stone"> (Total: {resort.availableNonAcRooms})</span>
                 </p>
               </div>
 

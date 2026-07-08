@@ -48,6 +48,8 @@ export function EnquiryPlanner() {
   const [distance, setDistance] = useState("");
   const [pricingMode, setPricingMode] = useState<"perKm" | "fullDay">("perKm");
   const [roomType, setRoomType] = useState<"ac" | "nonAc">("ac");
+  const [acRoomsRequired, setAcRoomsRequired] = useState(1);
+  const [nonAcRoomsRequired, setNonAcRoomsRequired] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
   const [notice, setNotice] = useState("");
   const [plannerData, setPlannerData] = useState<any>(null);
@@ -140,6 +142,7 @@ export function EnquiryPlanner() {
       ? maskRegistrationNo(selectedVehicle.registrationNo)
       : "";
 
+  const currentRoomCount = roomType === "ac" ? acRoomsRequired : nonAcRoomsRequired;
   const resortBlock = resortRequired && selectedResort
     ? `
 
@@ -149,7 +152,8 @@ Selected Resort
 
 Resort Name: ${selectedResort.name}
 Resort ID: ${selectedResort.owner?.resortOwnerId ?? "—"}
-Room Type: ${roomType === "ac" ? "AC" : "Non-AC"}`
+Room Type: ${roomType === "ac" ? "AC" : "Non-AC"}
+Rooms Required: ${currentRoomCount}`
     : resortRequired ? "" : `
 
 ----------------------------------------
@@ -220,6 +224,11 @@ Cost Summary${costSummaryBlock}
       return;
     }
 
+    if (resortRequired && selectedResort && acRoomsRequired + nonAcRoomsRequired < 1) {
+      setNotice("At least one room must be required.");
+      return;
+    }
+
     if (resortRequired && (!checkIn || !checkOut)) {
       setNotice("Select check-in and check-out dates.");
       return;
@@ -270,6 +279,8 @@ Cost Summary${costSummaryBlock}
           tripPricingMode: pricingMode,
           tripDistance: distance,
           tripRoomType: roomType,
+          tripAcRoomsRequired: acRoomsRequired,
+          tripNonAcRoomsRequired: nonAcRoomsRequired,
           tripVehicleCost: isPerKmWithoutDistance ? undefined : vehicleCost,
           tripResortCost: resortCost,
           tripTotalCost: isPerKmWithoutDistance ? undefined : totalCost,
@@ -550,49 +561,102 @@ Cost Summary${costSummaryBlock}
                 Room Type — {selectedResort.name}
               </h3>
               <div className="grid gap-3 sm:grid-cols-2">
-                <label
-                  className={`${radioBase} ${
-                    roomType === "ac"
-                      ? "border-coral bg-coral/5"
-                      : "border-ink/10 bg-ivory hover:border-coral/50"
-                  }`}
-                >
+                {(() => {
+                  const acSoldOut = (selectedResort.availableAcRooms ?? 0) <= 0;
+                  return (
+                    <label
+                      className={`${radioBase} ${
+                        acSoldOut
+                          ? "cursor-not-allowed opacity-50"
+                          : roomType === "ac"
+                            ? "border-coral bg-coral/5"
+                            : "border-ink/10 bg-ivory hover:border-coral/50"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="roomType"
+                        value="ac"
+                        checked={roomType === "ac"}
+                        onChange={() => setRoomType("ac")}
+                        disabled={acSoldOut}
+                        className="size-5 accent-coral"
+                      />
+                      <div>
+                        <p className="font-bold">
+                          AC Room{" "}
+                          {acSoldOut && (
+                            <span className="text-red-500">(Sold Out)</span>
+                          )}
+                        </p>
+                        <p className="text-sm text-stone">
+                          {formatCurrency(selectedResort.priceMax)} / night
+                          {" · "}
+                          <span className="font-semibold">Total: {selectedResort.availableAcRooms ?? 0}</span>
+                        </p>
+                      </div>
+                    </label>
+                  );
+                })()}
+                {(() => {
+                  const nonAcSoldOut = (selectedResort.availableNonAcRooms ?? 0) <= 0;
+                  return (
+                    <label
+                      className={`${radioBase} ${
+                        nonAcSoldOut
+                          ? "cursor-not-allowed opacity-50"
+                          : roomType === "nonAc"
+                            ? "border-coral bg-coral/5"
+                            : "border-ink/10 bg-ivory hover:border-coral/50"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="roomType"
+                        value="nonAc"
+                        checked={roomType === "nonAc"}
+                        onChange={() => setRoomType("nonAc")}
+                        disabled={nonAcSoldOut}
+                        className="size-5 accent-coral"
+                      />
+                      <div>
+                        <p className="font-bold">
+                          Non-AC Room{" "}
+                          {nonAcSoldOut && (
+                            <span className="text-red-500">(Sold Out)</span>
+                          )}
+                        </p>
+                        <p className="text-sm text-stone">
+                          {formatCurrency(selectedResort.priceMin)} / night
+                          {" · "}
+                          <span className="font-semibold">Total: {selectedResort.availableNonAcRooms ?? 0}</span>
+                        </p>
+                      </div>
+                    </label>
+                  );
+                })()}
+              </div>
+
+              <div className="mt-4 grid grid-cols-2 gap-3">
+                <label className="grid gap-1.5">
+                  <span className="text-sm font-bold text-stone">AC Rooms Required</span>
                   <input
-                    type="radio"
-                    name="roomType"
-                    value="ac"
-                    checked={roomType === "ac"}
-                    onChange={() => setRoomType("ac")}
-                    className="size-5 accent-coral"
+                    type="number"
+                    min={0}
+                    value={acRoomsRequired}
+                    onChange={(e) => setAcRoomsRequired(Math.max(0, Number(e.target.value)))}
+                    className={inputBase}
                   />
-                  <div>
-                    <p className="font-bold">AC Room</p>
-                    <p className="text-sm text-stone">
-                      {formatCurrency(selectedResort.priceMax)} / night
-                    </p>
-                  </div>
                 </label>
-                <label
-                  className={`${radioBase} ${
-                    roomType === "nonAc"
-                      ? "border-coral bg-coral/5"
-                      : "border-ink/10 bg-ivory hover:border-coral/50"
-                  }`}
-                >
+                <label className="grid gap-1.5">
+                  <span className="text-sm font-bold text-stone">Non-AC Rooms Required</span>
                   <input
-                    type="radio"
-                    name="roomType"
-                    value="nonAc"
-                    checked={roomType === "nonAc"}
-                    onChange={() => setRoomType("nonAc")}
-                    className="size-5 accent-coral"
+                    type="number"
+                    min={0}
+                    value={nonAcRoomsRequired}
+                    onChange={(e) => setNonAcRoomsRequired(Math.max(0, Number(e.target.value)))}
+                    className={inputBase}
                   />
-                  <div>
-                    <p className="font-bold">Non-AC Room</p>
-                    <p className="text-sm text-stone">
-                      {formatCurrency(selectedResort.priceMin)} / night
-                    </p>
-                  </div>
                 </label>
               </div>
             </div>
@@ -683,7 +747,7 @@ Cost Summary${costSummaryBlock}
                       <div className="flex justify-between text-sm">
                         <span className="text-stone">Room Type</span>
                         <span className="font-semibold">
-                          {roomType === "ac" ? "AC" : "Non-AC"}
+                          {roomType === "ac" ? "AC" : "Non-AC"} ({currentRoomCount})
                         </span>
                       </div>
                     </>

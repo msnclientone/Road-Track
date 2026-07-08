@@ -5,6 +5,10 @@ import {
   processConfirmedBooking,
   restoreBookingInventory,
 } from "@/lib/booking-inventory";
+import {
+  getAvailableRooms,
+  hasOverlappingVehicleBooking,
+} from "@/lib/booking-availability";
 
 const VALID_STATUSES = ["NEW", "CONTACTED", "CONFIRMED", "COMPLETED", "CANCELLED"] as const;
 
@@ -53,35 +57,32 @@ export async function PATCH(
         if (booking.inventoryUpdated) return booking;
 
         if (booking.selectedVehicleId && booking.checkIn && booking.checkOut) {
-          const overlapping = await tx.tripBooking.findFirst({
-            where: {
-              selectedVehicleId: booking.selectedVehicleId,
-              status: "CONFIRMED",
-              id: { not: id },
-              checkIn: { lt: booking.checkOut },
-              checkOut: { gt: booking.checkIn },
-            },
-          });
-          if (overlapping) {
+          const isBooked = await hasOverlappingVehicleBooking(
+            booking.selectedVehicleId,
+            booking.checkIn,
+            booking.checkOut,
+            id,
+          );
+          if (isBooked) {
             throw new Error(
               "This vehicle is already booked during the selected dates.",
             );
           }
         }
 
-        if (booking.selectedResortId && booking.roomType) {
-          const resort = await tx.resort.findUniqueOrThrow({
-            where: { id: booking.selectedResortId },
-          });
+        if (booking.selectedResortId && booking.checkIn && booking.checkOut && booking.roomType) {
+          const available = await getAvailableRooms(
+            booking.selectedResortId,
+            booking.checkIn,
+            booking.checkOut,
+          );
           const ac = isAcRoom(booking.roomType);
-          if (ac && resort.availableAcRooms <= 0) {
+          const required = ac ? booking.acRoomsRequired : booking.nonAcRoomsRequired;
+          const avail = ac ? available.ac : available.nonAc;
+          if (avail < required) {
+            const label = ac ? "AC" : "Non-AC";
             throw new Error(
-              "No AC rooms are available for the selected dates.",
-            );
-          }
-          if (!ac && resort.availableNonAcRooms <= 0) {
-            throw new Error(
-              "No Non-AC rooms are available for the selected dates.",
+              `No ${label} rooms are available for the selected dates.`,
             );
           }
         }
@@ -110,9 +111,7 @@ export async function PATCH(
 
         if (booking.inventoryRestored) return booking;
 
-        if (booking.inventoryUpdated) {
-          await restoreBookingInventory(id, tx);
-        }
+        await restoreBookingInventory(id, tx);
 
         return tx.tripBooking.update({
           where: { id },
@@ -136,9 +135,7 @@ export async function PATCH(
 
         if (booking.inventoryRestored) return booking;
 
-        if (booking.inventoryUpdated) {
-          await restoreBookingInventory(id, tx);
-        }
+        await restoreBookingInventory(id, tx);
 
         return tx.tripBooking.update({
           where: { id },
