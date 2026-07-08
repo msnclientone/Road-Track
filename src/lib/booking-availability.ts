@@ -1,10 +1,5 @@
 import { prisma } from "@/lib/prisma";
 
-function isAcRoom(roomType: string | null): boolean {
-  if (!roomType) return false;
-  return /^(AC|A\/C|AIR CONDITIONED)$/i.test(roomType);
-}
-
 export async function getAvailableRooms(
   resortId: string,
   checkIn: Date,
@@ -27,18 +22,15 @@ export async function getAvailableRooms(
       checkIn: { lt: checkOut },
       checkOut: { gt: checkIn },
     },
-    select: { acRoomsRequired: true, nonAcRoomsRequired: true, roomType: true },
+    select: { acRoomsRequired: true, nonAcRoomsRequired: true },
   });
 
   let bookedAc = 0;
   let bookedNonAc = 0;
 
   for (const b of overlapping) {
-    if (isAcRoom(b.roomType)) {
-      bookedAc += b.acRoomsRequired;
-    } else {
-      bookedNonAc += b.nonAcRoomsRequired;
-    }
+    bookedAc += b.acRoomsRequired;
+    bookedNonAc += b.nonAcRoomsRequired;
   }
 
   return {
@@ -80,18 +72,15 @@ export async function getCurrentActiveReservations(
       checkIn: { lte: now },
       checkOut: { gte: now },
     },
-    select: { acRoomsRequired: true, nonAcRoomsRequired: true, roomType: true },
+    select: { acRoomsRequired: true, nonAcRoomsRequired: true },
   });
 
   let bookedAc = 0;
   let bookedNonAc = 0;
 
   for (const b of overlapping) {
-    if (isAcRoom(b.roomType)) {
-      bookedAc += b.acRoomsRequired;
-    } else {
-      bookedNonAc += b.nonAcRoomsRequired;
-    }
+    bookedAc += b.acRoomsRequired;
+    bookedNonAc += b.nonAcRoomsRequired;
   }
 
   return { ac: bookedAc, nonAc: bookedNonAc };

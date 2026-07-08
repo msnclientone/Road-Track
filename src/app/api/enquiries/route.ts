@@ -7,11 +7,6 @@ import { generateBookingId } from "@/lib/booking-id";
 import { getSession } from "@/lib/auth/session";
 import { getAvailableRooms } from "@/lib/booking-availability";
 
-function isAcRoom(roomType: string | null): boolean {
-  if (!roomType) return false;
-  return /^(AC|A\/C|AIR CONDITIONED)$/i.test(roomType);
-}
-
 function parseDate(value: unknown): Date | null {
   if (typeof value !== "string") return null;
   const d = new Date(value);
@@ -78,18 +73,23 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    /* ── Resort room availability check (dynamic) ── */
-    if (resortId && checkIn && checkOut && roomType) {
+    /* ── Resort room availability check (dynamic, both types) ── */
+    if (resortId && checkIn && checkOut) {
       const available = await getAvailableRooms(resortId, checkIn, checkOut);
-      const ac = isAcRoom(roomType);
-      const required = ac ? acRooms : nonAcRooms;
-      const avail = ac ? available.ac : available.nonAc;
 
-      if (required > 0 && avail < required) {
-        const label = ac ? "AC" : "Non-AC";
+      if (acRooms > 0 && available.ac < acRooms) {
         return NextResponse.json(
           {
-            error: `Selected room type (${label}) is not available for these dates. Only ${avail} room(s) remaining, but ${required} requested.`,
+            error: `Only ${available.ac} AC room(s) available for these dates, but ${acRooms} requested.`,
+          },
+          { status: 409 },
+        );
+      }
+
+      if (nonAcRooms > 0 && available.nonAc < nonAcRooms) {
+        return NextResponse.json(
+          {
+            error: `Only ${available.nonAc} Non-AC room(s) available for these dates, but ${nonAcRooms} requested.`,
           },
           { status: 409 },
         );

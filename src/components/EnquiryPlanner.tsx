@@ -1,15 +1,6 @@
 "use client";
 
-import {
-  CalendarDays,
-  Car,
-  Hotel,
-  Loader2,
-  Moon,
-  Send,
-  Sun,
-  Users,
-} from "lucide-react";
+import { CalendarDays, Car, Hotel, Loader2, Moon, Send, Sun, Users, AlertTriangle } from "lucide-react";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -36,6 +27,8 @@ const inputBase =
   "rounded-lg border border-ink/10 px-4 py-3 text-base outline-none transition focus:border-coral";
 const radioBase =
   "flex cursor-pointer items-center gap-3 rounded-lg border p-4 transition";
+const checkboxBase =
+  "flex cursor-pointer items-center gap-3 rounded-lg border p-4 transition";
 
 export function EnquiryPlanner() {
   const [name, setName] = useState("");
@@ -47,12 +40,16 @@ export function EnquiryPlanner() {
   const [resortRequired, setResortRequired] = useState(true);
   const [distance, setDistance] = useState("");
   const [pricingMode, setPricingMode] = useState<"perKm" | "fullDay">("perKm");
-  const [roomType, setRoomType] = useState<"ac" | "nonAc">("ac");
+  const [useAcRoom, setUseAcRoom] = useState(true);
+  const [useNonAcRoom, setUseNonAcRoom] = useState(false);
   const [acRoomsRequired, setAcRoomsRequired] = useState(1);
   const [nonAcRoomsRequired, setNonAcRoomsRequired] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
   const [notice, setNotice] = useState("");
   const [plannerData, setPlannerData] = useState<any>(null);
+  const [dynamicAvail, setDynamicAvail] = useState<{ ac: number; nonAc: number } | null>(null);
+  const [availLoading, setAvailLoading] = useState(false);
+  const [vehicleBooked, setVehicleBooked] = useState(false);
 
   useEffect(() => {
     async function loadPlanner() {
@@ -70,6 +67,36 @@ export function EnquiryPlanner() {
   const selectedVehicle = plannerData?.items?.find(
     (item: any) => item.vehicle
   )?.vehicle;
+
+  const hasDates = checkIn !== null && checkOut !== null;
+
+  useEffect(() => {
+    if (!hasDates) {
+      setDynamicAvail(null);
+      setVehicleBooked(false);
+      setAvailLoading(false);
+      return;
+    }
+    const params = new URLSearchParams();
+    if (selectedResort?.id) params.set("resortId", selectedResort.id);
+    if (selectedVehicle?.id) params.set("vehicleId", selectedVehicle.id);
+    params.set("checkIn", checkIn.toISOString());
+    params.set("checkOut", checkOut.toISOString());
+
+    let cancelled = false;
+    setAvailLoading(true);
+    fetch(`/api/availability?${params}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (cancelled) return;
+        if (data.resort) setDynamicAvail(data.resort);
+        if (data.vehicle) setVehicleBooked(data.vehicle.isBooked);
+      })
+      .finally(() => {
+        if (!cancelled) setAvailLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [selectedResort?.id, selectedVehicle?.id, checkIn, checkOut, hasDates]);
 
   const numDays = useMemo(() => {
     if (!checkIn || !checkOut) return 0;
@@ -119,15 +146,12 @@ export function EnquiryPlanner() {
     vehicleMinPrice,
   ]);
 
-  const roomPrice =
-    roomType === "ac"
-      ? (selectedResort?.priceMax ?? 0)
-      : (selectedResort?.priceMin ?? 0);
-
   const resortCost = useMemo(() => {
     if (!resortRequired || !selectedResort) return 0;
-    return numNights * roomPrice;
-  }, [resortRequired, selectedResort, numNights, roomPrice]);
+    const acCost = useAcRoom ? (acRoomsRequired ?? 0) * (selectedResort.priceMax ?? 0) : 0;
+    const nonAcCost = useNonAcRoom ? (nonAcRoomsRequired ?? 0) * (selectedResort.priceMin ?? 0) : 0;
+    return numNights * (acCost + nonAcCost);
+  }, [resortRequired, selectedResort, numNights, useAcRoom, useNonAcRoom, acRoomsRequired, nonAcRoomsRequired]);
 
   const totalCost = vehicleCost + resortCost;
   const perHeadCost = people > 0 ? Math.ceil(totalCost / people) : 0;
@@ -142,7 +166,6 @@ export function EnquiryPlanner() {
       ? maskRegistrationNo(selectedVehicle.registrationNo)
       : "";
 
-  const currentRoomCount = roomType === "ac" ? acRoomsRequired : nonAcRoomsRequired;
   const resortBlock = resortRequired && selectedResort
     ? `
 
@@ -152,8 +175,8 @@ Selected Resort
 
 Resort Name: ${selectedResort.name}
 Resort ID: ${selectedResort.owner?.resortOwnerId ?? "—"}
-Room Type: ${roomType === "ac" ? "AC" : "Non-AC"}
-Rooms Required: ${currentRoomCount}`
+AC Rooms: ${acRoomsRequired}
+Non-AC Rooms: ${nonAcRoomsRequired}`
     : resortRequired ? "" : `
 
 ----------------------------------------
@@ -278,7 +301,7 @@ Cost Summary${costSummaryBlock}
           tripVehicleRegNo: maskedRegNo,
           tripPricingMode: pricingMode,
           tripDistance: distance,
-          tripRoomType: roomType,
+          tripRoomType: useAcRoom && useNonAcRoom ? "both" : useAcRoom ? "ac" : useNonAcRoom ? "nonAc" : "ac",
           tripAcRoomsRequired: acRoomsRequired,
           tripNonAcRoomsRequired: nonAcRoomsRequired,
           tripVehicleCost: isPerKmWithoutDistance ? undefined : vehicleCost,
@@ -560,104 +583,153 @@ Cost Summary${costSummaryBlock}
                 <Hotel className="h-5 w-5 text-coral" />
                 Room Type — {selectedResort.name}
               </h3>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {(() => {
-                  const acSoldOut = (selectedResort.availableAcRooms ?? 0) <= 0;
-                  return (
-                    <label
-                      className={`${radioBase} ${
-                        acSoldOut
-                          ? "cursor-not-allowed opacity-50"
-                          : roomType === "ac"
-                            ? "border-coral bg-coral/5"
-                            : "border-ink/10 bg-ivory hover:border-coral/50"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="roomType"
-                        value="ac"
-                        checked={roomType === "ac"}
-                        onChange={() => setRoomType("ac")}
-                        disabled={acSoldOut}
-                        className="size-5 accent-coral"
-                      />
-                      <div>
-                        <p className="font-bold">
-                          AC Room{" "}
-                          {acSoldOut && (
-                            <span className="text-red-500">(Sold Out)</span>
-                          )}
-                        </p>
-                        <p className="text-sm text-stone">
-                          {formatCurrency(selectedResort.priceMax)} / night
-                          {" · "}
-                          <span className="font-semibold">Total: {selectedResort.availableAcRooms ?? 0}</span>
-                        </p>
-                      </div>
-                    </label>
-                  );
-                })()}
-                {(() => {
-                  const nonAcSoldOut = (selectedResort.availableNonAcRooms ?? 0) <= 0;
-                  return (
-                    <label
-                      className={`${radioBase} ${
-                        nonAcSoldOut
-                          ? "cursor-not-allowed opacity-50"
-                          : roomType === "nonAc"
-                            ? "border-coral bg-coral/5"
-                            : "border-ink/10 bg-ivory hover:border-coral/50"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="roomType"
-                        value="nonAc"
-                        checked={roomType === "nonAc"}
-                        onChange={() => setRoomType("nonAc")}
-                        disabled={nonAcSoldOut}
-                        className="size-5 accent-coral"
-                      />
-                      <div>
-                        <p className="font-bold">
-                          Non-AC Room{" "}
-                          {nonAcSoldOut && (
-                            <span className="text-red-500">(Sold Out)</span>
-                          )}
-                        </p>
-                        <p className="text-sm text-stone">
-                          {formatCurrency(selectedResort.priceMin)} / night
-                          {" · "}
-                          <span className="font-semibold">Total: {selectedResort.availableNonAcRooms ?? 0}</span>
-                        </p>
-                      </div>
-                    </label>
-                  );
-                })()}
-              </div>
 
-              <div className="mt-4 grid grid-cols-2 gap-3">
-                <label className="grid gap-1.5">
-                  <span className="text-sm font-bold text-stone">AC Rooms Required</span>
-                  <input
-                    type="number"
-                    min={0}
-                    value={acRoomsRequired}
-                    onChange={(e) => setAcRoomsRequired(Math.max(0, Number(e.target.value)))}
-                    className={inputBase}
-                  />
-                </label>
-                <label className="grid gap-1.5">
-                  <span className="text-sm font-bold text-stone">Non-AC Rooms Required</span>
-                  <input
-                    type="number"
-                    min={0}
-                    value={nonAcRoomsRequired}
-                    onChange={(e) => setNonAcRoomsRequired(Math.max(0, Number(e.target.value)))}
-                    className={inputBase}
-                  />
-                </label>
+              {/* Availability summary */}
+              {availLoading && (
+                <p className="mb-3 text-sm text-stone">Checking availability...</p>
+              )}
+              {!availLoading && (
+                <p className="mb-3 text-sm text-stone">
+                  {hasDates && dynamicAvail
+                    ? `Available: ${dynamicAvail.ac} AC · ${dynamicAvail.nonAc} Non-AC`
+                    : `Capacity: ${selectedResort.availableAcRooms ?? 0} AC · ${selectedResort.availableNonAcRooms ?? 0} Non-AC`}
+                </p>
+              )}
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                {/* AC Room checkbox */}
+                {(() => {
+                  const acAvailable = hasDates && dynamicAvail ? dynamicAvail.ac : selectedResort.availableAcRooms ?? 0;
+                  const acSoldOut = acAvailable <= 0;
+                  const acLabel = hasDates && acSoldOut ? "AC Room Sold Out for Selected Dates" : "AC Room";
+                  return (
+                    <div>
+                      <label
+                        className={`${checkboxBase} ${
+                          acSoldOut
+                            ? "cursor-not-allowed opacity-50"
+                            : useAcRoom
+                              ? "border-coral bg-coral/5"
+                              : "border-ink/10 bg-ivory hover:border-coral/50"
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={useAcRoom}
+                          onChange={(e) => {
+                            setUseAcRoom(e.target.checked);
+                            if (!e.target.checked) {
+                              setAcRoomsRequired(0);
+                            } else {
+                              setAcRoomsRequired(1);
+                            }
+                          }}
+                          disabled={acSoldOut}
+                          className="size-5 accent-coral"
+                        />
+                        <div>
+                          <p className="font-bold">{acLabel}</p>
+                          <p className="text-sm text-stone">
+                            {formatCurrency(selectedResort.priceMax)} / night
+                            {" · "}
+                            <span className="font-semibold">
+                              {hasDates ? `Available: ${acAvailable}` : `Capacity: ${selectedResort.availableAcRooms ?? 0} Rooms`}
+                            </span>
+                          </p>
+                        </div>
+                      </label>
+                      <label className="mt-2 grid gap-1.5">
+                        <span className={`text-sm font-bold ${!useAcRoom ? "text-stone/50" : "text-stone"}`}>
+                          AC Rooms
+                        </span>
+                        <input
+                          type="number"
+                          min={useAcRoom ? 1 : 0}
+                          max={useAcRoom ? Math.max(1, acAvailable) : 0}
+                          value={acRoomsRequired}
+                          onChange={(e) => {
+                            const val = Number(e.target.value);
+                            if (useAcRoom) {
+                              setAcRoomsRequired(Math.max(1, Math.min(val, acAvailable)));
+                            }
+                          }}
+                          disabled={!useAcRoom}
+                          className={`${inputBase} ${!useAcRoom ? "opacity-50" : ""}`}
+                        />
+                        {useAcRoom && acRoomsRequired > acAvailable && (
+                          <p className="text-xs text-coral">Max available: {acAvailable}</p>
+                        )}
+                      </label>
+                    </div>
+                  );
+                })()}
+
+                {/* Non-AC Room checkbox */}
+                {(() => {
+                  const nonAcAvailable = hasDates && dynamicAvail ? dynamicAvail.nonAc : selectedResort.availableNonAcRooms ?? 0;
+                  const nonAcSoldOut = nonAcAvailable <= 0;
+                  const nonAcLabel = hasDates && nonAcSoldOut ? "Non-AC Room Sold Out for Selected Dates" : "Non-AC Room";
+                  return (
+                    <div>
+                      <label
+                        className={`${checkboxBase} ${
+                          nonAcSoldOut
+                            ? "cursor-not-allowed opacity-50"
+                            : useNonAcRoom
+                              ? "border-coral bg-coral/5"
+                              : "border-ink/10 bg-ivory hover:border-coral/50"
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={useNonAcRoom}
+                          onChange={(e) => {
+                            setUseNonAcRoom(e.target.checked);
+                            if (!e.target.checked) {
+                              setNonAcRoomsRequired(0);
+                            } else {
+                              setNonAcRoomsRequired(1);
+                            }
+                          }}
+                          disabled={nonAcSoldOut}
+                          className="size-5 accent-coral"
+                        />
+                        <div>
+                          <p className="font-bold">{nonAcLabel}</p>
+                          <p className="text-sm text-stone">
+                            {formatCurrency(selectedResort.priceMin)} / night
+                            {" · "}
+                            <span className="font-semibold">
+                              {hasDates ? `Available: ${nonAcAvailable}` : `Capacity: ${selectedResort.availableNonAcRooms ?? 0} Rooms`}
+                            </span>
+                          </p>
+                        </div>
+                      </label>
+                      <label className="mt-2 grid gap-1.5">
+                        <span className={`text-sm font-bold ${!useNonAcRoom ? "text-stone/50" : "text-stone"}`}>
+                          Non-AC Rooms
+                        </span>
+                        <input
+                          type="number"
+                          min={useNonAcRoom ? 1 : 0}
+                          max={useNonAcRoom ? Math.max(1, nonAcAvailable) : 0}
+                          value={nonAcRoomsRequired}
+                          onChange={(e) => {
+                            const val = Number(e.target.value);
+                            if (useNonAcRoom) {
+                              setNonAcRoomsRequired(Math.max(1, Math.min(val, nonAcAvailable)));
+                            }
+                          }}
+                          disabled={!useNonAcRoom}
+                          className={`${inputBase} ${!useNonAcRoom ? "opacity-50" : ""}`}
+                        />
+                        {useNonAcRoom && nonAcRoomsRequired > nonAcAvailable && (
+                          <p className="text-xs text-coral">Max available: {nonAcAvailable}</p>
+                        )}
+                      </label>
+                    </div>
+                  );
+                })()}
               </div>
             </div>
           )}
@@ -673,7 +745,8 @@ Cost Summary${costSummaryBlock}
           {/* Submit */}
           <button
             type="submit"
-            className="flex h-14 w-full items-center justify-center gap-2 rounded-lg bg-coral text-base font-black text-ink transition hover:bg-coral/90"
+            disabled={vehicleBooked && vehicleRequired && selectedVehicle !== null}
+            className="flex h-14 w-full items-center justify-center gap-2 rounded-lg bg-coral text-base font-black text-ink transition hover:bg-coral/90 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isSaving ? (
               <Loader2 className="h-5 w-5 animate-spin" />
@@ -682,6 +755,24 @@ Cost Summary${costSummaryBlock}
             )}
             Save &amp; Open WhatsApp
           </button>
+
+          {/* Vehicle unavailable message */}
+          {vehicleBooked && vehicleRequired && selectedVehicle && (
+            <div className="mt-4 rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-700">
+              <div className="flex items-start gap-2">
+                <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-red-500" />
+                <div>
+                  <p className="font-bold">Vehicle Unavailable</p>
+                  <p className="mt-1">
+                    This vehicle is already booked from{" "}
+                    <span className="font-semibold">{formatDateAmPm(checkIn)}</span> to{" "}
+                    <span className="font-semibold">{formatDateAmPm(checkOut)}</span>.
+                  </p>
+                  <p className="mt-1">Please choose another vehicle.</p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* RIGHT COLUMN — Live Trip Summary */}
@@ -745,10 +836,12 @@ Cost Summary${costSummaryBlock}
                         </span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-stone">Room Type</span>
-                        <span className="font-semibold">
-                          {roomType === "ac" ? "AC" : "Non-AC"} ({currentRoomCount})
-                        </span>
+                        <span className="text-stone">AC Rooms</span>
+                        <span className="font-semibold">{useAcRoom ? acRoomsRequired : 0}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-stone">Non-AC Rooms</span>
+                        <span className="font-semibold">{useNonAcRoom ? nonAcRoomsRequired : 0}</span>
                       </div>
                     </>
                   )}

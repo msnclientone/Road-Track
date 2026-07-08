@@ -28,6 +28,8 @@ type Booking = {
   pricingMode: string | null;
   distance: string | null;
   roomType: string | null;
+  acRoomsRequired: number;
+  nonAcRoomsRequired: number;
   vehicleCost: number | null;
   resortCost: number | null;
   totalCost: number | null;
@@ -337,12 +339,22 @@ export default function AdminBookings() {
                   <div className="flex justify-between">
                     <span className="text-stone">Room Type</span>
                     <span className="font-semibold">
-                      {selectedBooking.roomType === "ac"
-                        ? "AC"
-                        : selectedBooking.roomType === "nonAc"
-                          ? "Non-AC"
-                          : "—"}
+                      {selectedBooking.roomType === "both"
+                        ? "AC + Non-AC"
+                        : selectedBooking.roomType === "ac"
+                          ? "AC"
+                          : selectedBooking.roomType === "nonAc"
+                            ? "Non-AC"
+                            : "—"}
                     </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-stone">AC Rooms Booked</span>
+                    <span className="font-semibold">{selectedBooking.acRoomsRequired ?? 0}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-stone">Non-AC Rooms Booked</span>
+                    <span className="font-semibold">{selectedBooking.nonAcRoomsRequired ?? 0}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-stone">Vehicle Cost</span>

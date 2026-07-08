@@ -12,10 +12,6 @@ import {
 
 const VALID_STATUSES = ["NEW", "CONTACTED", "CONFIRMED", "COMPLETED", "CANCELLED"] as const;
 
-function isAcRoom(roomType: string): boolean {
-  return /^(AC|A\/C|AIR CONDITIONED)$/i.test(roomType);
-}
-
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
@@ -70,19 +66,22 @@ export async function PATCH(
           }
         }
 
-        if (booking.selectedResortId && booking.checkIn && booking.checkOut && booking.roomType) {
+        if (booking.selectedResortId && booking.checkIn && booking.checkOut) {
           const available = await getAvailableRooms(
             booking.selectedResortId,
             booking.checkIn,
             booking.checkOut,
           );
-          const ac = isAcRoom(booking.roomType);
-          const required = ac ? booking.acRoomsRequired : booking.nonAcRoomsRequired;
-          const avail = ac ? available.ac : available.nonAc;
-          if (avail < required) {
-            const label = ac ? "AC" : "Non-AC";
+
+          if (booking.acRoomsRequired > 0 && available.ac < booking.acRoomsRequired) {
             throw new Error(
-              `No ${label} rooms are available for the selected dates.`,
+              `No AC rooms are available for the selected dates.`,
+            );
+          }
+
+          if (booking.nonAcRoomsRequired > 0 && available.nonAc < booking.nonAcRoomsRequired) {
+            throw new Error(
+              `No Non-AC rooms are available for the selected dates.`,
             );
           }
         }
