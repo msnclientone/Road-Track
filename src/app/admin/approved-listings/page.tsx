@@ -25,10 +25,10 @@ export default async function AdminApprovedListingsPage() {
             <p className="text-sm font-black uppercase tracking-[0.22em] text-coral">
               Admin Panel
             </p>
-            <h1 className="mt-3 text-5xl font-black tracking-tight sm:text-6xl">
+            <h1 className="mt-3 text-5xl max-md:text-3xl font-black tracking-tight sm:text-6xl">
               Approved Listings
             </h1>
-            <p className="mt-4 max-w-3xl text-lg leading-8 text-stone">
+            <p className="mt-4 max-w-3xl text-lg max-md:text-base leading-8 text-stone">
               View all approved resorts and vehicles with owner contact details. These listings are ready for customers to book.
             </p>
           </div>

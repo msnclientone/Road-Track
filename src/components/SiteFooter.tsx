@@ -30,7 +30,7 @@ export function SiteFooter() {
               height={50}
               className="h-14 w-16 rounded-md bg-white object-contain p-1.5"
             />
-            <span className="font-serif text-3xl font-black tracking-tight">
+            <span className="font-serif text-3xl max-md:text-2xl font-black tracking-tight">
               Road Track
             </span>
           </Link>

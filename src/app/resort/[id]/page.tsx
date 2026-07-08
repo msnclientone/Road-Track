@@ -91,7 +91,7 @@ export default async function ResortDetailPage({
             </nav>
 
             {/* Title and Location */}
-            <h1 className="text-3xl font-black tracking-tight sm:text-4xl md:text-5xl lg:text-6xl">
+            <h1 className="text-3xl max-md:text-2xl font-black tracking-tight sm:text-4xl md:text-5xl lg:text-6xl">
               {resort.name}
             </h1>
             {canSeeLocation && (
@@ -131,7 +131,7 @@ export default async function ResortDetailPage({
           </div>
 
           {/* Sidebar */}
-          <aside className="h-fit rounded-lg border border-ink/10 bg-white p-5 shadow-sm sm:p-6 sm:sticky sm:top-28">
+          <aside className="h-fit rounded-lg border border-ink/10 bg-white p-5 max-md:p-4 shadow-sm sm:p-6 sm:sticky sm:top-28">
             <h3 className="text-lg font-black sm:text-xl">Resort Details</h3>
 
             <div className="mt-4 space-y-3 sm:mt-6 sm:space-y-4">

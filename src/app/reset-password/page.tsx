@@ -96,7 +96,7 @@ function ResetPasswordForm({ token }: { token: string }) {
 
   return (
     <form onSubmit={handleSubmit} className="mt-8 grid gap-5">
-      <h1 className="text-4xl font-black">Set new password</h1>
+      <h1 className="text-4xl max-md:text-3xl font-black">Set new password</h1>
       <p className="text-stone">
         Choose a strong password for your Road&nbsp;Track account.
       </p>

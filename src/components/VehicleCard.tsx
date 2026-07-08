@@ -54,10 +54,10 @@ function VehicleCard({
             onError={() => setImgSrc(PLACEHOLDER_IMAGES.vehicle)}
           />
         </div>
-        <div className="flex flex-1 flex-col p-5">
+        <div className="flex flex-1 flex-col p-5 max-md:p-4">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <h3 className="text-2xl font-black">{vehicle.vehicleType}</h3>
+              <h3 className="text-2xl max-md:text-xl font-black">{vehicle.vehicleType}</h3>
               {vehicle.registrationNo && (
                 <p className="mt-1 text-sm font-bold text-stone">
                   {maskRegistrationNo(vehicle.registrationNo)}
@@ -75,13 +75,13 @@ function VehicleCard({
             Driver: {vehicle.driverName}
           </p>
 
-          <div className="mt-5 grid grid-cols-3 gap-3 text-sm">
-            <div className="rounded-lg bg-sky/10 p-3">
+          <div className="mt-5 grid grid-cols-3 gap-3 max-md:gap-2 text-sm">
+            <div className="rounded-lg bg-sky/10 p-3 max-md:p-2">
               <Users className="h-4 w-4" />
               <p className="mt-1 font-black">{vehicle.seatingCapacity}</p>
               <p className="text-xs font-bold text-stone">Seats</p>
             </div>
-            <div className="rounded-lg bg-coral/10 p-3">
+            <div className="rounded-lg bg-coral/10 p-3 max-md:p-2">
               <p className="font-black text-coral">
                 {vehicle.pricePerDay != null
                   ? formatCurrency(vehicle.pricePerDay)
@@ -89,7 +89,7 @@ function VehicleCard({
               </p>
               <p className="text-xs font-bold text-stone">Per Day</p>
             </div>
-            <div className="rounded-md bg-mint/10 p-3">
+            <div className="rounded-md bg-mint/10 p-3 max-md:p-2">
               <p className="font-black text-emerald-700">
                 {vehicle.pricePerKm != null
                   ? formatCurrency(vehicle.pricePerKm)

@@ -91,7 +91,7 @@ export default async function VehicleDetailPage({
             </nav>
 
             {/* Title */}
-            <h1 className="text-3xl font-black tracking-tight sm:text-4xl md:text-5xl lg:text-6xl">
+            <h1 className="text-3xl max-md:text-2xl font-black tracking-tight sm:text-4xl md:text-5xl lg:text-6xl">
               {vehicle.vehicleType}
             </h1>
             <p className="mt-2 font-bold text-base text-stone sm:mt-3 sm:text-lg">
@@ -118,35 +118,35 @@ export default async function VehicleDetailPage({
 
             {/* Vehicle Specs */}
             <div className="mt-6 grid grid-cols-2 gap-3 sm:mt-8 sm:gap-4 md:grid-cols-3">
-              <div className="rounded-lg border border-mint/20 bg-mint/5 p-4">
+              <div className="rounded-lg border border-mint/20 bg-mint/5 p-4 max-md:p-3">
                 <p className="text-sm font-bold text-stone">Type</p>
-                <p className="mt-2 text-2xl font-black">{vehicle.vehicleType}</p>
+                <p className="mt-2 text-2xl max-md:text-xl font-black">{vehicle.vehicleType}</p>
               </div>
 
-              <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4">
+              <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 max-md:p-3">
                 <div className="flex items-center gap-2">
                   <Users className="h-5 w-5 text-emerald-700" />
                   <p className="text-sm font-bold text-stone">Capacity</p>
                 </div>
-                <p className="mt-2 text-2xl font-black">{vehicle.seatingCapacity}</p>
+                <p className="mt-2 text-2xl max-md:text-xl font-black">{vehicle.seatingCapacity}</p>
               </div>
 
-              <div className="rounded-lg border border-sky/20 bg-sky/5 p-4">
+              <div className="rounded-lg border border-sky/20 bg-sky/5 p-4 max-md:p-3">
                 <p className="text-sm font-bold text-stone">Seats</p>
-                <p className="mt-2 text-2xl font-black">{vehicle.seatingCapacity}</p>
+                <p className="mt-2 text-2xl max-md:text-xl font-black">{vehicle.seatingCapacity}</p>
               </div>
 
-              <div className="rounded-lg border border-coral/20 bg-coral/5 p-4">
+              <div className="rounded-lg border border-coral/20 bg-coral/5 p-4 max-md:p-3">
                 <p className="text-sm font-bold text-stone">Registration</p>
-                <p className="mt-2 text-xl font-black text-coral">
+                <p className="mt-2 text-xl max-md:text-lg font-black text-coral">
                   {maskedRegNo}
                 </p>
               </div>
 
               {vehicle.destinationId && (
-                <div className="rounded-lg border border-ink/10 bg-white p-4">
+                <div className="rounded-lg border border-ink/10 bg-white p-4 max-md:p-3">
                   <p className="text-sm font-bold text-stone">Available For</p>
-                  <p className="mt-2 text-lg font-black">
+                  <p className="mt-2 text-lg max-md:text-base font-black">
                     {vehicle.destination?.name || "Various"}
                   </p>
                 </div>
@@ -157,7 +157,7 @@ export default async function VehicleDetailPage({
           </div>
 
           {/* Sidebar */}
-          <aside className="h-fit rounded-lg border border-ink/10 bg-white p-5 shadow-sm sm:p-6 sm:sticky sm:top-28">
+          <aside className="h-fit rounded-lg border border-ink/10 bg-white p-5 max-md:p-4 shadow-sm sm:p-6 sm:sticky sm:top-28">
             <h3 className="text-lg font-black sm:text-xl">Vehicle Details</h3>
 
             <div className="mt-4 space-y-3 sm:mt-6 sm:space-y-4">

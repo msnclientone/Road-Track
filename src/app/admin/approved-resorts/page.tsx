@@ -41,7 +41,7 @@ export default async function ApprovedResortsPage() {
             ← Back to Dashboard
           </Link>
 
-          <h1 className="mt-4 text-5xl font-black">
+          <h1 className="mt-4 text-5xl max-md:text-3xl font-black">
             Approved Resorts
           </h1>
 

@@ -53,7 +53,7 @@ export default function ForgotPasswordPage() {
 
         {!submitted ? (
           <form onSubmit={handleSubmit} className="mt-8 grid gap-5">
-            <h1 className="text-4xl font-black">Forgot password</h1>
+            <h1 className="text-4xl max-md:text-3xl font-black">Forgot password</h1>
             <p className="text-stone">
               Enter the email address associated with your account and we will
               send you a link to reset your password.

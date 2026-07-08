@@ -103,7 +103,7 @@ export default function BucketContent({ showLocation = false }: { showLocation?:
   if (items.length === 0) {
     return (
       <>
-        <div className="mt-8 rounded-lg border bg-white p-6 text-center sm:mt-10 sm:p-8">
+        <div className="mt-8 rounded-lg border bg-white p-6 text-center sm:mt-10 sm:p-8 max-md:p-5">
           <h2 className="text-xl font-black sm:text-2xl">Bucket is Empty</h2>
           <p className="mt-3 text-sm text-stone sm:text-base">
             Browse resorts and vehicles to add them.

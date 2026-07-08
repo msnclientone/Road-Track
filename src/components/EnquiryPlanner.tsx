@@ -313,7 +313,7 @@ Cost Summary${costSummaryBlock}
         </div>
       )}
 
-      <div className="grid gap-8 lg:grid-cols-[2fr_1fr]">
+      <div className="grid gap-8 max-md:gap-6 lg:grid-cols-[2fr_1fr]">
         {/* LEFT COLUMN — Form */}
         <div className="space-y-6">
           {/* Personal Information */}

@@ -591,10 +591,10 @@ export function LoginForm({ portal }: LoginFormProps) {
         <p className="text-sm font-black uppercase tracking-[0.22em] text-coral">
           {config.eyebrow}
         </p>
-        <h1 className="mt-3 text-5xl font-black tracking-tight sm:text-6xl">
+        <h1 className="mt-3 text-5xl max-md:text-3xl font-black tracking-tight sm:text-6xl">
           {config.title}
         </h1>
-        <p className="mt-4 text-lg leading-8 text-stone">{config.description}</p>
+        <p className="mt-4 text-lg max-md:text-base leading-8 text-stone">{config.description}</p>
 
         <div className="mt-8 grid gap-4">
           {(mode === "login"
@@ -676,7 +676,7 @@ export function LoginForm({ portal }: LoginFormProps) {
               <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-coral/10">
                 <Shield className="h-7 w-7 text-coral" />
               </div>
-              <h2 className="text-3xl font-black">Verify Super Admin Login</h2>
+              <h2 className="text-3xl max-md:text-2xl font-black">Verify Super Admin Login</h2>
               <p className="mt-1 text-sm font-semibold text-stone">
                 We've sent a 6-digit verification code to your registered email.
               </p>
@@ -700,7 +700,7 @@ export function LoginForm({ portal }: LoginFormProps) {
                   value={digit}
                   onChange={(e) => handleAdminOtpDigitChange(index, e.target.value)}
                   onKeyDown={(e) => handleAdminOtpKeyDown(index, e)}
-                  className="h-14 w-12 rounded-lg border-2 border-ink/15 text-center text-xl font-black outline-none transition focus:border-coral focus:ring-2 focus:ring-coral/30 sm:w-14"
+                  className="h-14 w-12 rounded-lg border-2 border-ink/15 text-center text-xl font-black outline-none transition focus:border-coral focus:ring-2 focus:ring-coral/30 max-md:w-10 max-md:h-12 sm:w-14"
                   disabled={adminOtpLoading}
                 />
               ))}
@@ -758,7 +758,7 @@ export function LoginForm({ portal }: LoginFormProps) {
               <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-coral/10">
                 <ShieldAlert className="h-7 w-7 text-coral" />
               </div>
-              <h2 className="text-3xl font-black">Second Verification Required</h2>
+              <h2 className="text-3xl max-md:text-2xl font-black">Second Verification Required</h2>
               <p className="mt-1 text-sm font-semibold text-stone">
                 A second security code has been sent to the admin security email.
               </p>
@@ -782,7 +782,7 @@ export function LoginForm({ portal }: LoginFormProps) {
                   value={digit}
                   onChange={(e) => handleSecondOtpDigitChange(index, e.target.value)}
                   onKeyDown={(e) => handleSecondOtpKeyDown(index, e)}
-                  className="h-14 w-12 rounded-lg border-2 border-ink/15 text-center text-xl font-black outline-none transition focus:border-coral focus:ring-2 focus:ring-coral/30 sm:w-14"
+                  className="h-14 w-12 rounded-lg border-2 border-ink/15 text-center text-xl font-black outline-none transition focus:border-coral focus:ring-2 focus:ring-coral/30 max-md:w-10 max-md:h-12 sm:w-14"
                   disabled={secondOtpLoading}
                 />
               ))}
@@ -836,7 +836,7 @@ export function LoginForm({ portal }: LoginFormProps) {
 
         {!adminOtpMode && !secondOtpMode && mode === "login" && !loginOtpSent ? (
           <form onSubmit={handleLogin} className="grid gap-5">
-            <h2 className="text-3xl font-black">Sign in</h2>
+            <h2 className="text-3xl max-md:text-2xl font-black">Sign in</h2>
             <label className="grid gap-2 text-sm font-black">
               {isOwnerPortal ? "Login ID or Email" : "Email address"}
               <span className="relative">
@@ -932,7 +932,7 @@ export function LoginForm({ portal }: LoginFormProps) {
           <form onSubmit={verifyLoginOtp} className="grid gap-5">
             <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
               <div>
-                <h2 className="text-3xl font-black">Login OTP</h2>
+                <h2 className="text-3xl max-md:text-2xl font-black">Login OTP</h2>
                 <p className="mt-1 text-sm font-semibold text-stone">
                   Sent to {email}
                 </p>
@@ -1000,7 +1000,7 @@ export function LoginForm({ portal }: LoginFormProps) {
 
         {mode === "signup" && canSignUp && !otpSent ? (
           <form onSubmit={sendOtp} className="grid gap-5">
-            <h2 className="text-3xl font-black">
+            <h2 className="text-3xl max-md:text-2xl font-black">
               {portal === "admin" ? "Create Super Admin" : "Create account"}
             </h2>
             <p className="text-sm font-semibold text-stone">
@@ -1041,7 +1041,7 @@ export function LoginForm({ portal }: LoginFormProps) {
           <form onSubmit={verifyOtp} className="grid gap-5">
             <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
               <div>
-                <h2 className="text-3xl font-black">Verify email</h2>
+                <h2 className="text-3xl max-md:text-2xl font-black">Verify email</h2>
                 <p className="mt-1 text-sm font-semibold text-stone">
                   Sent to {email}
                 </p>
@@ -1116,7 +1116,7 @@ export function LoginForm({ portal }: LoginFormProps) {
 
         {mode === "signup" && canSignUp && emailVerified ? (
           <form onSubmit={completeRegistration} className="grid gap-5">
-            <h2 className="text-3xl font-black">
+            <h2 className="text-3xl max-md:text-2xl font-black">
               {portal === "admin" ? "Finish admin setup" : "Finish sign up"}
             </h2>
             <p className="text-sm font-semibold text-stone">

@@ -36,10 +36,10 @@ export default async function TermsPage() {
         <p className="text-sm font-black uppercase tracking-[0.22em] text-coral">
           Terms
         </p>
-        <h1 className="mt-3 text-5xl font-black tracking-tight sm:text-6xl">
+        <h1 className="mt-3 text-5xl max-md:text-3xl font-black tracking-tight sm:text-6xl">
           Clear rules for enquiries, partner checks, and bookings.
         </h1>
-        <p className="mt-5 text-lg leading-8 text-stone">
+        <p className="mt-5 text-lg max-md:text-base leading-8 text-stone">
           Road Track is designed as a controlled tourism marketplace. Enquiries
           are captured first, then the team coordinates with verified partners
           before any booking is treated as confirmed.

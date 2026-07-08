@@ -35,10 +35,10 @@ export default async function PrivacyPage() {
         <p className="text-sm font-black uppercase tracking-[0.22em] text-coral">
           Privacy Policy
         </p>
-        <h1 className="mt-3 text-5xl font-black tracking-tight sm:text-6xl">
+        <h1 className="mt-3 text-5xl max-md:text-3xl font-black tracking-tight sm:text-6xl">
           Keep tourism data focused, private, and useful.
         </h1>
-        <p className="mt-5 text-lg leading-8 text-stone">
+        <p className="mt-5 text-lg max-md:text-base leading-8 text-stone">
           This MVP privacy page is written as a practical project baseline. It
           should be reviewed by a legal professional before commercial launch.
         </p>

@@ -228,7 +228,7 @@ export default function ResortsSection({ userRole, userId }: { userRole?: string
 
   if (loading) {
     return (
-      <div className="mt-10 flex justify-center py-20">
+      <div className="mt-10 flex justify-center py-20 max-md:py-12">
         <Loader2 className="h-8 w-8 animate-spin text-coral" />
       </div>
     );
@@ -244,7 +244,7 @@ export default function ResortsSection({ userRole, userId }: { userRole?: string
 
   if (resorts.length === 0) {
     return (
-      <div className="mt-10 rounded-lg border border-white/10 bg-white/[0.06] p-10 text-center">
+      <div className="mt-10 rounded-lg border border-white/10 bg-white/[0.06] p-10 max-md:p-6 text-center">
         <p className="text-lg font-bold text-ivory">
           No approved resorts available yet.
         </p>
@@ -345,7 +345,7 @@ export default function ResortsSection({ userRole, userId }: { userRole?: string
       </div>
 
       {filteredResorts.length === 0 ? (
-        <div className="mt-10 rounded-lg border border-white/10 bg-white/[0.06] p-10 text-center">
+        <div className="mt-10 rounded-lg border border-white/10 bg-white/[0.06] p-10 max-md:p-6 text-center">
           <p className="text-lg font-bold text-ivory">
             No resorts match your filters.
           </p>

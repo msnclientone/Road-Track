@@ -68,7 +68,7 @@ export default async function Home() {
       user={headerUser}
     />
 
-      <section className="relative isolate min-h-[92svh] overflow-hidden pt-24 text-ivory">
+      <section className="relative isolate min-h-[92svh] max-md:min-h-[80svh] overflow-hidden pt-24 text-ivory">
         <Image
           src={heroImage}
           alt="Kapu beach lighthouse on the Udupi coast"
@@ -81,7 +81,7 @@ export default async function Home() {
 
         <div className="relative mx-auto flex min-h-[calc(92svh-6rem)] max-w-none flex-col justify-between px-5 pb-10 sm:px-8 lg:px-10 2xl:px-12">
           <div className="pt-6 sm:pt-8">
-            <p className="max-w-2xl text-base font-bold text-mint sm:text-lg">
+            <p className="max-w-2xl text-base font-bold text-mint max-md:text-sm sm:text-lg">
               Trusted Udupi tourism planning for resorts, vehicles, packages,
               and local support.
             </p>
@@ -90,12 +90,12 @@ export default async function Home() {
     Explore UDUPI
   </h1>
 
-  <p className="mt-2 text-lg text-white/80 sm:mt-3 sm:text-xl md:text-2xl">
+  <p className="mt-2 text-lg text-white/80 max-md:text-base sm:mt-3 sm:text-xl md:text-2xl">
     Search your favourite destination and start planning instantly.
   </p>
 
 </div>
-            <div className="mt-4 grid max-w-4xl gap-3 text-white/88 sm:mt-6 sm:grid-cols-3 sm:gap-4">
+            <div className="mt-4 grid max-w-4xl gap-3 text-white/88 max-md:gap-2 sm:mt-6 sm:grid-cols-3 sm:gap-4">
               <div className="flex items-center gap-3">
                 <ShieldCheck className="h-6 w-6 text-coral" />
                 <span className="font-bold">Verified local partners</span>
@@ -137,17 +137,17 @@ export default async function Home() {
 
       <section
         id="destinations"
-        className="mx-auto max-w-none px-5 py-20 sm:px-8 lg:px-10 2xl:px-12"
+        className="mx-auto max-w-none px-5 py-20 max-md:py-12 sm:px-8 lg:px-10 2xl:px-12"
       >
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-sm font-black uppercase tracking-[0.22em] text-coral">
               Destination pages
             </p>
-            <h2 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">
+            <h2 className="mt-3 text-4xl max-md:text-3xl font-black tracking-tight sm:text-5xl">
               Enjoy the complete trip, not just one listing.
             </h2>
-            <p className="mt-4 max-w-2xl text-lg leading-8 text-stone">
+            <p className="mt-4 max-w-2xl text-lg max-md:text-base leading-8 text-stone">
               Each destination connects travel timing, nearby resorts, available
               vehicles, attractions, maps, weather notes, and estimated trip cost.
             </p>
@@ -173,9 +173,9 @@ export default async function Home() {
                   sizes="(min-width: 1280px) 25vw, (min-width: 768px) 50vw, 100vw"
                 />
               </div>
-              <div className="p-5">
+              <div className="p-5 max-md:p-4">
                 <div className="flex items-center justify-between gap-3">
-                  <h3 className="text-2xl font-black">{destination.name}</h3>
+                  <h3 className="text-2xl max-md:text-xl font-black">{destination.name}</h3>
                   <div className="mt-5 flex items-center justify-between">
 
 <p className="font-bold text-coral">
@@ -215,14 +215,14 @@ export default async function Home() {
         </div>
       </section>
 
-      <section id="resorts" className="bg-ink py-20 text-ivory">
+      <section id="resorts" className="bg-ink py-20 max-md:py-12 text-ivory">
         <div className="mx-auto max-w-none px-5 sm:px-8 lg:px-10 2xl:px-12">
           <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
             <div>
               <p className="text-sm font-black uppercase tracking-[0.22em] text-mint">
                 Resort inventory
               </p>
-              <h2 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">
+              <h2 className="mt-3 text-4xl max-md:text-3xl font-black tracking-tight sm:text-5xl">
                 Availability-led stays for families and groups.
               </h2>
             </div>
@@ -239,13 +239,13 @@ export default async function Home() {
         </div>
       </section>
 
-      <section id="vehicles" className="mx-auto max-w-none px-5 py-20 sm:px-8 lg:px-10 2xl:px-12">
+      <section id="vehicles" className="mx-auto max-w-none px-5 py-20 max-md:py-12 sm:px-8 lg:px-10 2xl:px-12">
         <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
           <div>
             <p className="text-sm font-black uppercase tracking-[0.22em] text-coral">
               Tourist vehicles
             </p>
-            <h2 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">
+            <h2 className="mt-3 text-4xl max-md:text-3xl font-black tracking-tight sm:text-5xl">
               Driver-backed transport for every group size.
             </h2>
           </div>
@@ -261,9 +261,9 @@ export default async function Home() {
         <VehiclesSection />
       </section>
 
-      <section className="mx-auto max-w-none px-5 py-20 sm:px-8 lg:px-10 2xl:px-12">
+      <section className="mx-auto max-w-none px-5 py-20 max-md:py-12 sm:px-8 lg:px-10 2xl:px-12">
         <div>
-          <h2 className="text-5xl font-black tracking-tight sm:text-7xl">
+          <h2 className="text-5xl max-md:text-3xl font-black tracking-tight sm:text-7xl">
            Adventure begins where plans end !
           </h2>
         </div>

@@ -527,9 +527,9 @@ async function updateMinKm() {
 
       {priceVehicle && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="w-[400px] rounded-lg bg-white p-6 shadow-xl">
+          <div className="w-[400px] max-md:w-[90vw] rounded-lg bg-white p-6 shadow-xl">
 
-            <h2 className="mb-5 text-2xl font-black">
+            <h2 className="mb-5 text-2xl max-md:text-xl font-black">
               Update Vehicle Price
             </h2>
 
@@ -587,8 +587,8 @@ async function updateMinKm() {
 
       {minPriceVehicle && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="w-[400px] rounded-lg bg-white p-6 shadow-xl">
-            <h2 className="mb-5 text-2xl font-black">Update Minimum Price</h2>
+          <div className="w-[400px] max-md:w-[90vw] rounded-lg bg-white p-6 shadow-xl">
+            <h2 className="mb-5 text-2xl max-md:text-xl font-black">Update Minimum Price</h2>
 
             <label className="mb-5 block">
               <p className="mb-1 font-semibold">Minimum Price (₹)</p>
@@ -621,8 +621,8 @@ async function updateMinKm() {
 
       {minKmVehicle && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="w-[400px] rounded-lg bg-white p-6 shadow-xl">
-            <h2 className="mb-5 text-2xl font-black">Update Minimum KM</h2>
+          <div className="w-[400px] max-md:w-[90vw] rounded-lg bg-white p-6 shadow-xl">
+            <h2 className="mb-5 text-2xl max-md:text-xl font-black">Update Minimum KM</h2>
 
             <label className="mb-5 block">
               <p className="mb-1 font-semibold">Minimum KM (KM)</p>

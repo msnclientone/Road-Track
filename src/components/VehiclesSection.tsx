@@ -222,7 +222,7 @@ export default function VehiclesSection() {
 
   if (loading) {
     return (
-      <div className="mt-10 flex justify-center py-20">
+      <div className="mt-10 flex justify-center py-20 max-md:py-12">
         <Loader2 className="h-8 w-8 animate-spin text-coral" />
       </div>
     );
@@ -238,7 +238,7 @@ export default function VehiclesSection() {
 
   if (vehicles.length === 0) {
     return (
-      <div className="mt-10 rounded-lg border border-ink/10 bg-white p-10 text-center">
+      <div className="mt-10 rounded-lg border border-ink/10 bg-white p-10 max-md:p-6 text-center">
         <p className="text-lg font-bold text-stone">
           No approved vehicles available yet.
         </p>
@@ -346,7 +346,7 @@ export default function VehiclesSection() {
       </div>
 
       {filteredVehicles.length === 0 ? (
-        <div className="mt-10 rounded-lg border border-ink/10 bg-white p-10 text-center">
+        <div className="mt-10 rounded-lg border border-ink/10 bg-white p-10 max-md:p-6 text-center">
           <p className="text-lg font-bold text-stone">
             No vehicles match your filters.
           </p>

@@ -62,10 +62,10 @@ function ResortCard({
             />
           )}
         </div>
-        <div className="flex flex-1 flex-col p-5">
+        <div className="flex flex-1 flex-col p-5 max-md:p-4">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h3 className="text-2xl font-black">{resort.name}</h3>
+              <h3 className="text-2xl max-md:text-xl font-black">{resort.name}</h3>
               {showLocation && resort.address && (
                 <p className="mt-1 flex items-center gap-2 text-sm text-white/70">
                   <MapPinned className="h-4 w-4 text-coral" />

@@ -97,7 +97,7 @@ export default async function AdminPage() {
 
         {/* HERO */}
 
-        <div className="overflow-hidden rounded-3xl bg-gradient-to-r from-ink via-[#20372d] to-ink p-10 text-white shadow-xl">
+        <div className="overflow-hidden rounded-3xl bg-gradient-to-r from-ink via-[#20372d] to-ink p-10 max-md:p-6 text-white shadow-xl">
 
           <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-center">
 
@@ -107,13 +107,13 @@ export default async function AdminPage() {
                 Road Track
               </p>
 
-              <h1 className="mt-4 text-5xl font-black md:text-6xl">
+              <h1 className="mt-4 text-5xl max-md:text-3xl font-black md:text-6xl">
                 Super Admin
                 <br />
                 Control Center
               </h1>
 
-              <p className="mt-6 max-w-2xl text-lg leading-8 text-white/80">
+              <p className="mt-6 max-w-2xl text-lg max-md:text-base leading-8 text-white/80">
                 Manage destinations, tourism partners,
                 resorts and vehicles from one centralized dashboard.
               </p>
@@ -163,7 +163,7 @@ export default async function AdminPage() {
 
           <div className="mb-6">
 
-            <h2 className="text-3xl font-black">
+            <h2 className="text-3xl max-md:text-2xl font-black">
               Dashboard Overview
             </h2>
 
@@ -212,9 +212,9 @@ export default async function AdminPage() {
 
         {/* APPROVALS */}
 
-        <section className="mt-12 rounded-3xl border bg-white p-8 shadow-sm">
+        <section className="mt-12 rounded-3xl border bg-white p-8 max-md:p-5 shadow-sm">
 
-          <h2 className="text-3xl font-black">
+          <h2 className="text-3xl max-md:text-2xl font-black">
             Partner Approvals
           </h2>
 
@@ -245,7 +245,7 @@ export default async function AdminPage() {
         {/* ADD VEHICLE / ADD RESORT */}
 
         <section className="mt-12">
-          <h2 className="text-3xl font-black">Add Listing + Create Owner</h2>
+          <h2 className="text-3xl max-md:text-2xl font-black">Add Listing + Create Owner</h2>
           <p className="mt-2 text-stone">
             Create a new vehicle or resort listing and automatically generate an owner account with unique ID and temporary password.
           </p>
@@ -257,7 +257,7 @@ export default async function AdminPage() {
 
         {/* BOOKINGS */}
 
-        <section className="mt-12 rounded-3xl border bg-white p-8 shadow-sm">
+        <section className="mt-12 rounded-3xl border bg-white p-8 max-md:p-5 shadow-sm">
 
           <AdminBookings />
 
@@ -265,7 +265,7 @@ export default async function AdminPage() {
 
         {/* ENQUIRIES */}
 
-        <section className="mt-12 rounded-3xl border bg-white p-8 shadow-sm">
+        <section className="mt-12 rounded-3xl border bg-white p-8 max-md:p-5 shadow-sm">
 
           <AdminEnquiries />
 
@@ -287,11 +287,11 @@ function DashboardCard({
   subtitle: string;
 }) {
   return (
-    <article className="group overflow-hidden rounded-3xl border border-ink/10 bg-white p-7 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+    <article className="group overflow-hidden rounded-3xl border border-ink/10 bg-white p-7 max-md:p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
 
       <div className="flex items-center justify-between">
 
-        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-coral/10 text-coral transition group-hover:bg-coral group-hover:text-white">
+        <div className="flex h-16 w-16 max-md:h-12 max-md:w-12 items-center justify-center rounded-2xl bg-coral/10 text-coral transition group-hover:bg-coral group-hover:text-white">
           {icon}
         </div>
 
@@ -305,7 +305,7 @@ function DashboardCard({
         {title}
       </h3>
 
-      <p className="mt-2 text-5xl font-black text-ink">
+      <p className="mt-2 text-5xl max-md:text-3xl font-black text-ink">
         {value}
       </p>
 

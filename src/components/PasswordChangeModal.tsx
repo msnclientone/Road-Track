@@ -48,7 +48,7 @@ export default function PasswordChangeModal({ onClose }: PasswordChangeModalProp
   if (success) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-        <div className="mx-4 w-full max-w-md rounded-xl bg-white p-8 shadow-xl">
+        <div className="mx-4 w-full max-w-md rounded-xl bg-white p-8 max-md:p-6 shadow-xl">
           <div className="text-center">
             <KeyRound className="mx-auto h-12 w-12 text-mint" />
             <h2 className="mt-4 text-2xl font-black">Password updated</h2>
@@ -63,7 +63,7 @@ export default function PasswordChangeModal({ onClose }: PasswordChangeModalProp
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-      <div className="mx-4 w-full max-w-md rounded-xl bg-white p-8 shadow-xl">
+      <div className="mx-4 w-full max-w-md rounded-xl bg-white p-8 max-md:p-6 shadow-xl">
         <div className="flex items-center gap-3">
           <ShieldAlert className="h-6 w-6 text-coral" />
           <h2 className="text-2xl font-black">Change your password</h2>

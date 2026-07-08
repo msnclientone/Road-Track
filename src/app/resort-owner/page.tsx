@@ -82,10 +82,10 @@ export default async function ResortOwnerDashboardPage() {
             <p className="text-sm font-black uppercase tracking-[0.22em] text-coral">
               Resort Owner Panel
             </p>
-            <h1 className="mt-3 text-5xl font-black tracking-tight sm:text-6xl">
+            <h1 className="mt-3 text-5xl max-md:text-3xl font-black tracking-tight sm:text-6xl">
               Welcome, {partnerName}
             </h1>
-            <p className="mt-4 max-w-3xl text-lg leading-8 text-stone">
+            <p className="mt-4 max-w-3xl text-lg max-md:text-base leading-8 text-stone">
               Manage your resort listings, room availability, pricing, and
               partner profile from one panel.
             </p>
@@ -141,7 +141,7 @@ export default async function ResortOwnerDashboardPage() {
             </div>
 
             {resorts.length > 0 ? (
-              <div className="grid gap-4 p-5 lg:grid-cols-2">
+              <div className="grid gap-4 p-5 max-md:p-4 lg:grid-cols-2">
                 {resorts.map((resort) => {
                   const amenities = jsonStringList(resort.amenities);
                   const openRooms = resort.rooms.filter(
@@ -161,10 +161,10 @@ export default async function ResortOwnerDashboardPage() {
                           className="h-full w-full object-cover"
                         />
                       </div>
-                      <div className="p-5">
+                      <div className="p-5 max-md:p-4">
                         <div className="flex items-start justify-between gap-4">
                           <div>
-                            <h3 className="text-2xl font-black">
+                            <h3 className="text-2xl max-md:text-xl font-black">
                               {resort.name}
                             </h3>
                             <p className="mt-1 flex items-center gap-2 text-sm font-semibold text-stone">
@@ -310,11 +310,11 @@ function PanelHeader({
   text: string;
 }) {
   return (
-    <div className="flex flex-col justify-between gap-4 border-b border-ink/10 p-5 sm:flex-row sm:items-center">
+    <div className="flex flex-col justify-between gap-4 border-b border-ink/10 p-5 max-md:p-4 sm:flex-row sm:items-center">
       <div className="flex items-start gap-3">
         <Icon className="mt-1 h-6 w-6 text-coral" />
         <div>
-          <h2 className="text-2xl font-black">{title}</h2>
+          <h2 className="text-2xl max-md:text-xl font-black">{title}</h2>
           <p className="mt-1 text-sm font-semibold text-stone">{text}</p>
         </div>
       </div>
@@ -332,7 +332,7 @@ function MiniStat({
   value: string;
 }) {
   return (
-    <div className="rounded-md bg-ivory p-3">
+    <div className="rounded-md bg-ivory p-3 max-md:p-2">
       <div className="flex items-center gap-2 text-coral">
         <Icon className="h-4 w-4" />
         <p className="text-xs font-black uppercase tracking-[0.12em]">

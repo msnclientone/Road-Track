@@ -27,7 +27,7 @@ export default async function BucketPage() {
       <SiteHeader user={headerUser} />
 
       <section className="mx-auto max-w-6xl px-5 py-24 sm:py-28">
-        <h1 className="text-4xl font-black sm:text-5xl">My Bucket</h1>
+        <h1 className="text-4xl max-md:text-3xl font-black sm:text-5xl">My Bucket</h1>
 
         <BucketContent showLocation={false} />
       </section>

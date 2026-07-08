@@ -127,7 +127,7 @@ export default async function DestinationPage({
 
       {/* HERO */}
 
-      <section className="relative isolate min-h-[70vh] overflow-hidden pt-24">
+      <section className="relative isolate min-h-[70vh] max-md:min-h-[50vh] overflow-hidden pt-24">
         <Image
           src={
             destination.heroImageUrl ||
@@ -155,11 +155,11 @@ export default async function DestinationPage({
               Explore Destination
             </span>
 
-            <h1 className="mt-4 text-4xl font-black text-white sm:text-5xl md:text-7xl">
+            <h1 className="mt-4 text-4xl max-md:text-3xl font-black text-white sm:text-5xl md:text-7xl">
               {destination.name}
             </h1>
 
-            <p className="mt-4 text-base leading-7 text-white/90 sm:mt-6 sm:text-lg sm:leading-8">
+            <p className="mt-4 text-base leading-7 text-white/90 max-md:text-sm sm:mt-6 sm:text-lg sm:leading-8">
               {destination.description}
             </p>
           </div>
@@ -196,7 +196,7 @@ export default async function DestinationPage({
               href={destination.googleMapsLink}
               target="_blank"
               rel="noreferrer"
-              className="flex items-center justify-center gap-2 rounded-3xl border border-coral/40 bg-white p-8 shadow-sm transition hover:bg-coral hover:text-ink sm:justify-start"
+              className="flex items-center justify-center gap-2 rounded-3xl border border-coral/40 bg-white p-8 max-md:p-5 shadow-sm transition hover:bg-coral hover:text-ink sm:justify-start"
             >
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-coral/10 text-coral">
                 <MapPinned className="h-5 w-5" />
@@ -218,7 +218,7 @@ export default async function DestinationPage({
 
       <section className="mx-auto max-w-7xl px-5 pb-12 sm:px-6 sm:pb-16">
         <div className="rounded-3xl border bg-white p-5 shadow-sm sm:p-8">
-          <h2 className="text-2xl font-black sm:text-3xl">
+          <h2 className="text-2xl max-md:text-xl font-black sm:text-3xl">
             About {destination.name}
           </h2>
 
@@ -244,7 +244,7 @@ export default async function DestinationPage({
         </div>
 
         {destination.nearbyPlaces.length === 0 ? (
-          <div className="mt-8 rounded-3xl border bg-white p-10 text-center shadow-sm">
+          <div className="mt-8 rounded-3xl border bg-white p-10 max-md:p-6 text-center shadow-sm">
             <h3 className="text-xl font-bold">
               No Nearby Destinations
             </h3>
@@ -280,8 +280,8 @@ export default async function DestinationPage({
                   </span>
                 </div>
 
-                <div className="p-6">
-                  <h3 className="text-2xl font-black transition group-hover:text-coral">
+                <div className="p-6 max-md:p-4">
+                  <h3 className="text-2xl max-md:text-xl font-black transition group-hover:text-coral">
                     {place.nearbyDestination.name}
                   </h3>
 
@@ -307,7 +307,7 @@ export default async function DestinationPage({
 
       {/* AVAILABLE RESORTS */}
 
-      <section className="bg-ink py-20 text-ivory">
+      <section className="bg-ink py-20 max-md:py-12 text-ivory">
         <div className="mx-auto max-w-7xl px-5 sm:px-6">
           <div className="flex items-center justify-between">
             <div>
@@ -411,7 +411,7 @@ export default async function DestinationPage({
       <section className="mx-auto max-w-7xl px-5 pb-16 sm:px-6 sm:pb-24">
         <div className="overflow-hidden rounded-3xl bg-ink p-6 text-white sm:p-10">
           <div className="max-w-3xl">
-            <h2 className="text-3xl font-black sm:text-4xl">
+            <h2 className="text-3xl max-md:text-2xl font-black sm:text-4xl">
               Plan Your Trip
             </h2>
 
@@ -456,7 +456,7 @@ function Fact({
   value: string;
 }) {
   return (
-    <article className="rounded-3xl border bg-white p-8 shadow-sm">
+    <article className="rounded-3xl border bg-white p-8 max-md:p-5 shadow-sm">
       <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-coral/10 text-coral">
         {icon}
       </div>
