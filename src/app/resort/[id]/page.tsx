@@ -77,7 +77,7 @@ export default async function ResortDetailPage({
       <section className="mx-auto max-w-none px-5 pb-20 pt-24 sm:px-8 lg:px-10 2xl:px-12 sm:pt-28">
         <div className="grid gap-8 lg:gap-10 lg:grid-cols-[1fr_0.6fr]">
           {/* Main Content */}
-          <div>
+          <div className="min-w-0">
             {/* Breadcrumb */}
             <nav className="mb-4 text-sm font-bold text-stone sm:mb-6">
               <a href="/" className="hover:text-coral">
