@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Search } from "lucide-react";
+import { Search, Trash2 } from "lucide-react";
 
 type BookingOwner = {
   name: string | null;
@@ -103,7 +103,16 @@ export default function AdminBookings() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showAll, setShowAll] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const searchRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (successMsg) {
+      const t = setTimeout(() => setSuccessMsg(null), 3000);
+      return () => clearTimeout(t);
+    }
+  }, [successMsg]);
 
   useEffect(() => {
     if (selectedBooking) {
@@ -170,8 +179,31 @@ export default function AdminBookings() {
     }
   }
 
+  async function handleDelete(bookingId: string) {
+    try {
+      const res = await fetch(`/api/admin/bookings/${bookingId}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Delete failed");
+      setDeleteConfirmId(null);
+      setSelectedBooking(null);
+      setSuccessMsg("Booking deleted successfully.");
+      fetchBookings(searchQuery.trim() || undefined);
+    } catch (e: any) {
+      alert(e?.message ?? "Unable to delete booking");
+      setDeleteConfirmId(null);
+    }
+  }
+
   return (
     <section>
+      {successMsg && (
+        <div className="mb-4 rounded-xl bg-emerald-100 px-4 py-3 text-sm font-semibold text-emerald-700">
+          {successMsg}
+        </div>
+      )}
+
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h3 className="text-xl font-black">Booking Details</h3>
         {allBookings.length > 0 && (
@@ -514,6 +546,51 @@ export default function AdminBookings() {
                   ))}
                 </div>
               </section>
+
+              <hr className="border-ink/10" />
+              <section>
+                <button
+                  onClick={() => setDeleteConfirmId(selectedBooking.id)}
+                  className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-red-700"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Delete Booking
+                </button>
+              </section>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {deleteConfirmId && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+          onClick={() => setDeleteConfirmId(null)}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-lg font-black">Delete Booking?</h3>
+            <p className="mt-3 text-sm font-semibold text-stone">
+              Booking ID: {allBookings.find((b) => b.id === deleteConfirmId)?.bookingId}
+            </p>
+            <p className="mt-1 text-sm text-stone">
+              This action is permanent and cannot be undone.
+            </p>
+            <div className="mt-6 flex gap-3">
+              <button
+                onClick={() => setDeleteConfirmId(null)}
+                className="flex-1 rounded-lg border border-ink/15 px-4 py-2 text-sm font-bold transition hover:bg-ink/5"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDelete(deleteConfirmId)}
+                className="flex-1 rounded-lg bg-red-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-red-700"
+              >
+                Delete
+              </button>
             </div>
           </div>
         </div>

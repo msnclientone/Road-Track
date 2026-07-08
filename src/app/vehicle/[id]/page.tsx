@@ -74,6 +74,7 @@ export default async function VehicleDetailPage({
   const maskedRegNo = maskRegistrationNo(vehicle.registrationNo ?? "");
   const vehicleBooking = await getVehicleCurrentBooking(id);
   const isBooked = vehicleBooking.isBooked;
+  const futureDates = vehicleBooking.futureDates;
   return (
     <main className="min-h-screen bg-ivory text-ink">
       <SiteHeader user={headerUser} />
@@ -216,34 +217,26 @@ export default async function VehicleDetailPage({
             </div>
 
             <div className="mt-4 space-y-3 sm:mt-6">
-                  {isBooked && vehicleBooking.bookedUntil && (
-                    <p className="rounded-lg border border-amber/20 bg-amber/10 px-4 py-3 text-sm font-bold text-amber text-center">
-                      Booked until{" "}
-                      {new Date(vehicleBooking.bookedUntil).toLocaleString("en-IN", {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                        hour: "numeric",
-                        minute: "2-digit",
-                        hour12: true,
-                      })}
-                    </p>
+                  {futureDates.length > 0 && (
+                    <div className="rounded-lg border border-amber/20 bg-amber/10 px-4 py-3 text-sm text-amber">
+                      <p className="font-bold">Booked on:</p>
+                      <p className="mt-1">
+                        {futureDates.map((d) =>
+                          new Date(d).toLocaleDateString("en-IN", {
+                            day: "numeric",
+                            month: "short",
+                          }),
+                        ).join(", ")}
+                      </p>
+                    </div>
                   )}
 
               {session?.role === "CUSTOMER" && (
                 <>
                   <AddToBucketButton vehicleId={vehicle.id} alreadyInBucket={vehicleInBucket} />
 
-                  {isBooked ? (
-                    <button
-                      disabled
-                      className="block w-full cursor-not-allowed rounded-lg bg-stone/40 px-4 py-3 text-center font-black text-white"
-                    >
-                      🚗 Full Day Rental
-                    </button>
-                  ) : (
-                    <a
-                      href={buildWhatsAppUrl(
+                  <a
+                    href={buildWhatsAppUrl(
 `Hello Road Track,
 
 🚗 FULL DAY RENTAL REQUEST
@@ -274,19 +267,12 @@ I am interested in renting this vehicle for a full day.
 Please contact me with the quotation.
 
 Thank you.`)}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="block w-full rounded-lg bg-blue-600 px-4 py-3 text-center font-black text-white transition hover:bg-blue-700"
-                    >
-                      🚗 Full Day Rental
-                    </a>
-                  )}
-
-                  {isBooked && (
-                    <p className="text-center text-sm font-semibold text-stone">
-                      Enquire on WhatsApp disabled while vehicle is booked
-                    </p>
-                  )}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="block w-full rounded-lg bg-blue-600 px-4 py-3 text-center font-black text-white transition hover:bg-blue-700"
+                  >
+                    🚗 Full Day Rental
+                  </a>
                 </>
               )}
 
@@ -300,7 +286,6 @@ Thank you.`)}
                 pricePerDay={vehicle.pricePerDay}
                 minimumPrice={vehicle.minimumPrice}
                 minimumKm={vehicle.minimumKm}
-                booked={isBooked}
               />
             </div>
           </aside>

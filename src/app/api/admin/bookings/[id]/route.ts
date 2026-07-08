@@ -174,3 +174,22 @@ export async function PATCH(
     );
   }
 }
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  try {
+    const { id } = await params;
+    await prisma.tripBooking.delete({ where: { id } });
+    revalidatePath("/");
+    revalidatePath("/admin");
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Failed to delete booking", error);
+    return NextResponse.json(
+      { error: "Failed to delete booking." },
+      { status: 500 },
+    );
+  }
+}

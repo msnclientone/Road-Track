@@ -15,7 +15,6 @@ type VehicleData = {
   pricePerDay: number | null;
   minimumPrice: number | null;
   minimumKm: number | null;
-  booked?: boolean;
 };
 
 type ResortData = {
@@ -25,7 +24,6 @@ type ResortData = {
   destinationName: string | null;
   acPrice: number;
   nonAcPrice: number;
-  booked?: boolean;
 };
 
 type Props = VehicleData | ResortData;
@@ -93,25 +91,14 @@ export default function EnquiryButton(props: Props) {
     }
   }
 
-  const isDisabled = props.booked === true;
-
   return (
     <>
-      {isDisabled ? (
-        <button
-          disabled
-          className="block w-full cursor-not-allowed rounded-lg bg-stone/40 px-4 py-3 text-center font-black text-white"
-        >
-          Enquire on WhatsApp
-        </button>
-      ) : (
         <button
           onClick={() => setShowModal(true)}
           className="block w-full rounded-lg bg-coral px-4 py-3 text-center font-black text-ink transition hover:bg-coral/90"
         >
           Enquire on WhatsApp
         </button>
-      )}
 
       {showModal && (
         <div

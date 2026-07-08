@@ -19,8 +19,8 @@ export function SiteFooter() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="bg-ink text-ivory">
-      <div className="border-b border-white/10 px-5 py-12 sm:px-8 lg:px-10 2xl:px-12">
+    <footer className="w-full bg-ink text-ivory">
+      <div className="w-full border-b border-white/10 px-5 py-12 sm:px-8 lg:px-10 2xl:px-12">
         <div>
           <Link href="/" className="inline-flex items-center gap-3">
             <Image
@@ -64,7 +64,7 @@ export function SiteFooter() {
         </div>
       </div>
 
-      <div className="grid gap-5 px-5 py-6 text-sm text-white/65 sm:px-8 lg:grid-cols-[1fr_auto] lg:items-center lg:px-10 2xl:px-12">
+      <div className="w-full grid gap-5 px-5 py-6 text-sm text-white/65 sm:px-8 lg:grid-cols-[1fr_auto] lg:items-center lg:px-10 2xl:px-12">
         <div className="flex flex-wrap gap-x-6 gap-y-3">
           <a
   href="https://maps.app.goo.gl/65BizSW5tN7V2wP58?g_st=ac"
@@ -118,7 +118,7 @@ export function SiteFooter() {
         </div>
       </div>
 
-      <div className="grid gap-3 border-t border-white/10 px-5 py-4 text-xs font-semibold text-white/45 sm:px-8 md:grid-cols-2 lg:px-10 2xl:px-12">
+      <div className="w-full grid gap-3 border-t border-white/10 px-5 py-4 text-xs font-semibold text-white/45 sm:px-8 md:grid-cols-2 lg:px-10 2xl:px-12">
         <span className="inline-flex items-center gap-2">
           <Building2 className="h-3.5 w-3.5" />
           Resort bookings are confirmed after partner availability checks.

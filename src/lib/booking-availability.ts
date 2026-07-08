@@ -88,23 +88,36 @@ export async function getCurrentActiveReservations(
 
 export async function getVehicleCurrentBooking(
   vehicleId: string,
-): Promise<{ isBooked: boolean; bookedUntil: Date | null }> {
+): Promise<{ isBooked: boolean; bookedUntil: Date | null; futureDates: Date[] }> {
   const now = new Date();
 
-  const active = await prisma.tripBooking.findFirst({
-    where: {
-      selectedVehicleId: vehicleId,
-      status: "CONFIRMED",
-      checkIn: { lte: now },
-      checkOut: { gte: now },
-    },
-    select: { checkOut: true },
-    orderBy: { checkOut: "desc" },
-  });
+  const [active, future] = await Promise.all([
+    prisma.tripBooking.findFirst({
+      where: {
+        selectedVehicleId: vehicleId,
+        status: "CONFIRMED",
+        checkIn: { lte: now },
+        checkOut: { gte: now },
+      },
+      select: { checkOut: true },
+      orderBy: { checkOut: "desc" },
+    }),
+    prisma.tripBooking.findMany({
+      where: {
+        selectedVehicleId: vehicleId,
+        status: "CONFIRMED",
+        checkOut: { gt: now },
+      },
+      select: { checkOut: true },
+      orderBy: { checkOut: "asc" },
+    }),
+  ]);
+
+  const futureDates = future.map((b) => b.checkOut).filter(Boolean) as Date[];
 
   if (active) {
-    return { isBooked: true, bookedUntil: active.checkOut };
+    return { isBooked: true, bookedUntil: active.checkOut, futureDates };
   }
 
-  return { isBooked: false, bookedUntil: null };
+  return { isBooked: false, bookedUntil: null, futureDates };
 }
