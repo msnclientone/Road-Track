@@ -176,9 +176,21 @@ export default async function VehicleOwnerDashboardPage() {
                               {vehicle.destination?.name ?? "All routes"}
                             </p>
                           </div>
-                          <span className="rounded-full bg-mint/20 px-3 py-1 text-xs font-black text-emerald-700">
-                            {vehicle.availability}
-                          </span>
+                          <div className="text-right">
+                            <span className="rounded-full bg-mint/20 px-3 py-1 text-xs font-black text-emerald-700">
+                              {vehicle.availability}
+                            </span>
+                            {vehicle.bookedUntil && (
+                              <p className="mt-1 text-xs font-semibold text-stone">
+                                Booked until {new Date(vehicle.bookedUntil).toLocaleDateString("en-IN", {
+                                  day: "numeric",
+                                  month: "short",
+                                  hour: "numeric",
+                                  minute: "2-digit",
+                                })}
+                              </p>
+                            )}
+                          </div>
                         </div>
 
                         <div className="mt-5 grid grid-cols-2 gap-3">

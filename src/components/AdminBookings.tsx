@@ -55,6 +55,8 @@ type Booking = {
     minimumKm: number | null;
     destination: { name: string } | null;
     owner: BookingOwner | null;
+    bookedUntil: string | null;
+    availability: string;
   } | null;
 };
 
@@ -133,6 +135,7 @@ export default function AdminBookings() {
     : allBookings.slice(0, DISPLAY_LIMIT);
 
   useEffect(() => {
+    fetch("/api/admin/bookings/auto-complete").catch(() => {});
     fetchBookings();
   }, [fetchBookings]);
 
@@ -153,6 +156,7 @@ export default function AdminBookings() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Update failed");
+      fetch("/api/admin/bookings/auto-complete").catch(() => {});
       setAllBookings((prev) =>
         prev.map((b) => (b.id === bookingId ? { ...b, status } : b)),
       );
@@ -411,6 +415,16 @@ export default function AdminBookings() {
                       <span className="text-stone">Minimum Distance</span>
                       <span className="font-semibold">{selectedBooking.selectedVehicle.minimumKm != null ? `${selectedBooking.selectedVehicle.minimumKm} KM` : "—"}</span>
                     </div>
+                    <div className="flex justify-between">
+                      <span className="text-stone">Availability</span>
+                      <span className="font-semibold">{selectedBooking.selectedVehicle.availability}</span>
+                    </div>
+                    {selectedBooking.selectedVehicle.bookedUntil && (
+                      <div className="flex justify-between">
+                        <span className="text-stone">Booked Until</span>
+                        <span className="font-semibold">{formatDate(selectedBooking.selectedVehicle.bookedUntil)}</span>
+                      </div>
+                    )}
                   </div>
                 </section>
               )}

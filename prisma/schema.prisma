@@ -172,6 +172,7 @@ model Vehicle {
   minimumKm         Int?
   status            PartnerStatus      @default(PENDING)
   availability      AvailabilityStatus @default(AVAILABLE)
+  bookedUntil       DateTime?
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
   ownerCanEditPrice Boolean            @default(false)
@@ -402,6 +403,8 @@ model TripBooking {
   totalCost          Int?
   perHeadCost        Int?
   status             TripBookingStatus @default(NEW)
+  inventoryUpdated   Boolean          @default(false)
+  inventoryRestored  Boolean          @default(false)
   enquiryId          String?   @unique
   createdAt          DateTime          @default(now())
   updatedAt          DateTime          @updatedAt

@@ -45,6 +45,8 @@ export async function GET(request: NextRequest) {
             pricePerKm: true,
             minimumPrice: true,
             minimumKm: true,
+            availability: true,
+            bookedUntil: true,
             destination: {
               select: { name: true },
             },
