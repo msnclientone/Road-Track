@@ -251,8 +251,8 @@ export default function VehiclesSection() {
 
   return (
     <>
-      <div className="sticky top-0 z-20 -mx-5 border-b border-ink/10 bg-white/95 px-5 py-4 shadow-sm backdrop-blur sm:-mx-8 sm:px-8 lg:-mx-10 lg:px-10 2xl:-mx-12 2xl:px-12">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-4">
+      <div className="sticky top-0 z-20 -mx-5 border-b border-ink/10 bg-white/95 px-5 py-4 max-md:py-2 shadow-sm backdrop-blur sm:-mx-8 sm:px-8 lg:-mx-10 lg:px-10 2xl:-mx-12 2xl:px-12">
+        <div className="flex flex-col gap-3 max-md:gap-2 lg:flex-row lg:items-center lg:gap-4">
           <div className="relative flex-1">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone" />
             <input
@@ -260,15 +260,15 @@ export default function VehiclesSection() {
               placeholder="Search by type, registration, or driver..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-lg border border-ink/10 bg-white py-2.5 pl-10 pr-4 text-sm font-medium text-ink outline-none transition focus:border-coral focus:ring-2 focus:ring-coral/20"
+              className="w-full rounded-lg border border-ink/10 bg-white py-2.5 max-md:py-1.5 pl-10 pr-4 text-sm font-medium text-ink outline-none transition focus:border-coral focus:ring-2 focus:ring-coral/20"
             />
           </div>
 
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 max-md:gap-1.5">
             <select
               value={vehicleTypeFilter}
               onChange={(e) => setVehicleTypeFilter(e.target.value)}
-              className="cursor-pointer rounded-lg border border-ink/10 bg-white px-3 py-2.5 text-sm font-bold text-ink outline-none transition focus:border-coral focus:ring-2 focus:ring-coral/20"
+              className="cursor-pointer rounded-lg border border-ink/10 bg-white px-3 py-2.5 max-md:py-1.5 text-sm font-bold text-ink outline-none transition focus:border-coral focus:ring-2 focus:ring-coral/20"
             >
               {VEHICLE_TYPES.map((type) => (
                 <option key={type} value={type}>
@@ -280,7 +280,7 @@ export default function VehiclesSection() {
             <select
               value={seatingFilter}
               onChange={(e) => setSeatingFilter(Number(e.target.value))}
-              className="cursor-pointer rounded-lg border border-ink/10 bg-white px-3 py-2.5 text-sm font-bold text-ink outline-none transition focus:border-coral focus:ring-2 focus:ring-coral/20"
+              className="cursor-pointer rounded-lg border border-ink/10 bg-white px-3 py-2.5 max-md:py-1.5 text-sm font-bold text-ink outline-none transition focus:border-coral focus:ring-2 focus:ring-coral/20"
             >
               {SEATING_OPTIONS.map((opt) => (
                 <option key={opt.label} value={opt.value}>
@@ -294,7 +294,7 @@ export default function VehiclesSection() {
               onChange={(e) =>
                 setPriceFilterIndex(Number(e.target.value))
               }
-              className="cursor-pointer rounded-lg border border-ink/10 bg-white px-3 py-2.5 text-sm font-bold text-ink outline-none transition focus:border-coral focus:ring-2 focus:ring-coral/20"
+              className="cursor-pointer rounded-lg border border-ink/10 bg-white px-3 py-2.5 max-md:py-1.5 text-sm font-bold text-ink outline-none transition focus:border-coral focus:ring-2 focus:ring-coral/20"
             >
               {PRICE_OPTIONS.map((opt, i) => (
                 <option key={opt.label} value={i}>
@@ -309,7 +309,7 @@ export default function VehiclesSection() {
                 onChange={(e) =>
                   setDestinationFilter(e.target.value)
                 }
-                className="cursor-pointer rounded-lg border border-ink/10 bg-white px-3 py-2.5 text-sm font-bold text-ink outline-none transition focus:border-coral focus:ring-2 focus:ring-coral/20"
+                className="cursor-pointer rounded-lg border border-ink/10 bg-white px-3 py-2.5 max-md:py-1.5 text-sm font-bold text-ink outline-none transition focus:border-coral focus:ring-2 focus:ring-coral/20"
               >
                 <option value="All">All Destinations</option>
                 {uniqueDestinations.map((name) => (
@@ -323,7 +323,7 @@ export default function VehiclesSection() {
             <select
               value={sortOption}
               onChange={(e) => setSortOption(e.target.value)}
-              className="cursor-pointer rounded-lg border border-ink/10 bg-white px-3 py-2.5 text-sm font-bold text-ink outline-none transition focus:border-coral focus:ring-2 focus:ring-coral/20"
+              className="cursor-pointer rounded-lg border border-ink/10 bg-white px-3 py-2.5 max-md:py-1.5 text-sm font-bold text-ink outline-none transition focus:border-coral focus:ring-2 focus:ring-coral/20"
             >
               {SORT_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -335,7 +335,7 @@ export default function VehiclesSection() {
             {hasActiveFilters && (
               <button
                 onClick={clearFilters}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-coral/30 bg-coral/10 px-3 py-2.5 text-sm font-bold text-coral transition hover:bg-coral hover:text-white"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-coral/30 bg-coral/10 px-3 py-2.5 max-md:py-1.5 text-sm font-bold text-coral transition hover:bg-coral hover:text-white"
               >
                 <X className="h-4 w-4" />
                 Clear
@@ -359,7 +359,7 @@ export default function VehiclesSection() {
           </button>
         </div>
       ) : (
-        <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-6 grid gap-5 max-md:gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {filteredVehicles.map((vehicle) => (
             <VehicleCard key={vehicle.id} vehicle={{ ...vehicle, destinationName: vehicle.destination?.name }} />
           ))}

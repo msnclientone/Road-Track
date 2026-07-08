@@ -44,7 +44,7 @@ function VehicleCard({
       className="group overflow-hidden rounded-lg border border-ink/10 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
     >
       <article className="flex h-full flex-col">
-        <div className="relative aspect-[16/10]">
+        <div className="relative aspect-[16/10] max-md:aspect-[5/3]">
           <Image
             src={imgSrc}
             alt={vehicle.vehicleType}
@@ -54,43 +54,43 @@ function VehicleCard({
             onError={() => setImgSrc(PLACEHOLDER_IMAGES.vehicle)}
           />
         </div>
-        <div className="flex flex-1 flex-col p-5 max-md:p-4">
-          <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-1 flex-col p-5 max-md:p-3">
+          <div className="flex items-center justify-between gap-4 max-md:gap-2">
             <div>
-              <h3 className="text-2xl max-md:text-xl font-black">{vehicle.vehicleType}</h3>
+              <h3 className="text-2xl max-md:text-lg font-black">{vehicle.vehicleType}</h3>
               {vehicle.registrationNo && (
-                <p className="mt-1 text-sm font-bold text-stone">
+                <p className="mt-1 max-md:mt-0.5 text-sm max-md:text-xs font-bold text-stone">
                   {maskRegistrationNo(vehicle.registrationNo)}
                 </p>
               )}
               {vehicle.destinationName && (
-                <p className="mt-1 text-xs font-semibold text-stone">
+                <p className="mt-1 max-md:mt-0.5 text-xs font-semibold text-stone">
                   {vehicle.destinationName}
                 </p>
               )}
             </div>
           </div>
 
-          <p className="mt-2 text-sm font-bold text-stone">
+          <p className="mt-2 max-md:mt-1 text-sm max-md:text-xs font-bold text-stone">
             Driver: {vehicle.driverName}
           </p>
 
-          <div className="mt-5 grid grid-cols-3 gap-3 max-md:gap-2 text-sm">
-            <div className="rounded-lg bg-sky/10 p-3 max-md:p-2">
-              <Users className="h-4 w-4" />
-              <p className="mt-1 font-black">{vehicle.seatingCapacity}</p>
+          <div className="mt-5 max-md:mt-3 grid grid-cols-3 gap-3 max-md:gap-1 text-sm max-md:text-xs">
+            <div className="rounded-lg bg-sky/10 p-3 max-md:p-1.5">
+              <Users className="h-4 w-4 max-md:h-3 max-md:w-3" />
+              <p className="mt-1 max-md:mt-0.5 font-black max-md:text-xs">{vehicle.seatingCapacity}</p>
               <p className="text-xs font-bold text-stone">Seats</p>
             </div>
-            <div className="rounded-lg bg-coral/10 p-3 max-md:p-2">
-              <p className="font-black text-coral">
+            <div className="rounded-lg bg-coral/10 p-3 max-md:p-1.5">
+              <p className="font-black text-coral max-md:text-xs">
                 {vehicle.pricePerDay != null
                   ? formatCurrency(vehicle.pricePerDay)
                   : "N/A"}
               </p>
               <p className="text-xs font-bold text-stone">Per Day</p>
             </div>
-            <div className="rounded-md bg-mint/10 p-3 max-md:p-2">
-              <p className="font-black text-emerald-700">
+            <div className="rounded-md bg-mint/10 p-3 max-md:p-1.5">
+              <p className="font-black text-emerald-700 max-md:text-xs">
                 {vehicle.pricePerKm != null
                   ? formatCurrency(vehicle.pricePerKm)
                   : "N/A"}
@@ -106,7 +106,7 @@ function VehicleCard({
                 e.stopPropagation();
                 onRemove(itemId);
               }}
-              className="mt-4 w-full rounded-lg bg-red-600 px-4 py-2 font-bold text-white transition hover:bg-red-700"
+              className="mt-4 max-md:mt-2 w-full rounded-lg bg-red-600 px-4 py-2 max-md:py-1.5 font-bold text-white transition hover:bg-red-700 max-md:text-sm"
             >
               Remove
             </button>
