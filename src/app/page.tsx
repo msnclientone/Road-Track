@@ -145,7 +145,7 @@ export default async function Home() {
               Destination pages
             </p>
             <h2 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">
-              Sell the complete trip, not just one listing.
+              Enjoy the complete trip, not just one listing.
             </h2>
             <p className="mt-4 max-w-2xl text-lg leading-8 text-stone">
               Each destination connects travel timing, nearby resorts, available
