@@ -21,12 +21,10 @@ import { getSession } from "@/lib/auth/session";
 import { getSessionUser } from "@/lib/auth/get-session-user";
 import { prisma } from "@/lib/prisma";
 import { buildWhatsAppUrl, formatCurrency } from "@/lib/utils";
+import { getListingImageUrl, PLACEHOLDER_IMAGES } from "@/lib/placeholders";
 import VehicleManager from "@/components/VehicleManager";
 
 export const dynamic = "force-dynamic";
-
-const fallbackVehicleImage =
-  "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=1200&q=80";
 
 export default async function VehicleOwnerDashboardPage() {
   const session = await getSession();
@@ -138,6 +136,7 @@ export default async function VehicleOwnerDashboardPage() {
                 availability: vehicle.availability,
                 status: vehicle.status,
                 destinationId: vehicle.destinationId,
+                heroImageUrl: vehicle.heroImageUrl,
               }))}
               destinationOptions={destinations}
             />
@@ -145,7 +144,11 @@ export default async function VehicleOwnerDashboardPage() {
             {vehicles.length > 0 ? (
               <div className="grid gap-4 p-5 max-md:p-4 lg:grid-cols-2">
                 {vehicles.map((vehicle) => {
-                  const image = vehicle.media[0]?.url ?? fallbackVehicleImage;
+                  const image = vehicle.heroImageUrl
+                    ? getListingImageUrl([{ url: vehicle.heroImageUrl }], "vehicle")
+                    : vehicle.media[0]?.url
+                      ? getListingImageUrl([vehicle.media[0]], "vehicle")
+                      : PLACEHOLDER_IMAGES.vehicle;
                   const dayRate = vehicle.pricePerDay
                     ? formatCurrency(vehicle.pricePerDay)
                     : "Rate not set";

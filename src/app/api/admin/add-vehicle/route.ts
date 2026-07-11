@@ -5,6 +5,7 @@ import { getSession } from "@/lib/auth/session";
 import { generateTemporaryPassword } from "@/lib/auth/temp-password";
 import { addVehicleOwnerSchema } from "@/lib/auth/validation";
 import { generateVehicleOwnerId } from "@/lib/generate-id";
+import { convertToDirectImageUrl, isGoogleDriveUrl, isValidImageUrl } from "@/lib/placeholders";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(request: Request) {
@@ -35,9 +36,30 @@ export async function POST(request: Request) {
       destinationId,
       pricePerKm,
       pricePerDay,
+      heroImageUrl,
     } = parsed.data;
 
+    const resolvedHeroImageUrl = heroImageUrl && isGoogleDriveUrl(heroImageUrl)
+      ? convertToDirectImageUrl(heroImageUrl)
+      : heroImageUrl || null;
+
+    if (resolvedHeroImageUrl && !isValidImageUrl(resolvedHeroImageUrl)) {
+      return NextResponse.json(
+        { error: "Please enter a valid direct image URL. Search engine image links (Bing, Google Images, Yahoo, etc.) are not supported." },
+        { status: 400 },
+      );
+    }
+
     let tempPassword: string | null = null;
+    let preGeneratedVehicleOwnerId: string | null = null;
+    let preGeneratedPasswordHash: string | null = null;
+
+    if (!existingOwnerId) {
+      preGeneratedVehicleOwnerId = await generateVehicleOwnerId();
+      const pwd = generateTemporaryPassword();
+      tempPassword = pwd;
+      preGeneratedPasswordHash = await hashPassword(pwd);
+    }
 
     const result = await prisma.$transaction(async (tx) => {
       if (existingOwnerId) {
@@ -51,7 +73,7 @@ export async function POST(request: Request) {
 
         const vehicle = await tx.vehicle.create({
           data: {
-            ownerId: existingOwner.id,
+            owner: { connect: { id: existingOwner.id } },
             vehicleType,
             seatingCapacity: Number(seatingCapacity),
             pricePerKm: pricePerKm ?? null,
@@ -59,7 +81,8 @@ export async function POST(request: Request) {
             driverName: existingOwner.name ?? "",
             driverPhone: existingOwner.phone ?? "",
             registrationNo: registrationNo?.toUpperCase() || null,
-            destinationId: destinationId || null,
+            destination: destinationId ? { connect: { id: destinationId } } : undefined,
+            heroImageUrl: resolvedHeroImageUrl,
             status: "APPROVED",
           },
           include: {
@@ -70,21 +93,17 @@ export async function POST(request: Request) {
         return { vehicle, owner: null as any };
       }
 
-      const vehicleOwnerId = await generateVehicleOwnerId();
-      const pwd = generateTemporaryPassword();
-      tempPassword = pwd;
-      const passwordHash = await hashPassword(pwd);
-      const ownerEmail = `${vehicleOwnerId.toLowerCase()}@roadtrack.internal`;
+      const ownerEmail = `${preGeneratedVehicleOwnerId!.toLowerCase()}@roadtrack.internal`;
 
       const owner = await tx.user.create({
         data: {
           email: ownerEmail,
           name: ownerName!.trim(),
           phone: ownerPhone!,
-          passwordHash,
+          passwordHash: preGeneratedPasswordHash!,
           role: "VEHICLE_OWNER",
           partnerStatus: "APPROVED",
-          vehicleOwnerId,
+          vehicleOwnerId: preGeneratedVehicleOwnerId!,
           mustChangePassword: true,
           emailVerifiedAt: new Date(),
         },
@@ -92,7 +111,7 @@ export async function POST(request: Request) {
 
       const vehicle = await tx.vehicle.create({
         data: {
-          ownerId: owner.id,
+          owner: { connect: { id: owner.id } },
           vehicleType,
           seatingCapacity: Number(seatingCapacity),
           pricePerKm: pricePerKm ?? null,
@@ -100,7 +119,8 @@ export async function POST(request: Request) {
           driverName: ownerName!.trim(),
           driverPhone: ownerPhone!,
           registrationNo: registrationNo?.toUpperCase() || null,
-          destinationId: destinationId || null,
+          destination: destinationId ? { connect: { id: destinationId } } : undefined,
+          heroImageUrl: resolvedHeroImageUrl,
           status: "APPROVED",
         },
         include: {

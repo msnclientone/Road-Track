@@ -35,7 +35,7 @@ export async function POST(request: Request) {
 
     const vehicle = await prisma.vehicle.create({
       data: {
-        ownerId: session.sub,
+        owner: { connect: { id: session.sub } },
 
         vehicleType,
 
@@ -52,7 +52,7 @@ export async function POST(request: Request) {
         registrationNo:
           registrationNo?.toUpperCase() || null,
 
-        destinationId: destinationId || null,
+        destination: destinationId ? { connect: { id: destinationId } } : undefined,
 
         status: "PENDING",
       },

@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Car, CheckCircle2, Copy, Loader2, Search, UserPlus, X } from "lucide-react";
+import { Car, CheckCircle2, Copy, ImagePlus, Loader2, Search, UserPlus, X } from "lucide-react";
+import Image from "next/image";
 
 import PhoneInput from "@/components/PhoneInput";
 
@@ -24,6 +25,7 @@ export default function AdminAddVehicle({ destinationOptions }: Props) {
   const [pricePerKm, setPricePerKm] = useState(0);
   const [pricePerDay, setPricePerDay] = useState(0);
   const [destinationId, setDestinationId] = useState("");
+  const [heroImageUrl, setHeroImageUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<{
@@ -66,6 +68,7 @@ export default function AdminAddVehicle({ destinationOptions }: Props) {
     setPricePerKm(0);
     setPricePerDay(0);
     setDestinationId("");
+    setHeroImageUrl("");
   }
 
   function selectOwner(owner: any) {
@@ -108,6 +111,7 @@ export default function AdminAddVehicle({ destinationOptions }: Props) {
           pricePerKm: pricePerKm || undefined,
           pricePerDay: pricePerDay || undefined,
           destinationId: destinationId || null,
+          heroImageUrl: heroImageUrl || undefined,
         }),
       });
       const data = await res.json();
@@ -381,6 +385,27 @@ export default function AdminAddVehicle({ destinationOptions }: Props) {
                   ))}
                 </select>
               </label>
+
+              <label className="grid gap-1.5 text-sm font-black">
+                Hero Image URL (optional)
+                <input
+                  type="url"
+                  placeholder="https://... or Google Drive share link"
+                  value={heroImageUrl}
+                  onChange={(e) => setHeroImageUrl(e.target.value)}
+                  className="h-11 rounded-md border border-ink/15 bg-white px-3 text-base outline-none focus:border-coral"
+                />
+              </label>
+              {heroImageUrl && (
+                <div className="relative aspect-video w-full max-w-[300px] overflow-hidden rounded-md border border-ink/10">
+                  <Image
+                    src={heroImageUrl}
+                    alt="Vehicle preview"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              )}
             </div>
           </fieldset>
 
