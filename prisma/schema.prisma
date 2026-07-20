@@ -176,10 +176,7 @@ model Vehicle {
   minimumKm         Int?
   minimumPrice      Int?
   bookedUntil       DateTime?
-<<<<<<< HEAD
-=======
   heroImageUrl      String?
->>>>>>> 9285c3a68e88008b6fec04047d5b80b76fe0c0b1
   bookings          Booking[]
   bucketItems       BucketItem[]
   enquiries         Enquiry[]
