@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth/session";
 import { vehicleUpdateSchema } from "@/lib/auth/validation";
+import { convertToDirectImageUrl, isGoogleDriveUrl, isValidImageUrl } from "@/lib/placeholders";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(request: Request) {
@@ -32,12 +33,24 @@ export async function POST(request: Request) {
       driverPhone,
       registrationNo,
       destinationId,
+      heroImageUrl,
     } = { ...parsed.data, id: body.id };
 
     if (!id) {
       return NextResponse.json(
         { error: "Vehicle not found." },
         { status: 400 }
+      );
+    }
+
+    const resolvedHeroImageUrl = heroImageUrl && isGoogleDriveUrl(heroImageUrl)
+      ? convertToDirectImageUrl(heroImageUrl)
+      : heroImageUrl || null;
+
+    if (resolvedHeroImageUrl && !isValidImageUrl(resolvedHeroImageUrl)) {
+      return NextResponse.json(
+        { error: "Please enter a valid direct image URL. Search engine image links (Bing, Google Images, Yahoo, etc.) are not supported." },
+        { status: 400 },
       );
     }
 
@@ -52,7 +65,8 @@ export async function POST(request: Request) {
         driverPhone,
         registrationNo:
           registrationNo?.toUpperCase(),
-        destinationId: destinationId || null,
+        destination: destinationId ? { connect: { id: destinationId } } : { disconnect: true },
+        heroImageUrl: resolvedHeroImageUrl,
       },
       include: {
         destination: {

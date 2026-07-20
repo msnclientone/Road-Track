@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import { vehicleImages } from "@/lib/vehicleImages";
 import Image from "next/image";
 import { Users } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -9,6 +8,7 @@ import { buildWhatsAppUrl, formatCurrency, maskRegistrationNo } from "@/lib/util
 import { getSession } from "@/lib/auth/session";
 import { getSessionUser } from "@/lib/auth/get-session-user";
 import { getVehicleCurrentBooking } from "@/lib/booking-availability";
+import { getListingImageUrl, PLACEHOLDER_IMAGES } from "@/lib/placeholders";
 import AddToBucketButton from "@/components/AddToBucketButton";
 import EnquiryButton from "@/components/EnquiryButton";
 
@@ -65,6 +65,11 @@ export default async function VehicleDetailPage({
       destination: {
         select: { name: true, slug: true },
       },
+      media: {
+        select: { url: true, order: true },
+        orderBy: { order: "asc" },
+        take: 1,
+      },
     },
   });
 
@@ -107,9 +112,12 @@ export default async function VehicleDetailPage({
               <div className="relative aspect-video">
                 <Image
                   src={
-  vehicleImages[vehicle.vehicleType] ??
-  "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1200"
-}
+                    vehicle.heroImageUrl
+                      ? getListingImageUrl([{ url: vehicle.heroImageUrl }], "vehicle")
+                      : vehicle.media?.length
+                        ? getListingImageUrl(vehicle.media, "vehicle")
+                        : PLACEHOLDER_IMAGES.vehicle
+                  }
                   alt={vehicle.vehicleType}
                   fill
                   priority

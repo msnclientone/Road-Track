@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 
 import PhoneInput from "@/components/PhoneInput";
 
@@ -12,6 +13,7 @@ type VehicleInput = {
   driverPhone?: string;
   registrationNo?: string;
   destinationId?: string;
+  heroImageUrl?: string;
 };
 
 export default function VehicleManager({
@@ -33,6 +35,7 @@ export default function VehicleManager({
     driverPhone: "",
     registrationNo: "",
     destinationId: "",
+    heroImageUrl: "",
   });
 
   const [error, setError] = useState<string | null>(null);
@@ -55,6 +58,7 @@ const [minKmValue, setMinKmValue] = useState("");
       driverPhone: "",
       registrationNo: "",
       destinationId: "",
+      heroImageUrl: "",
     });
   }
 
@@ -152,6 +156,7 @@ const [minKmValue, setMinKmValue] = useState("");
       driverPhone: vehicle.driverPhone,
       registrationNo: vehicle.registrationNo,
       destinationId: vehicle.destinationId ?? "",
+      heroImageUrl: vehicle.heroImageUrl ?? "",
     });
   }
 async function updatePrice() {
@@ -363,6 +368,32 @@ async function updateMinKm() {
               ))}
             </select>
           </label>
+
+          <label className="grid gap-1 text-sm">
+            Hero Image URL (optional)
+            <input
+              type="url"
+              placeholder="https://... or Google Drive share link"
+              value={form.heroImageUrl ?? ""}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  heroImageUrl: e.target.value,
+                })
+              }
+              className="rounded-md border px-3 py-2"
+            />
+          </label>
+          {form.heroImageUrl && (
+            <div className="relative aspect-video w-full max-w-[300px] overflow-hidden rounded-md border border-ink/10">
+              <Image
+                src={form.heroImageUrl}
+                alt="Vehicle preview"
+                fill
+                className="object-cover"
+              />
+            </div>
+          )}
 
           <div className="flex gap-3 pt-2">
             <button

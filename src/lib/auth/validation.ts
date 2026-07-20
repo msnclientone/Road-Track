@@ -69,6 +69,7 @@ export const vehicleCreateSchema = z.object({
   driverPhone: z.string().trim().regex(INDIAN_PHONE_REGEX, "Enter a valid 10-digit phone number."),
   registrationNo: z.string().trim().min(1, "Registration number is required.").max(40),
   destinationId: z.string().min(1, "Destination is required."),
+  heroImageUrl: z.string().url().optional().or(z.literal("")),
 });
 
 export const vehicleUpdateSchema = vehicleCreateSchema.partial();
@@ -83,6 +84,7 @@ export const addVehicleOwnerSchema = z.object({
   destinationId: z.string().min(1, "Destination is required."),
   pricePerKm: z.coerce.number().int().min(0).optional(),
   pricePerDay: z.coerce.number().int().min(0).optional(),
+  heroImageUrl: z.string().url().optional().or(z.literal("")),
 });
 
 export const addResortOwnerSchema = z.object({

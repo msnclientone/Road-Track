@@ -1,4 +1,3 @@
-import { vehicleImages } from "@/lib/vehicleImages";
 import AdminDeleteVehicleButton from "@/components/AdminDeleteVehicleButton";
 import Link from "next/link";
 import Image from "next/image";
@@ -6,6 +5,7 @@ import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { SiteHeader } from "@/components/SiteHeader";
 import { getSessionUser } from "@/lib/auth/get-session-user";
+import { getListingImageUrl, PLACEHOLDER_IMAGES } from "@/lib/placeholders";
 
 export const dynamic = "force-dynamic";
 
@@ -65,8 +65,9 @@ export default async function ApprovedVehiclesPage() {
 
                   <Image
   src={
-    vehicleImages[vehicle.vehicleType] ??
-    "/vehicle-images/default.jpg"
+    vehicle.heroImageUrl
+      ? getListingImageUrl([{ url: vehicle.heroImageUrl }], "vehicle")
+      : PLACEHOLDER_IMAGES.vehicle
   }
   alt={vehicle.vehicleType}
   width={130}

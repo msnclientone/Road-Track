@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Users } from "lucide-react";
 import { formatCurrency, maskRegistrationNo } from "@/lib/utils";
 import { getListingImageUrl, PLACEHOLDER_IMAGES } from "@/lib/placeholders";
-import { vehicleImages } from "@/lib/vehicleImages";
+
 type VehicleData = {
   id: string;
   vehicleType: string;
@@ -16,6 +16,7 @@ type VehicleData = {
   pricePerKm: number | null;
   driverName: string;
   destinationName?: string | null;
+  heroImageUrl?: string | null;
   media?: { url: string; order: number }[];
 };
 
@@ -33,9 +34,11 @@ function VehicleCard({
   onRemove,
 }: Props) {
   const [imgSrc, setImgSrc] = useState(() =>
-    vehicle.media?.length
-      ? getListingImageUrl(vehicle.media, "vehicle")
-      : vehicleImages[vehicle.vehicleType] ?? "/vehicle-images/default.jpg",
+    vehicle.heroImageUrl
+      ? getListingImageUrl([{ url: vehicle.heroImageUrl }], "vehicle")
+      : vehicle.media?.length
+        ? getListingImageUrl(vehicle.media, "vehicle")
+        : PLACEHOLDER_IMAGES.vehicle,
   );
 
   return (
