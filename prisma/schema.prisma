@@ -7,29 +7,29 @@ datasource db {
 }
 
 model User {
-  id                String         @id @default(cuid())
-  email             String         @unique
-  passwordHash      String?
-  phone             String?
-  name              String?
-  role              UserRole       @default(CUSTOMER)
-  partnerStatus     PartnerStatus?
-  vehicleOwnerId    String?        @unique
-  resortOwnerId     String?        @unique
-  mustChangePassword Boolean       @default(false)
-  emailVerifiedAt   DateTime?
-  termsAcceptedAt   DateTime?
-  createdAt         DateTime       @default(now())
-  updatedAt         DateTime       @updatedAt
-  auditLogs         AuditLog[]
-  blogPosts         BlogPost[]
-  buckets           Bucket[]
-  enquiries         Enquiry[]
-  guideProfile      Guide?
-  notifications     Notification[]
-  resorts           Resort[]
-  reviews           Review[]
-  vehicles          Vehicle[]
+  id                 String         @id @default(cuid())
+  email              String         @unique
+  passwordHash       String?
+  phone              String?
+  name               String?
+  role               UserRole       @default(CUSTOMER)
+  partnerStatus      PartnerStatus?
+  emailVerifiedAt    DateTime?
+  termsAcceptedAt    DateTime?
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  mustChangePassword Boolean        @default(false)
+  resortOwnerId      String?        @unique
+  vehicleOwnerId     String?        @unique
+  auditLogs          AuditLog[]
+  blogPosts          BlogPost[]
+  buckets            Bucket[]
+  enquiries          Enquiry[]
+  guideProfile       Guide?
+  notifications      Notification[]
+  resorts            Resort[]
+  reviews            Review[]
+  vehicles           Vehicle[]
 
   @@index([role])
   @@index([partnerStatus])
@@ -121,7 +121,6 @@ model Resort {
   availableNonAcRooms Int           @default(0)
   googleMapsLink      String?
   bookings            Booking[]
-  tripBookings        TripBooking[] @relation("ResortTripBookings")
   bucketItems         BucketItem[]
   enquiries           Enquiry[]
   destination         Destination   @relation(fields: [destinationId], references: [id], onDelete: Cascade)
@@ -129,6 +128,7 @@ model Resort {
   media               ResortMedia[]
   reviews             Review[]
   rooms               RoomType[]
+  tripBookings        TripBooking[] @relation("ResortTripBookings")
 
   @@index([destinationId, status])
   @@index([ownerId])
@@ -168,19 +168,19 @@ model Vehicle {
   driverPhone       String
   pricePerDay       Int?
   pricePerKm        Int?
-  minimumPrice      Int?
-  minimumKm         Int?
   status            PartnerStatus      @default(PENDING)
   availability      AvailabilityStatus @default(AVAILABLE)
-  bookedUntil       DateTime?
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
   ownerCanEditPrice Boolean            @default(false)
+  minimumKm         Int?
+  minimumPrice      Int?
+  bookedUntil       DateTime?
   bookings          Booking[]
-  tripBookings      TripBooking[] @relation("VehicleTripBookings")
   bucketItems       BucketItem[]
   enquiries         Enquiry[]
   reviews           Review[]
+  tripBookings      TripBooking[]      @relation("VehicleTripBookings")
   destination       Destination?       @relation(fields: [destinationId], references: [id])
   owner             User?              @relation(fields: [ownerId], references: [id])
   media             VehicleMedia[]
@@ -219,7 +219,6 @@ model Package {
 
 model Enquiry {
   id                String        @id @default(cuid())
-  enquiryId         String?       @unique
   customerId        String?
   customerName      String
   customerPhone     String
@@ -236,12 +235,13 @@ model Enquiry {
   assignedVehicleId String?
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
+  enquiryId         String?       @unique
   bookings          Booking[]
-  tripBooking       TripBooking?
   assignedResort    Resort?       @relation(fields: [assignedResortId], references: [id])
   assignedVehicle   Vehicle?      @relation(fields: [assignedVehicleId], references: [id])
   customer          User?         @relation(fields: [customerId], references: [id])
   destination       Destination?  @relation(fields: [destinationId], references: [id])
+  tripBooking       TripBooking?
 
   @@index([status, createdAt])
   @@index([customerPhone])
@@ -380,8 +380,8 @@ model AuditLog {
 }
 
 model TripBooking {
-  id                 String   @id @default(cuid())
-  bookingId          String   @unique
+  id                 String            @id @default(cuid())
+  bookingId          String            @unique
   customerName       String
   customerPhone      String
   destinationName    String?
@@ -398,22 +398,21 @@ model TripBooking {
   pricingMode        String?
   distance           String?
   roomType           String?
-  acRoomsRequired    Int      @default(1)
-  nonAcRoomsRequired Int      @default(0)
   vehicleCost        Int?
   resortCost         Int?
   totalCost          Int?
   perHeadCost        Int?
   status             TripBookingStatus @default(NEW)
-  inventoryUpdated   Boolean          @default(false)
-  inventoryRestored  Boolean          @default(false)
-  enquiryId          String?   @unique
+  enquiryId          String?           @unique
   createdAt          DateTime          @default(now())
   updatedAt          DateTime          @updatedAt
-
-  selectedResort    Resort?    @relation("ResortTripBookings", fields: [selectedResortId], references: [id])
-  selectedVehicle   Vehicle?   @relation("VehicleTripBookings", fields: [selectedVehicleId], references: [id])
-  enquiry           Enquiry?   @relation(fields: [enquiryId], references: [id])
+  inventoryRestored  Boolean           @default(false)
+  inventoryUpdated   Boolean           @default(false)
+  acRoomsRequired    Int               @default(1)
+  nonAcRoomsRequired Int               @default(0)
+  enquiry            Enquiry?          @relation(fields: [enquiryId], references: [id])
+  selectedResort     Resort?           @relation("ResortTripBookings", fields: [selectedResortId], references: [id])
+  selectedVehicle    Vehicle?          @relation("VehicleTripBookings", fields: [selectedVehicleId], references: [id])
 
   @@index([bookingId])
   @@index([status, createdAt])
@@ -421,14 +420,6 @@ model TripBooking {
   @@index([selectedResortId])
   @@index([selectedVehicleId])
   @@index([enquiryId])
-}
-
-enum TripBookingStatus {
-  NEW
-  CONTACTED
-  CONFIRMED
-  COMPLETED
-  CANCELLED
 }
 
 model NearbyPlace {
@@ -439,6 +430,14 @@ model NearbyPlace {
   createdAt           DateTime    @default(now())
   destination         Destination @relation("DestinationNearby", fields: [destinationId], references: [id], onDelete: Cascade)
   nearbyDestination   Destination @relation("NearbyDestination", fields: [nearbyDestinationId], references: [id], onDelete: Cascade)
+}
+
+enum TripBookingStatus {
+  NEW
+  CONTACTED
+  CONFIRMED
+  COMPLETED
+  CANCELLED
 }
 
 enum UserRole {
