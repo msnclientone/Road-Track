@@ -48,3 +48,14 @@ export const enquirySchema = z.object({
 });
 
 export type EnquiryInput = z.infer<typeof enquirySchema>;
+
+export const tripNoteSchema = z.object({
+  title: z.string().trim().min(1, "Trip name is required.").max(120),
+  description: z.string().trim().max(200, "Description must be 200 characters or less.").optional(),
+  price: z.coerce.number().int().min(1, "Price must be greater than 0."),
+  totalKm: z.coerce.number().int().min(1, "Total KM must be greater than 0."),
+  imageUrl: z.string().trim().min(1, "Image URL is required."),
+  isActive: z.boolean().default(true),
+});
+
+export type TripNoteInput = z.infer<typeof tripNoteSchema>;

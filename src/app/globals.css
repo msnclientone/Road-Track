@@ -133,3 +133,27 @@ img {
   display: block !important;
   width: 100% !important;
 }
+
+@keyframes marquee-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trip-notes-marquee-track {
+    animation: none !important;
+  }
+}
+
+.trip-notes-marquee-track {
+  animation: marquee-scroll 30s linear infinite;
+  will-change: transform;
+}
+
+.trip-notes-marquee-track:hover {
+  animation-play-state: paused;
+}

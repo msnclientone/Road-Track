@@ -19,6 +19,31 @@ const [published, setPublished] = useState(true);
   const [nearbyPlaces, setNearbyPlaces] = useState<any[]>([]);
   const [nearbyDestinationId, setNearbyDestinationId] = useState("");
   const [distanceKm, setDistanceKm] = useState("");
+  const [imageUrlError, setImageUrlError] = useState("");
+
+  function getImagePreviewUrl(url: string): string {
+    if (!url.trim()) return "";
+    if (isGoogleDriveUrl(url)) return convertToDirectImageUrl(url);
+    if (isValidImageUrl(url)) return url;
+    return "";
+  }
+
+  function handleImageUrlChange(value: string) {
+    setHeroImageUrl(value);
+    if (!value.trim()) {
+      setImageUrlError("");
+      return;
+    }
+    if (isGoogleDriveUrl(value)) {
+      setImageUrlError("");
+      return;
+    }
+    if (!isValidImageUrl(value)) {
+      setImageUrlError("Please enter a valid image URL. Google Drive sharing links are supported.");
+      return;
+    }
+    setImageUrlError("");
+  }
   
   async function loadDestinations() {
     try {
@@ -132,6 +157,7 @@ const [editingId, setEditingId] = useState<string | null>(null);
       setEstTripCostMax("");
       setPublished(true);
       setEditingId(null);
+      setImageUrlError("");
       await loadDestinations();
     } catch (err) {
       console.error("[DESTINATION UI] Error in saveDestination:", err);
@@ -247,12 +273,27 @@ async function deleteNearbyPlace(id: string) {
           onChange={(e) => setDescription(e.target.value)}
           className="rounded border p-2"
         />
+        <div>
         <input
-  placeholder="Hero Image URL"
+  placeholder="Hero Image URL (paste Google Drive link or direct URL)"
   value={heroImageUrl}
-  onChange={(e) => setHeroImageUrl(e.target.value)}
+  onChange={(e) => handleImageUrlChange(e.target.value)}
   className="w-full rounded border p-3"
 />
+{imageUrlError && (
+  <p className="mt-1 text-sm text-red-500">{imageUrlError}</p>
+)}
+{heroImageUrl.trim() && !imageUrlError && getImagePreviewUrl(heroImageUrl) && (
+  <div className="mt-2 overflow-hidden rounded border border-ink/10">
+    {/* eslint-disable-next-line @next/next/no-img-element */}
+    <img
+      src={getImagePreviewUrl(heroImageUrl)}
+      alt="Preview"
+      className="h-40 w-full object-cover"
+    />
+  </div>
+)}
+</div>
 
 <input
   placeholder="Google Maps Location Link"
