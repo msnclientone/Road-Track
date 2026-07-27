@@ -21,17 +21,7 @@ import VehicleCard from "@/components/VehicleCard";
 import ExpandableDescription from "@/components/ExpandableDescription";
 import MobileExpandableSection from "@/components/MobileExpandableSection";
 
-export async function generateStaticParams() {
-  const destinations = await prisma.destination.findMany({
-    select: {
-      slug: true,
-    },
-  });
-
-  return destinations.map((destination) => ({
-    slug: destination.slug,
-  }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,

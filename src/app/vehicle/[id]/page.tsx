@@ -12,16 +12,7 @@ import { getListingImageUrl, PLACEHOLDER_IMAGES } from "@/lib/placeholders";
 import AddToBucketButton from "@/components/AddToBucketButton";
 import EnquiryButton from "@/components/EnquiryButton";
 
-export async function generateStaticParams() {
-  const vehicles = await prisma.vehicle.findMany({
-    where: { status: "APPROVED" },
-    select: { id: true },
-  });
-
-  return vehicles.map((vehicle) => ({
-    id: vehicle.id,
-  }));
-}
+export const dynamic = "force-dynamic";
 
 export default async function VehicleDetailPage({
   params,

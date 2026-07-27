@@ -11,16 +11,7 @@ import AddToBucketButton from "@/components/AddToBucketButton";
 import ResortImageGallery from "@/components/ResortImageGallery";
 import EnquiryButton from "@/components/EnquiryButton";
 
-export async function generateStaticParams() {
-  const resorts = await prisma.resort.findMany({
-    where: { status: "APPROVED" },
-    select: { id: true },
-  });
-
-  return resorts.map((resort) => ({
-    id: resort.id,
-  }));
-}
+export const dynamic = "force-dynamic";
 
 export default async function ResortDetailPage({
   params,
