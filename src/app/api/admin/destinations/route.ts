@@ -55,6 +55,7 @@ export async function POST(request: NextRequest) {
         estTripCostMin: body.estTripCostMin > 0 ? body.estTripCostMin : null,
         estTripCostMax: body.estTripCostMax > 0 ? body.estTripCostMax : null,
         published: body.published ?? true,
+        featuredOnHome: body.featuredOnHome ?? true,
       },
     });
 

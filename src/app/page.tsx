@@ -43,6 +43,7 @@ export default async function Home() {
   const destinations = await prisma.destination.findMany({
   where: {
     published: true,
+    featuredOnHome: true,
   },
   select: {
     id: true,

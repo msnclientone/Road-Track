@@ -15,6 +15,7 @@ const [bestTimeToVisit, setBestTimeToVisit] = useState("");
 const [estTripCostMin, setEstTripCostMin] = useState("");
 const [estTripCostMax, setEstTripCostMax] = useState("");
 const [published, setPublished] = useState(true);
+const [featuredOnHome, setFeaturedOnHome] = useState(true);
   const [selectedDestination, setSelectedDestination] = useState<any>(null);
   const [nearbyPlaces, setNearbyPlaces] = useState<any[]>([]);
   const [nearbyDestinationId, setNearbyDestinationId] = useState("");
@@ -90,6 +91,7 @@ function editDestination(destination: any) {
   );
 
   setPublished(destination.published);
+  setFeaturedOnHome(destination.featuredOnHome);
 }
   useEffect(() => {
   loadDestinations();
@@ -124,6 +126,7 @@ const [editingId, setEditingId] = useState<string | null>(null);
         estTripCostMin: Number(estTripCostMin),
         estTripCostMax: Number(estTripCostMax),
         published,
+        featuredOnHome,
       };
       console.log("[DESTINATION UI] Request body:", body);
 
@@ -156,6 +159,7 @@ const [editingId, setEditingId] = useState<string | null>(null);
       setEstTripCostMin("");
       setEstTripCostMax("");
       setPublished(true);
+      setFeaturedOnHome(true);
       setEditingId(null);
       setImageUrlError("");
       await loadDestinations();
@@ -334,6 +338,15 @@ async function deleteNearbyPlace(id: string) {
     onChange={(e) => setPublished(e.target.checked)}
   />
   Publish this destination
+</label>
+
+<label className="mt-3 flex items-center gap-2">
+  <input
+    type="checkbox"
+    checked={featuredOnHome}
+    onChange={(e) => setFeaturedOnHome(e.target.checked)}
+  />
+  ⭐ Featured on Home Page
 </label>
 
         <button
