@@ -140,6 +140,7 @@ export default async function Home() {
       <TripNotesSection />
 
       <section
+        id="destinations"
         className="mx-auto max-w-none px-5 py-20 max-md:py-12 sm:px-8 lg:px-10 2xl:px-12"
       >
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">

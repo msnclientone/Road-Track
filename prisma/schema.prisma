@@ -77,10 +77,10 @@ model Destination {
   seoTitle        String?
   seoDescription  String?
   published       Boolean            @default(false)
-  featuredOnHome  Boolean            @default(true)
   createdAt       DateTime           @default(now())
   updatedAt       DateTime           @updatedAt
   googleMapsLink  String?
+  featuredOnHome  Boolean            @default(true)
   media           DestinationMedia[]
   enquiries       Enquiry[]
   nearbyPlaces    NearbyPlace[]      @relation("DestinationNearby")

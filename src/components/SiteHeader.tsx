@@ -255,6 +255,12 @@ export function SiteHeader({
                   </Link>
                 ))}
 
+                {destinations.length > 0 && (
+                  <div className="px-1">
+                    <DestinationSearch destinations={destinations} navbar />
+                  </div>
+                )}
+
                 {user?.role === "CUSTOMER" && (
                   <Link
                     href="/bucket"

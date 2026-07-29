@@ -1,3 +1,6 @@
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import dynamic from "next/dynamic";
@@ -23,6 +26,14 @@ export default async function PlannerPage() {
       <SiteHeader user={headerUser} />
 
       <section className="mx-auto max-w-6xl px-5 py-24 sm:py-28">
+        <Link
+          href="/bucket"
+          className="mb-6 inline-flex items-center gap-2 text-sm font-bold text-coral hover:underline"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to Bucket
+        </Link>
+
         <h1 className="mb-8 text-4xl max-md:text-3xl font-black sm:mb-10 sm:text-5xl">
           Trip Planner
         </h1>

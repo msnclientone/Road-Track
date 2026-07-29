@@ -103,6 +103,7 @@ export default async function DestinationPage({
         pricePerDay: true,
         pricePerKm: true,
         driverName: true,
+        heroImageUrl: true,
         media: {
           select: { url: true, order: true },
           orderBy: { order: "asc" },
@@ -384,6 +385,7 @@ export default async function DestinationPage({
                     pricePerKm: vehicle.pricePerKm,
                     driverName: vehicle.driverName,
                     destinationName: destination.name,
+                    heroImageUrl: vehicle.heroImageUrl,
                     media: vehicle.media,
                   }}
                 />
@@ -403,6 +405,7 @@ export default async function DestinationPage({
                         pricePerKm: vehicle.pricePerKm,
                         driverName: vehicle.driverName,
                         destinationName: destination.name,
+                        heroImageUrl: vehicle.heroImageUrl,
                         media: vehicle.media,
                       }}
                     />
